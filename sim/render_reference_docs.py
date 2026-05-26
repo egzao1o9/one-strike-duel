@@ -5,6 +5,7 @@ from collections import Counter
 from pathlib import Path
 
 from engine.card import Card, load_cards
+from engine.card_pool import CardPoolDefinition, load_card_pool
 from engine.deck import DeckDefinition, load_decks
 
 
@@ -12,8 +13,10 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Render card and deck reference markdown files.")
     parser.add_argument("--cards", default="data/cards.json")
     parser.add_argument("--decks", default="data/decks.json")
+    parser.add_argument("--pool", default="data/card_pool.json")
     parser.add_argument("--cards-output", default="docs/cards_reference.md")
     parser.add_argument("--decks-output", default="docs/decks_reference.md")
+    parser.add_argument("--pool-output", default="docs/card_pool_reference.md")
     return parser.parse_args()
 
 
@@ -32,14 +35,14 @@ def render_cards_markdown(cards: dict[str, Card]) -> str:
         "",
         "## Card List",
         "",
-        "| ID | Name | Type | Attack | Block | Speed | Tags |",
-        "|---|---|---|---:|---:|---:|---|",
+        "| ID | Name | Type | Rarity | Attack | Block | Speed | Tags |",
+        "|---|---|---|---|---:|---:|---:|---|",
     ]
 
     for card in sorted(cards.values(), key=lambda item: (item.type, item.id)):
         tags = ", ".join(card.tags) if card.tags else "-"
         lines.append(
-            f"| `{card.id}` | {card.name} | `{card.type}` | {card.attack} | {card.block} | {card.speed} | {tags} |"
+            f"| `{card.id}` | {card.name} | `{card.type}` | `{card.rarity}` | {card.attack} | {card.block} | {card.speed} | {tags} |"
         )
 
     lines.extend(["", "## Details", ""])
@@ -58,6 +61,7 @@ def _render_card_detail(card: Card) -> list[str]:
         "",
         f"- ID: `{card.id}`",
         f"- Type: `{card.type}`",
+        f"- Rarity: `{card.rarity}`",
         f"- Stats: `A={card.attack} / B={card.block} / S={card.speed}`",
         f"- Tags: {tags}",
         f"- Notes: {card.notes or '-'}",
@@ -67,7 +71,7 @@ def _render_card_detail(card: Card) -> list[str]:
         for effect in card.effects:
             lines.append(f"  - `{effect.timing}` / `{effect.kind}` / value={effect.value}")
     else:
-        lines.append("- Effects: なし")
+        lines.append("- Effects: none")
     return lines
 
 
@@ -94,6 +98,27 @@ def render_decks_markdown(decks: dict[str, DeckDefinition], cards: dict[str, Car
         lines.extend(_render_deck_detail(deck, cards))
         lines.append("")
 
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def render_pool_markdown(pool: CardPoolDefinition, cards: dict[str, Card]) -> str:
+    lines = [
+        "# Card Pool Reference",
+        "",
+        "## Summary",
+        "",
+        f"- Pool ID: `{pool.id}`",
+        f"- Pool Name: {pool.name}",
+        f"- Total Copies: {pool.total_cards}",
+        "",
+        "| Card | ID | Rarity | Copies | Type | A | B | S |",
+        "|---|---|---|---:|---|---:|---:|---:|",
+    ]
+    for entry in sorted(pool.entries, key=lambda item: (cards[item.card_id].rarity, cards[item.card_id].type, item.card_id)):
+        card = cards[entry.card_id]
+        lines.append(
+            f"| {card.name} | `{card.id}` | `{card.rarity}` | {entry.count} | `{card.type}` | {card.attack} | {card.block} | {card.speed} |"
+        )
     return "\n".join(lines).rstrip() + "\n"
 
 
@@ -127,13 +152,13 @@ def _render_deck_detail(deck: DeckDefinition, cards: dict[str, Card]) -> list[st
 
 def _render_deck_card_table(counter: Counter[str], cards: dict[str, Card]) -> list[str]:
     lines = [
-        "| Count | Name | ID | Type | A | B | S |",
-        "|---:|---|---|---|---:|---:|---:|",
+        "| Count | Name | ID | Type | Rarity | A | B | S |",
+        "|---:|---|---|---|---|---:|---:|---:|",
     ]
     for card_id, count in sorted(counter.items(), key=lambda item: (cards[item[0]].type, item[0])):
         card = cards[card_id]
         lines.append(
-            f"| {count} | {card.name} | `{card.id}` | `{card.type}` | {card.attack} | {card.block} | {card.speed} |"
+            f"| {count} | {card.name} | `{card.id}` | `{card.type}` | `{card.rarity}` | {card.attack} | {card.block} | {card.speed} |"
         )
     return lines
 
@@ -148,12 +173,16 @@ def main() -> None:
     args = parse_args()
     cards = load_cards(args.cards)
     decks = load_decks(args.decks)
+    pool = load_card_pool(args.pool, cards)
     cards_markdown = render_cards_markdown(cards)
     decks_markdown = render_decks_markdown(decks, cards)
+    pool_markdown = render_pool_markdown(pool, cards)
     write_text(args.cards_output, cards_markdown)
     write_text(args.decks_output, decks_markdown)
+    write_text(args.pool_output, pool_markdown)
     print(args.cards_output)
     print(args.decks_output)
+    print(args.pool_output)
 
 
 if __name__ == "__main__":

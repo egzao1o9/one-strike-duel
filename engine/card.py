@@ -26,6 +26,7 @@ class Card:
     id: str
     name: str
     type: str
+    rarity: str
     attack: int
     block: int
     speed: int
@@ -39,6 +40,7 @@ class Card:
             id=payload["id"],
             name=payload["name"],
             type=payload["type"],
+            rarity=payload.get("rarity", "common"),
             attack=int(payload.get("attack", 0)),
             block=int(payload.get("block", 0)),
             speed=int(payload.get("speed", 0)),

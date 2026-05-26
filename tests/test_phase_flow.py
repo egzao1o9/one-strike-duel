@@ -1,5 +1,6 @@
 from bots.base_bot import BaseBot
 from bots.random_bot import RandomBot
+from engine.card_pool import build_default_card_pool, draft_random_decks
 from engine.phase_runner import MatchRunner
 
 
@@ -77,3 +78,23 @@ def test_both_players_stuck_flows_to_next_turn() -> None:
 
     assert result.log["turns"][0]["battle"]["result"] == "no_decision"
     assert result.state.end_reason == "max_turns_reached"
+
+
+def test_dynamic_draft_decks_can_run() -> None:
+    runner = MatchRunner(RandomBot(seed=1), RandomBot(seed=2), "starter_attack", "starter_defense", seed=3)
+    pool = build_default_card_pool(runner.cards)
+    draft = draft_random_decks(pool, runner.cards, runner.rng, deck_size=20, first_player="p1")
+
+    draft_runner = MatchRunner(
+        RandomBot(seed=4),
+        RandomBot(seed=5),
+        draft.deck1.id,
+        draft.deck2.id,
+        deck_definitions={draft.deck1.id: draft.deck1, draft.deck2.id: draft.deck2},
+        seed=6,
+    )
+    result = draft_runner.run()
+
+    assert result.state.finished is True
+    assert len(draft_runner.state.players["p1"].public_deck) == 20
+    assert len(draft_runner.state.players["p2"].public_deck) == 20

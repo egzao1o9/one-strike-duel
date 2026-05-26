@@ -29,6 +29,7 @@ class MatchRunner:
         *,
         cards_path: str | Path = "data/cards.json",
         decks_path: str | Path = "data/decks.json",
+        deck_definitions: dict[str, DeckDefinition] | None = None,
         match_id: str = "match_000001",
         seed: int | None = None,
         shuffle_decks: bool = True,
@@ -38,6 +39,8 @@ class MatchRunner:
         self.rng = random.Random(seed)
         self.cards = load_cards(cards_path)
         self.decks = load_decks(decks_path)
+        if deck_definitions:
+            self.decks.update(deck_definitions)
         self.state = GameState(
             players={
                 "p1": self._build_player_state("p1", deck1_id, bot1.name, shuffle_decks),

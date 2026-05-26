@@ -65,8 +65,24 @@ def test_multiple_battle_cards_are_summed() -> None:
 
 def test_negative_speed_is_kept_and_compared_as_is() -> None:
     state = make_state()
-    slow_card = Card(id="slow", name="鈍重", type="battle", attack=2, block=0, speed=-1)
-    fast_card = Card(id="fast", name="軽打", type="battle", attack=1, block=0, speed=0)
+    slow_card = Card(
+        id="slow",
+        name="Slow Strike",
+        type="battle",
+        rarity="common",
+        attack=2,
+        block=0,
+        speed=-1,
+    )
+    fast_card = Card(
+        id="fast",
+        name="Quick Strike",
+        type="battle",
+        rarity="common",
+        attack=1,
+        block=0,
+        speed=0,
+    )
     state.players["p1"].set_cards = [slow_card]
     state.players["p2"].set_cards = [fast_card]
 

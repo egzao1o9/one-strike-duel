@@ -22,49 +22,49 @@
 
 #### Public Cards
 
-| Count | Name | ID | Type | A | B | S |
-|---:|---|---|---|---:|---:|---:|
-| 1 | 崩し | `battle_break` | `battle` | 2 | 0 | 2 |
-| 1 | フェイント | `battle_feint` | `battle` | -1 | 0 | 4 |
-| 1 | 貫き | `battle_pierce` | `battle` | 3 | 0 | 1 |
-| 1 | 押し込み | `battle_press` | `battle` | 2 | 1 | 2 |
-| 2 | 踏み込み | `battle_step_in` | `battle` | 3 | 0 | 2 |
-| 1 | 牽制 | `control_disrupt` | `control` | 0 | 0 | 0 |
-| 1 | 集中 | `control_focus` | `control` | 0 | 0 | 0 |
-| 1 | 加速 | `control_haste` | `control` | 0 | 0 | 0 |
-| 1 | 圧迫 | `control_pressure` | `control` | 0 | 0 | 0 |
+| Count | Name | ID | Type | Rarity | A | B | S |
+|---:|---|---|---|---|---:|---:|---:|
+| 1 | 崩し | `battle_break` | `battle` | `uncommon` | 2 | 0 | 2 |
+| 1 | フェイント | `battle_feint` | `battle` | `uncommon` | -1 | 0 | 4 |
+| 1 | 貫き | `battle_pierce` | `battle` | `uncommon` | 3 | 0 | 1 |
+| 1 | 押し込み | `battle_press` | `battle` | `common` | 2 | 1 | 2 |
+| 2 | 踏み込み | `battle_step_in` | `battle` | `uncommon` | 3 | 0 | 2 |
+| 1 | 牽制 | `control_disrupt` | `control` | `common` | 0 | 0 | 0 |
+| 1 | 集中 | `control_focus` | `control` | `common` | 0 | 0 | 0 |
+| 1 | 加速 | `control_haste` | `control` | `uncommon` | 0 | 0 | 0 |
+| 1 | 圧迫 | `control_pressure` | `control` | `common` | 0 | 0 | 0 |
 
 #### Hidden Cards
 
-| Count | Name | ID | Type | A | B | S |
-|---:|---|---|---|---:|---:|---:|
-| 2 | 渾身 | `battle_all_in` | `battle` | 4 | 0 | -1 |
-| 1 | 返し刃 | `battle_counter` | `battle` | 2 | 2 | 1 |
-| 1 | 粉砕 | `battle_crush` | `battle` | 3 | -1 | 0 |
-| 2 | 疾走 | `battle_dash` | `battle` | 1 | 0 | 5 |
-| 1 | 押し込み | `battle_press` | `battle` | 2 | 1 | 2 |
-| 1 | 集中 | `control_focus` | `control` | 0 | 0 | 0 |
-| 1 | 圧迫 | `control_pressure` | `control` | 0 | 0 | 0 |
-| 1 | 蓄え | `control_reserve` | `control` | 0 | 0 | 0 |
+| Count | Name | ID | Type | Rarity | A | B | S |
+|---:|---|---|---|---|---:|---:|---:|
+| 2 | 渾身 | `battle_all_in` | `battle` | `rare` | 4 | 0 | -1 |
+| 1 | 返し刃 | `battle_counter` | `battle` | `common` | 2 | 2 | 1 |
+| 1 | 粉砕 | `battle_crush` | `battle` | `uncommon` | 3 | -1 | 0 |
+| 2 | 疾走 | `battle_dash` | `battle` | `rare` | 1 | 0 | 5 |
+| 1 | 押し込み | `battle_press` | `battle` | `common` | 2 | 1 | 2 |
+| 1 | 集中 | `control_focus` | `control` | `common` | 0 | 0 | 0 |
+| 1 | 圧迫 | `control_pressure` | `control` | `common` | 0 | 0 | 0 |
+| 1 | 蓄え | `control_reserve` | `control` | `rare` | 0 | 0 | 0 |
 
 #### Full Composition
 
-| Count | Name | ID | Type | A | B | S |
-|---:|---|---|---|---:|---:|---:|
-| 2 | 渾身 | `battle_all_in` | `battle` | 4 | 0 | -1 |
-| 1 | 崩し | `battle_break` | `battle` | 2 | 0 | 2 |
-| 1 | 返し刃 | `battle_counter` | `battle` | 2 | 2 | 1 |
-| 1 | 粉砕 | `battle_crush` | `battle` | 3 | -1 | 0 |
-| 2 | 疾走 | `battle_dash` | `battle` | 1 | 0 | 5 |
-| 1 | フェイント | `battle_feint` | `battle` | -1 | 0 | 4 |
-| 1 | 貫き | `battle_pierce` | `battle` | 3 | 0 | 1 |
-| 2 | 押し込み | `battle_press` | `battle` | 2 | 1 | 2 |
-| 2 | 踏み込み | `battle_step_in` | `battle` | 3 | 0 | 2 |
-| 1 | 牽制 | `control_disrupt` | `control` | 0 | 0 | 0 |
-| 2 | 集中 | `control_focus` | `control` | 0 | 0 | 0 |
-| 1 | 加速 | `control_haste` | `control` | 0 | 0 | 0 |
-| 2 | 圧迫 | `control_pressure` | `control` | 0 | 0 | 0 |
-| 1 | 蓄え | `control_reserve` | `control` | 0 | 0 | 0 |
+| Count | Name | ID | Type | Rarity | A | B | S |
+|---:|---|---|---|---|---:|---:|---:|
+| 2 | 渾身 | `battle_all_in` | `battle` | `rare` | 4 | 0 | -1 |
+| 1 | 崩し | `battle_break` | `battle` | `uncommon` | 2 | 0 | 2 |
+| 1 | 返し刃 | `battle_counter` | `battle` | `common` | 2 | 2 | 1 |
+| 1 | 粉砕 | `battle_crush` | `battle` | `uncommon` | 3 | -1 | 0 |
+| 2 | 疾走 | `battle_dash` | `battle` | `rare` | 1 | 0 | 5 |
+| 1 | フェイント | `battle_feint` | `battle` | `uncommon` | -1 | 0 | 4 |
+| 1 | 貫き | `battle_pierce` | `battle` | `uncommon` | 3 | 0 | 1 |
+| 2 | 押し込み | `battle_press` | `battle` | `common` | 2 | 1 | 2 |
+| 2 | 踏み込み | `battle_step_in` | `battle` | `uncommon` | 3 | 0 | 2 |
+| 1 | 牽制 | `control_disrupt` | `control` | `common` | 0 | 0 | 0 |
+| 2 | 集中 | `control_focus` | `control` | `common` | 0 | 0 | 0 |
+| 1 | 加速 | `control_haste` | `control` | `uncommon` | 0 | 0 | 0 |
+| 2 | 圧迫 | `control_pressure` | `control` | `common` | 0 | 0 | 0 |
+| 1 | 蓄え | `control_reserve` | `control` | `rare` | 0 | 0 | 0 |
 
 ### 均衡型スターター
 
@@ -76,56 +76,56 @@
 
 #### Public Cards
 
-| Count | Name | ID | Type | A | B | S |
-|---:|---|---|---|---:|---:|---:|
-| 1 | 踏ん張り | `battle_brace` | `battle` | 1 | 2 | 0 |
-| 1 | 返し刃 | `battle_counter` | `battle` | 2 | 2 | 1 |
-| 1 | 十字受け | `battle_cross_guard` | `battle` | 0 | 2 | 2 |
-| 2 | 押し込み | `battle_press` | `battle` | 2 | 1 | 2 |
-| 1 | 受け直し | `control_cover` | `control` | 0 | 0 | 0 |
-| 1 | 集中 | `control_focus` | `control` | 0 | 0 | 0 |
-| 1 | 構え | `control_guard` | `control` | 0 | 0 | 0 |
-| 1 | 加速 | `control_haste` | `control` | 0 | 0 | 0 |
-| 1 | 圧迫 | `control_pressure` | `control` | 0 | 0 | 0 |
+| Count | Name | ID | Type | Rarity | A | B | S |
+|---:|---|---|---|---|---:|---:|---:|
+| 1 | 踏ん張り | `battle_brace` | `battle` | `common` | 1 | 2 | 0 |
+| 1 | 返し刃 | `battle_counter` | `battle` | `common` | 2 | 2 | 1 |
+| 1 | 十字受け | `battle_cross_guard` | `battle` | `common` | 0 | 2 | 2 |
+| 2 | 押し込み | `battle_press` | `battle` | `common` | 2 | 1 | 2 |
+| 1 | 受け直し | `control_cover` | `control` | `uncommon` | 0 | 0 | 0 |
+| 1 | 集中 | `control_focus` | `control` | `common` | 0 | 0 | 0 |
+| 1 | 構え | `control_guard` | `control` | `common` | 0 | 0 | 0 |
+| 1 | 加速 | `control_haste` | `control` | `uncommon` | 0 | 0 | 0 |
+| 1 | 圧迫 | `control_pressure` | `control` | `common` | 0 | 0 | 0 |
 
 #### Hidden Cards
 
-| Count | Name | ID | Type | A | B | S |
-|---:|---|---|---|---:|---:|---:|
-| 1 | 退き足 | `battle_backstep` | `battle` | -1 | 2 | 3 |
-| 1 | 崩し | `battle_break` | `battle` | 2 | 0 | 2 |
-| 1 | 受け流し | `battle_guard` | `battle` | 0 | 3 | 1 |
-| 1 | 低姿勢 | `battle_low_stance` | `battle` | 1 | 3 | -1 |
-| 1 | 貫き | `battle_pierce` | `battle` | 3 | 0 | 1 |
-| 1 | 踏み込み | `battle_step_in` | `battle` | 3 | 0 | 2 |
-| 1 | 牽制 | `control_disrupt` | `control` | 0 | 0 | 0 |
-| 1 | 勢い溜め | `control_momentum` | `control` | 0 | 0 | 0 |
-| 1 | 前のめり | `control_overclock` | `control` | 0 | 0 | 0 |
-| 1 | 蓄え | `control_reserve` | `control` | 0 | 0 | 0 |
+| Count | Name | ID | Type | Rarity | A | B | S |
+|---:|---|---|---|---|---:|---:|---:|
+| 1 | 退き足 | `battle_backstep` | `battle` | `uncommon` | -1 | 2 | 3 |
+| 1 | 崩し | `battle_break` | `battle` | `uncommon` | 2 | 0 | 2 |
+| 1 | 受け流し | `battle_guard` | `battle` | `common` | 0 | 3 | 1 |
+| 1 | 低姿勢 | `battle_low_stance` | `battle` | `uncommon` | 1 | 3 | -1 |
+| 1 | 貫き | `battle_pierce` | `battle` | `uncommon` | 3 | 0 | 1 |
+| 1 | 踏み込み | `battle_step_in` | `battle` | `uncommon` | 3 | 0 | 2 |
+| 1 | 牽制 | `control_disrupt` | `control` | `common` | 0 | 0 | 0 |
+| 1 | 勢い溜め | `control_momentum` | `control` | `uncommon` | 0 | 0 | 0 |
+| 1 | 前のめり | `control_overclock` | `control` | `uncommon` | 0 | 0 | 0 |
+| 1 | 蓄え | `control_reserve` | `control` | `rare` | 0 | 0 | 0 |
 
 #### Full Composition
 
-| Count | Name | ID | Type | A | B | S |
-|---:|---|---|---|---:|---:|---:|
-| 1 | 退き足 | `battle_backstep` | `battle` | -1 | 2 | 3 |
-| 1 | 踏ん張り | `battle_brace` | `battle` | 1 | 2 | 0 |
-| 1 | 崩し | `battle_break` | `battle` | 2 | 0 | 2 |
-| 1 | 返し刃 | `battle_counter` | `battle` | 2 | 2 | 1 |
-| 1 | 十字受け | `battle_cross_guard` | `battle` | 0 | 2 | 2 |
-| 1 | 受け流し | `battle_guard` | `battle` | 0 | 3 | 1 |
-| 1 | 低姿勢 | `battle_low_stance` | `battle` | 1 | 3 | -1 |
-| 1 | 貫き | `battle_pierce` | `battle` | 3 | 0 | 1 |
-| 2 | 押し込み | `battle_press` | `battle` | 2 | 1 | 2 |
-| 1 | 踏み込み | `battle_step_in` | `battle` | 3 | 0 | 2 |
-| 1 | 受け直し | `control_cover` | `control` | 0 | 0 | 0 |
-| 1 | 牽制 | `control_disrupt` | `control` | 0 | 0 | 0 |
-| 1 | 集中 | `control_focus` | `control` | 0 | 0 | 0 |
-| 1 | 構え | `control_guard` | `control` | 0 | 0 | 0 |
-| 1 | 加速 | `control_haste` | `control` | 0 | 0 | 0 |
-| 1 | 勢い溜め | `control_momentum` | `control` | 0 | 0 | 0 |
-| 1 | 前のめり | `control_overclock` | `control` | 0 | 0 | 0 |
-| 1 | 圧迫 | `control_pressure` | `control` | 0 | 0 | 0 |
-| 1 | 蓄え | `control_reserve` | `control` | 0 | 0 | 0 |
+| Count | Name | ID | Type | Rarity | A | B | S |
+|---:|---|---|---|---|---:|---:|---:|
+| 1 | 退き足 | `battle_backstep` | `battle` | `uncommon` | -1 | 2 | 3 |
+| 1 | 踏ん張り | `battle_brace` | `battle` | `common` | 1 | 2 | 0 |
+| 1 | 崩し | `battle_break` | `battle` | `uncommon` | 2 | 0 | 2 |
+| 1 | 返し刃 | `battle_counter` | `battle` | `common` | 2 | 2 | 1 |
+| 1 | 十字受け | `battle_cross_guard` | `battle` | `common` | 0 | 2 | 2 |
+| 1 | 受け流し | `battle_guard` | `battle` | `common` | 0 | 3 | 1 |
+| 1 | 低姿勢 | `battle_low_stance` | `battle` | `uncommon` | 1 | 3 | -1 |
+| 1 | 貫き | `battle_pierce` | `battle` | `uncommon` | 3 | 0 | 1 |
+| 2 | 押し込み | `battle_press` | `battle` | `common` | 2 | 1 | 2 |
+| 1 | 踏み込み | `battle_step_in` | `battle` | `uncommon` | 3 | 0 | 2 |
+| 1 | 受け直し | `control_cover` | `control` | `uncommon` | 0 | 0 | 0 |
+| 1 | 牽制 | `control_disrupt` | `control` | `common` | 0 | 0 | 0 |
+| 1 | 集中 | `control_focus` | `control` | `common` | 0 | 0 | 0 |
+| 1 | 構え | `control_guard` | `control` | `common` | 0 | 0 | 0 |
+| 1 | 加速 | `control_haste` | `control` | `uncommon` | 0 | 0 | 0 |
+| 1 | 勢い溜め | `control_momentum` | `control` | `uncommon` | 0 | 0 | 0 |
+| 1 | 前のめり | `control_overclock` | `control` | `uncommon` | 0 | 0 | 0 |
+| 1 | 圧迫 | `control_pressure` | `control` | `common` | 0 | 0 | 0 |
+| 1 | 蓄え | `control_reserve` | `control` | `rare` | 0 | 0 | 0 |
 
 ### 防御型スターター
 
@@ -137,48 +137,48 @@
 
 #### Public Cards
 
-| Count | Name | ID | Type | A | B | S |
-|---:|---|---|---|---:|---:|---:|
-| 1 | 返し刃 | `battle_counter` | `battle` | 2 | 2 | 1 |
-| 2 | 受け流し | `battle_guard` | `battle` | 0 | 3 | 1 |
-| 1 | 低姿勢 | `battle_low_stance` | `battle` | 1 | 3 | -1 |
-| 1 | 鉄壁 | `battle_wall` | `battle` | -1 | 4 | -2 |
-| 1 | 牽制 | `control_disrupt` | `control` | 0 | 0 | 0 |
-| 1 | 集中 | `control_focus` | `control` | 0 | 0 | 0 |
-| 2 | 構え | `control_guard` | `control` | 0 | 0 | 0 |
-| 1 | 蓄え | `control_reserve` | `control` | 0 | 0 | 0 |
+| Count | Name | ID | Type | Rarity | A | B | S |
+|---:|---|---|---|---|---:|---:|---:|
+| 1 | 返し刃 | `battle_counter` | `battle` | `common` | 2 | 2 | 1 |
+| 2 | 受け流し | `battle_guard` | `battle` | `common` | 0 | 3 | 1 |
+| 1 | 低姿勢 | `battle_low_stance` | `battle` | `uncommon` | 1 | 3 | -1 |
+| 1 | 鉄壁 | `battle_wall` | `battle` | `rare` | -1 | 4 | -2 |
+| 1 | 牽制 | `control_disrupt` | `control` | `common` | 0 | 0 | 0 |
+| 1 | 集中 | `control_focus` | `control` | `common` | 0 | 0 | 0 |
+| 2 | 構え | `control_guard` | `control` | `common` | 0 | 0 | 0 |
+| 1 | 蓄え | `control_reserve` | `control` | `rare` | 0 | 0 | 0 |
 
 #### Hidden Cards
 
-| Count | Name | ID | Type | A | B | S |
-|---:|---|---|---|---:|---:|---:|
-| 1 | 退き足 | `battle_backstep` | `battle` | -1 | 2 | 3 |
-| 1 | 踏ん張り | `battle_brace` | `battle` | 1 | 2 | 0 |
-| 2 | 返し刃 | `battle_counter` | `battle` | 2 | 2 | 1 |
-| 1 | 十字受け | `battle_cross_guard` | `battle` | 0 | 2 | 2 |
-| 1 | 受け流し | `battle_guard` | `battle` | 0 | 3 | 1 |
-| 1 | 鉄壁 | `battle_wall` | `battle` | -1 | 4 | -2 |
-| 1 | 補強 | `control_fortify` | `control` | 0 | 0 | 0 |
-| 1 | 構え | `control_guard` | `control` | 0 | 0 | 0 |
-| 1 | 加速 | `control_haste` | `control` | 0 | 0 | 0 |
+| Count | Name | ID | Type | Rarity | A | B | S |
+|---:|---|---|---|---|---:|---:|---:|
+| 1 | 退き足 | `battle_backstep` | `battle` | `uncommon` | -1 | 2 | 3 |
+| 1 | 踏ん張り | `battle_brace` | `battle` | `common` | 1 | 2 | 0 |
+| 2 | 返し刃 | `battle_counter` | `battle` | `common` | 2 | 2 | 1 |
+| 1 | 十字受け | `battle_cross_guard` | `battle` | `common` | 0 | 2 | 2 |
+| 1 | 受け流し | `battle_guard` | `battle` | `common` | 0 | 3 | 1 |
+| 1 | 鉄壁 | `battle_wall` | `battle` | `rare` | -1 | 4 | -2 |
+| 1 | 補強 | `control_fortify` | `control` | `uncommon` | 0 | 0 | 0 |
+| 1 | 構え | `control_guard` | `control` | `common` | 0 | 0 | 0 |
+| 1 | 加速 | `control_haste` | `control` | `uncommon` | 0 | 0 | 0 |
 
 #### Full Composition
 
-| Count | Name | ID | Type | A | B | S |
-|---:|---|---|---|---:|---:|---:|
-| 1 | 退き足 | `battle_backstep` | `battle` | -1 | 2 | 3 |
-| 1 | 踏ん張り | `battle_brace` | `battle` | 1 | 2 | 0 |
-| 3 | 返し刃 | `battle_counter` | `battle` | 2 | 2 | 1 |
-| 1 | 十字受け | `battle_cross_guard` | `battle` | 0 | 2 | 2 |
-| 3 | 受け流し | `battle_guard` | `battle` | 0 | 3 | 1 |
-| 1 | 低姿勢 | `battle_low_stance` | `battle` | 1 | 3 | -1 |
-| 2 | 鉄壁 | `battle_wall` | `battle` | -1 | 4 | -2 |
-| 1 | 牽制 | `control_disrupt` | `control` | 0 | 0 | 0 |
-| 1 | 集中 | `control_focus` | `control` | 0 | 0 | 0 |
-| 1 | 補強 | `control_fortify` | `control` | 0 | 0 | 0 |
-| 3 | 構え | `control_guard` | `control` | 0 | 0 | 0 |
-| 1 | 加速 | `control_haste` | `control` | 0 | 0 | 0 |
-| 1 | 蓄え | `control_reserve` | `control` | 0 | 0 | 0 |
+| Count | Name | ID | Type | Rarity | A | B | S |
+|---:|---|---|---|---|---:|---:|---:|
+| 1 | 退き足 | `battle_backstep` | `battle` | `uncommon` | -1 | 2 | 3 |
+| 1 | 踏ん張り | `battle_brace` | `battle` | `common` | 1 | 2 | 0 |
+| 3 | 返し刃 | `battle_counter` | `battle` | `common` | 2 | 2 | 1 |
+| 1 | 十字受け | `battle_cross_guard` | `battle` | `common` | 0 | 2 | 2 |
+| 3 | 受け流し | `battle_guard` | `battle` | `common` | 0 | 3 | 1 |
+| 1 | 低姿勢 | `battle_low_stance` | `battle` | `uncommon` | 1 | 3 | -1 |
+| 2 | 鉄壁 | `battle_wall` | `battle` | `rare` | -1 | 4 | -2 |
+| 1 | 牽制 | `control_disrupt` | `control` | `common` | 0 | 0 | 0 |
+| 1 | 集中 | `control_focus` | `control` | `common` | 0 | 0 | 0 |
+| 1 | 補強 | `control_fortify` | `control` | `uncommon` | 0 | 0 | 0 |
+| 3 | 構え | `control_guard` | `control` | `common` | 0 | 0 | 0 |
+| 1 | 加速 | `control_haste` | `control` | `uncommon` | 0 | 0 | 0 |
+| 1 | 蓄え | `control_reserve` | `control` | `rare` | 0 | 0 | 0 |
 
 ### 重量型スターター
 
@@ -190,53 +190,53 @@
 
 #### Public Cards
 
-| Count | Name | ID | Type | A | B | S |
-|---:|---|---|---|---:|---:|---:|
-| 1 | 渾身 | `battle_all_in` | `battle` | 4 | 0 | -1 |
-| 1 | 粉砕 | `battle_crush` | `battle` | 3 | -1 | 0 |
-| 1 | 大振り | `battle_heavy_swing` | `battle` | 4 | 0 | -2 |
-| 1 | 低姿勢 | `battle_low_stance` | `battle` | 1 | 3 | -1 |
-| 1 | 鉄壁 | `battle_wall` | `battle` | -1 | 4 | -2 |
-| 1 | 重心落とし | `control_anchor` | `control` | 0 | 0 | 0 |
-| 1 | 牽制 | `control_disrupt` | `control` | 0 | 0 | 0 |
-| 1 | 集中 | `control_focus` | `control` | 0 | 0 | 0 |
-| 2 | 補強 | `control_fortify` | `control` | 0 | 0 | 0 |
+| Count | Name | ID | Type | Rarity | A | B | S |
+|---:|---|---|---|---|---:|---:|---:|
+| 1 | 渾身 | `battle_all_in` | `battle` | `rare` | 4 | 0 | -1 |
+| 1 | 粉砕 | `battle_crush` | `battle` | `uncommon` | 3 | -1 | 0 |
+| 1 | 大振り | `battle_heavy_swing` | `battle` | `rare` | 4 | 0 | -2 |
+| 1 | 低姿勢 | `battle_low_stance` | `battle` | `uncommon` | 1 | 3 | -1 |
+| 1 | 鉄壁 | `battle_wall` | `battle` | `rare` | -1 | 4 | -2 |
+| 1 | 重心落とし | `control_anchor` | `control` | `uncommon` | 0 | 0 | 0 |
+| 1 | 牽制 | `control_disrupt` | `control` | `common` | 0 | 0 | 0 |
+| 1 | 集中 | `control_focus` | `control` | `common` | 0 | 0 | 0 |
+| 2 | 補強 | `control_fortify` | `control` | `uncommon` | 0 | 0 | 0 |
 
 #### Hidden Cards
 
-| Count | Name | ID | Type | A | B | S |
-|---:|---|---|---|---:|---:|---:|
-| 1 | 渾身 | `battle_all_in` | `battle` | 4 | 0 | -1 |
-| 1 | 踏ん張り | `battle_brace` | `battle` | 1 | 2 | 0 |
-| 1 | 返し刃 | `battle_counter` | `battle` | 2 | 2 | 1 |
-| 1 | 受け流し | `battle_guard` | `battle` | 0 | 3 | 1 |
-| 1 | 大振り | `battle_heavy_swing` | `battle` | 4 | 0 | -2 |
-| 1 | 鉄壁 | `battle_wall` | `battle` | -1 | 4 | -2 |
-| 1 | 構え | `control_guard` | `control` | 0 | 0 | 0 |
-| 1 | 勢い溜め | `control_momentum` | `control` | 0 | 0 | 0 |
-| 1 | 前のめり | `control_overclock` | `control` | 0 | 0 | 0 |
-| 1 | 蓄え | `control_reserve` | `control` | 0 | 0 | 0 |
+| Count | Name | ID | Type | Rarity | A | B | S |
+|---:|---|---|---|---|---:|---:|---:|
+| 1 | 渾身 | `battle_all_in` | `battle` | `rare` | 4 | 0 | -1 |
+| 1 | 踏ん張り | `battle_brace` | `battle` | `common` | 1 | 2 | 0 |
+| 1 | 返し刃 | `battle_counter` | `battle` | `common` | 2 | 2 | 1 |
+| 1 | 受け流し | `battle_guard` | `battle` | `common` | 0 | 3 | 1 |
+| 1 | 大振り | `battle_heavy_swing` | `battle` | `rare` | 4 | 0 | -2 |
+| 1 | 鉄壁 | `battle_wall` | `battle` | `rare` | -1 | 4 | -2 |
+| 1 | 構え | `control_guard` | `control` | `common` | 0 | 0 | 0 |
+| 1 | 勢い溜め | `control_momentum` | `control` | `uncommon` | 0 | 0 | 0 |
+| 1 | 前のめり | `control_overclock` | `control` | `uncommon` | 0 | 0 | 0 |
+| 1 | 蓄え | `control_reserve` | `control` | `rare` | 0 | 0 | 0 |
 
 #### Full Composition
 
-| Count | Name | ID | Type | A | B | S |
-|---:|---|---|---|---:|---:|---:|
-| 2 | 渾身 | `battle_all_in` | `battle` | 4 | 0 | -1 |
-| 1 | 踏ん張り | `battle_brace` | `battle` | 1 | 2 | 0 |
-| 1 | 返し刃 | `battle_counter` | `battle` | 2 | 2 | 1 |
-| 1 | 粉砕 | `battle_crush` | `battle` | 3 | -1 | 0 |
-| 1 | 受け流し | `battle_guard` | `battle` | 0 | 3 | 1 |
-| 2 | 大振り | `battle_heavy_swing` | `battle` | 4 | 0 | -2 |
-| 1 | 低姿勢 | `battle_low_stance` | `battle` | 1 | 3 | -1 |
-| 2 | 鉄壁 | `battle_wall` | `battle` | -1 | 4 | -2 |
-| 1 | 重心落とし | `control_anchor` | `control` | 0 | 0 | 0 |
-| 1 | 牽制 | `control_disrupt` | `control` | 0 | 0 | 0 |
-| 1 | 集中 | `control_focus` | `control` | 0 | 0 | 0 |
-| 2 | 補強 | `control_fortify` | `control` | 0 | 0 | 0 |
-| 1 | 構え | `control_guard` | `control` | 0 | 0 | 0 |
-| 1 | 勢い溜め | `control_momentum` | `control` | 0 | 0 | 0 |
-| 1 | 前のめり | `control_overclock` | `control` | 0 | 0 | 0 |
-| 1 | 蓄え | `control_reserve` | `control` | 0 | 0 | 0 |
+| Count | Name | ID | Type | Rarity | A | B | S |
+|---:|---|---|---|---|---:|---:|---:|
+| 2 | 渾身 | `battle_all_in` | `battle` | `rare` | 4 | 0 | -1 |
+| 1 | 踏ん張り | `battle_brace` | `battle` | `common` | 1 | 2 | 0 |
+| 1 | 返し刃 | `battle_counter` | `battle` | `common` | 2 | 2 | 1 |
+| 1 | 粉砕 | `battle_crush` | `battle` | `uncommon` | 3 | -1 | 0 |
+| 1 | 受け流し | `battle_guard` | `battle` | `common` | 0 | 3 | 1 |
+| 2 | 大振り | `battle_heavy_swing` | `battle` | `rare` | 4 | 0 | -2 |
+| 1 | 低姿勢 | `battle_low_stance` | `battle` | `uncommon` | 1 | 3 | -1 |
+| 2 | 鉄壁 | `battle_wall` | `battle` | `rare` | -1 | 4 | -2 |
+| 1 | 重心落とし | `control_anchor` | `control` | `uncommon` | 0 | 0 | 0 |
+| 1 | 牽制 | `control_disrupt` | `control` | `common` | 0 | 0 | 0 |
+| 1 | 集中 | `control_focus` | `control` | `common` | 0 | 0 | 0 |
+| 2 | 補強 | `control_fortify` | `control` | `uncommon` | 0 | 0 | 0 |
+| 1 | 構え | `control_guard` | `control` | `common` | 0 | 0 | 0 |
+| 1 | 勢い溜め | `control_momentum` | `control` | `uncommon` | 0 | 0 | 0 |
+| 1 | 前のめり | `control_overclock` | `control` | `uncommon` | 0 | 0 | 0 |
+| 1 | 蓄え | `control_reserve` | `control` | `rare` | 0 | 0 | 0 |
 
 ### 速度型スターター
 
@@ -248,46 +248,46 @@
 
 #### Public Cards
 
-| Count | Name | ID | Type | A | B | S |
-|---:|---|---|---|---:|---:|---:|
-| 1 | 残像 | `battle_afterimage` | `battle` | 0 | 1 | 6 |
-| 1 | 十字受け | `battle_cross_guard` | `battle` | 0 | 2 | 2 |
-| 2 | 疾走 | `battle_dash` | `battle` | 1 | 0 | 5 |
-| 1 | フェイント | `battle_feint` | `battle` | -1 | 0 | 4 |
-| 1 | 重心落とし | `control_anchor` | `control` | 0 | 0 | 0 |
-| 2 | 加速 | `control_haste` | `control` | 0 | 0 | 0 |
-| 1 | 勢い溜め | `control_momentum` | `control` | 0 | 0 | 0 |
-| 1 | 圧迫 | `control_pressure` | `control` | 0 | 0 | 0 |
+| Count | Name | ID | Type | Rarity | A | B | S |
+|---:|---|---|---|---|---:|---:|---:|
+| 1 | 残像 | `battle_afterimage` | `battle` | `rare` | -1 | 0 | 5 |
+| 1 | 十字受け | `battle_cross_guard` | `battle` | `common` | 0 | 2 | 2 |
+| 2 | 疾走 | `battle_dash` | `battle` | `rare` | 1 | 0 | 5 |
+| 1 | フェイント | `battle_feint` | `battle` | `uncommon` | -1 | 0 | 4 |
+| 1 | 重心落とし | `control_anchor` | `control` | `uncommon` | 0 | 0 | 0 |
+| 2 | 加速 | `control_haste` | `control` | `uncommon` | 0 | 0 | 0 |
+| 1 | 勢い溜め | `control_momentum` | `control` | `uncommon` | 0 | 0 | 0 |
+| 1 | 圧迫 | `control_pressure` | `control` | `common` | 0 | 0 | 0 |
 
 #### Hidden Cards
 
-| Count | Name | ID | Type | A | B | S |
-|---:|---|---|---|---:|---:|---:|
-| 1 | 残像 | `battle_afterimage` | `battle` | 0 | 1 | 6 |
-| 1 | 退き足 | `battle_backstep` | `battle` | -1 | 2 | 3 |
-| 1 | 崩し | `battle_break` | `battle` | 2 | 0 | 2 |
-| 1 | 貫き | `battle_pierce` | `battle` | 3 | 0 | 1 |
-| 2 | 押し込み | `battle_press` | `battle` | 2 | 1 | 2 |
-| 1 | 受け直し | `control_cover` | `control` | 0 | 0 | 0 |
-| 2 | 前のめり | `control_overclock` | `control` | 0 | 0 | 0 |
-| 1 | 蓄え | `control_reserve` | `control` | 0 | 0 | 0 |
+| Count | Name | ID | Type | Rarity | A | B | S |
+|---:|---|---|---|---|---:|---:|---:|
+| 1 | 残像 | `battle_afterimage` | `battle` | `rare` | -1 | 0 | 5 |
+| 1 | 退き足 | `battle_backstep` | `battle` | `uncommon` | -1 | 2 | 3 |
+| 1 | 崩し | `battle_break` | `battle` | `uncommon` | 2 | 0 | 2 |
+| 1 | 貫き | `battle_pierce` | `battle` | `uncommon` | 3 | 0 | 1 |
+| 2 | 押し込み | `battle_press` | `battle` | `common` | 2 | 1 | 2 |
+| 1 | 受け直し | `control_cover` | `control` | `uncommon` | 0 | 0 | 0 |
+| 2 | 前のめり | `control_overclock` | `control` | `uncommon` | 0 | 0 | 0 |
+| 1 | 蓄え | `control_reserve` | `control` | `rare` | 0 | 0 | 0 |
 
 #### Full Composition
 
-| Count | Name | ID | Type | A | B | S |
-|---:|---|---|---|---:|---:|---:|
-| 2 | 残像 | `battle_afterimage` | `battle` | 0 | 1 | 6 |
-| 1 | 退き足 | `battle_backstep` | `battle` | -1 | 2 | 3 |
-| 1 | 崩し | `battle_break` | `battle` | 2 | 0 | 2 |
-| 1 | 十字受け | `battle_cross_guard` | `battle` | 0 | 2 | 2 |
-| 2 | 疾走 | `battle_dash` | `battle` | 1 | 0 | 5 |
-| 1 | フェイント | `battle_feint` | `battle` | -1 | 0 | 4 |
-| 1 | 貫き | `battle_pierce` | `battle` | 3 | 0 | 1 |
-| 2 | 押し込み | `battle_press` | `battle` | 2 | 1 | 2 |
-| 1 | 重心落とし | `control_anchor` | `control` | 0 | 0 | 0 |
-| 1 | 受け直し | `control_cover` | `control` | 0 | 0 | 0 |
-| 2 | 加速 | `control_haste` | `control` | 0 | 0 | 0 |
-| 1 | 勢い溜め | `control_momentum` | `control` | 0 | 0 | 0 |
-| 2 | 前のめり | `control_overclock` | `control` | 0 | 0 | 0 |
-| 1 | 圧迫 | `control_pressure` | `control` | 0 | 0 | 0 |
-| 1 | 蓄え | `control_reserve` | `control` | 0 | 0 | 0 |
+| Count | Name | ID | Type | Rarity | A | B | S |
+|---:|---|---|---|---|---:|---:|---:|
+| 2 | 残像 | `battle_afterimage` | `battle` | `rare` | -1 | 0 | 5 |
+| 1 | 退き足 | `battle_backstep` | `battle` | `uncommon` | -1 | 2 | 3 |
+| 1 | 崩し | `battle_break` | `battle` | `uncommon` | 2 | 0 | 2 |
+| 1 | 十字受け | `battle_cross_guard` | `battle` | `common` | 0 | 2 | 2 |
+| 2 | 疾走 | `battle_dash` | `battle` | `rare` | 1 | 0 | 5 |
+| 1 | フェイント | `battle_feint` | `battle` | `uncommon` | -1 | 0 | 4 |
+| 1 | 貫き | `battle_pierce` | `battle` | `uncommon` | 3 | 0 | 1 |
+| 2 | 押し込み | `battle_press` | `battle` | `common` | 2 | 1 | 2 |
+| 1 | 重心落とし | `control_anchor` | `control` | `uncommon` | 0 | 0 | 0 |
+| 1 | 受け直し | `control_cover` | `control` | `uncommon` | 0 | 0 | 0 |
+| 2 | 加速 | `control_haste` | `control` | `uncommon` | 0 | 0 | 0 |
+| 1 | 勢い溜め | `control_momentum` | `control` | `uncommon` | 0 | 0 | 0 |
+| 2 | 前のめり | `control_overclock` | `control` | `uncommon` | 0 | 0 | 0 |
+| 1 | 圧迫 | `control_pressure` | `control` | `common` | 0 | 0 | 0 |
+| 1 | 蓄え | `control_reserve` | `control` | `rare` | 0 | 0 | 0 |

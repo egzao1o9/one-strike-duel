@@ -9,6 +9,7 @@ def test_cards_and_decks_load() -> None:
     assert "battle_step_in" in cards
     assert "starter_attack" in decks
     assert cards["control_focus"].type == "control"
+    assert cards["control_focus"].rarity == "common"
     assert len(decks["starter_attack"].all_cards) == 20
 
 

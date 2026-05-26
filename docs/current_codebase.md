@@ -62,6 +62,7 @@
 - `id`: 一意な識別子
 - `name`: 表示名
 - `type`: `battle` または `control`
+- `rarity`: レアリティ
 - `attack`
 - `block`
 - `speed`
@@ -89,6 +90,7 @@
 注意点:
 
 - 未知の `effect.kind` は無視されます
+- `rarity` 未指定時は `common` として読み込みます
 - `reveal_opponent_hand_random` は名前と違い、現状は本当のランダムではなく相手手札の先頭を公開します
 - `draw_cards` は次ターン開始時の補充上限を一時的に増やす形で効きます
 

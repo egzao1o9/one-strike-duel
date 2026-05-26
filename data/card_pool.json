@@ -1,0 +1,118 @@
+{
+  "id": "base_pool",
+  "name": "Base Card Pool",
+  "entries": [
+    {
+      "card_id": "battle_afterimage",
+      "count": 1
+    },
+    {
+      "card_id": "battle_all_in",
+      "count": 1
+    },
+    {
+      "card_id": "battle_backstep",
+      "count": 2
+    },
+    {
+      "card_id": "battle_brace",
+      "count": 3
+    },
+    {
+      "card_id": "battle_break",
+      "count": 2
+    },
+    {
+      "card_id": "battle_counter",
+      "count": 3
+    },
+    {
+      "card_id": "battle_cross_guard",
+      "count": 3
+    },
+    {
+      "card_id": "battle_crush",
+      "count": 2
+    },
+    {
+      "card_id": "battle_dash",
+      "count": 1
+    },
+    {
+      "card_id": "battle_feint",
+      "count": 2
+    },
+    {
+      "card_id": "battle_guard",
+      "count": 3
+    },
+    {
+      "card_id": "battle_heavy_swing",
+      "count": 1
+    },
+    {
+      "card_id": "battle_low_stance",
+      "count": 2
+    },
+    {
+      "card_id": "battle_pierce",
+      "count": 2
+    },
+    {
+      "card_id": "battle_press",
+      "count": 3
+    },
+    {
+      "card_id": "battle_step_in",
+      "count": 2
+    },
+    {
+      "card_id": "battle_wall",
+      "count": 1
+    },
+    {
+      "card_id": "control_anchor",
+      "count": 2
+    },
+    {
+      "card_id": "control_cover",
+      "count": 2
+    },
+    {
+      "card_id": "control_disrupt",
+      "count": 3
+    },
+    {
+      "card_id": "control_focus",
+      "count": 3
+    },
+    {
+      "card_id": "control_fortify",
+      "count": 2
+    },
+    {
+      "card_id": "control_guard",
+      "count": 3
+    },
+    {
+      "card_id": "control_haste",
+      "count": 2
+    },
+    {
+      "card_id": "control_momentum",
+      "count": 2
+    },
+    {
+      "card_id": "control_overclock",
+      "count": 2
+    },
+    {
+      "card_id": "control_pressure",
+      "count": 3
+    },
+    {
+      "card_id": "control_reserve",
+      "count": 1
+    }
+  ]
+}
