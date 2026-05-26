@@ -1,0 +1,142 @@
+[
+  {
+    "id": "starter_attack",
+    "name": "攻撃型スターター",
+    "public_cards": [
+      "battle_step_in",
+      "battle_step_in",
+      "battle_press",
+      "battle_break",
+      "battle_pierce",
+      "battle_feint",
+      "control_pressure",
+      "control_haste",
+      "control_focus",
+      "control_disrupt"
+    ],
+    "hidden_cards": [
+      "battle_all_in",
+      "battle_all_in",
+      "battle_dash",
+      "battle_dash",
+      "battle_counter",
+      "battle_press",
+      "battle_crush",
+      "control_focus",
+      "control_pressure",
+      "control_reserve"
+    ]
+  },
+  {
+    "id": "starter_defense",
+    "name": "防御型スターター",
+    "public_cards": [
+      "battle_guard",
+      "battle_guard",
+      "battle_wall",
+      "battle_counter",
+      "battle_low_stance",
+      "control_guard",
+      "control_guard",
+      "control_disrupt",
+      "control_focus",
+      "control_reserve"
+    ],
+    "hidden_cards": [
+      "battle_wall",
+      "battle_guard",
+      "battle_counter",
+      "battle_counter",
+      "battle_cross_guard",
+      "battle_brace",
+      "battle_backstep",
+      "control_guard",
+      "control_fortify",
+      "control_haste"
+    ]
+  },
+  {
+    "id": "starter_speed",
+    "name": "速度型スターター",
+    "public_cards": [
+      "battle_afterimage",
+      "battle_dash",
+      "battle_dash",
+      "battle_feint",
+      "battle_cross_guard",
+      "control_haste",
+      "control_haste",
+      "control_anchor",
+      "control_momentum",
+      "control_pressure"
+    ],
+    "hidden_cards": [
+      "battle_afterimage",
+      "battle_backstep",
+      "battle_press",
+      "battle_press",
+      "battle_break",
+      "battle_pierce",
+      "control_overclock",
+      "control_overclock",
+      "control_cover",
+      "control_reserve"
+    ]
+  },
+  {
+    "id": "starter_heavy",
+    "name": "重量型スターター",
+    "public_cards": [
+      "battle_all_in",
+      "battle_heavy_swing",
+      "battle_crush",
+      "battle_wall",
+      "battle_low_stance",
+      "control_fortify",
+      "control_fortify",
+      "control_anchor",
+      "control_focus",
+      "control_disrupt"
+    ],
+    "hidden_cards": [
+      "battle_all_in",
+      "battle_heavy_swing",
+      "battle_wall",
+      "battle_guard",
+      "battle_brace",
+      "battle_counter",
+      "control_guard",
+      "control_overclock",
+      "control_reserve",
+      "control_momentum"
+    ]
+  },
+  {
+    "id": "starter_balanced",
+    "name": "均衡型スターター",
+    "public_cards": [
+      "battle_press",
+      "battle_press",
+      "battle_counter",
+      "battle_brace",
+      "battle_cross_guard",
+      "control_guard",
+      "control_haste",
+      "control_pressure",
+      "control_focus",
+      "control_cover"
+    ],
+    "hidden_cards": [
+      "battle_step_in",
+      "battle_break",
+      "battle_pierce",
+      "battle_guard",
+      "battle_low_stance",
+      "battle_backstep",
+      "control_disrupt",
+      "control_reserve",
+      "control_momentum",
+      "control_overclock"
+    ]
+  }
+]
