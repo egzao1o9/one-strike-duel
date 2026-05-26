@@ -1,24 +1,17 @@
 [
   {
-    "id": "battle_step_in",
-    "name": "踏み込み",
+    "id": "battle_afterimage",
+    "name": "残像",
     "type": "battle",
-    "rarity": "uncommon",
-    "attack": 3,
+    "rarity": "rare",
+    "attack": -1,
     "block": 0,
-    "speed": 2,
+    "speed": 5,
     "tags": [
-      "attack",
-      "risk"
+      "speed"
     ],
-    "effects": [
-      {
-        "timing": "battle",
-        "kind": "set_self_block_limit",
-        "value": 0
-      }
-    ],
-    "notes": "このターン、自分はブロック値を得られない。"
+    "effects": [],
+    "notes": "極端に速いが打点は持たない。"
   },
   {
     "id": "battle_all_in",
@@ -42,91 +35,33 @@
     "notes": "高火力だが無防備で遅い。"
   },
   {
-    "id": "battle_press",
-    "name": "押し込み",
-    "type": "battle",
-    "rarity": "common",
-    "attack": 2,
-    "block": 1,
-    "speed": 2,
-    "tags": [
-      "balanced"
-    ],
-    "effects": [],
-    "notes": "標準的な攻防一体カード。"
-  },
-  {
-    "id": "battle_feint",
-    "name": "フェイント",
+    "id": "battle_backstep",
+    "name": "退き足",
     "type": "battle",
     "rarity": "uncommon",
     "attack": -1,
-    "block": 0,
-    "speed": 4,
+    "block": 2,
+    "speed": 3,
     "tags": [
       "speed",
-      "trick"
-    ],
-    "effects": [],
-    "notes": "先制は取りやすいが決定打にはならない。"
-  },
-  {
-    "id": "battle_dash",
-    "name": "疾走",
-    "type": "battle",
-    "rarity": "rare",
-    "attack": 1,
-    "block": 0,
-    "speed": 5,
-    "tags": [
-      "speed",
-      "risk"
-    ],
-    "effects": [],
-    "notes": "最速クラスだが防御はない。"
-  },
-  {
-    "id": "battle_guard",
-    "name": "受け流し",
-    "type": "battle",
-    "rarity": "common",
-    "attack": 0,
-    "block": 3,
-    "speed": 1,
-    "tags": [
       "defense"
     ],
     "effects": [],
-    "notes": "堅実な防御。"
+    "notes": "攻めない代わりに位置取りを優先する。"
   },
   {
-    "id": "battle_wall",
-    "name": "鉄壁",
-    "type": "battle",
-    "rarity": "rare",
-    "attack": -1,
-    "block": 4,
-    "speed": -2,
-    "tags": [
-      "defense",
-      "heavy"
-    ],
-    "effects": [],
-    "notes": "非常に硬いが、攻撃できず動きも重い。"
-  },
-  {
-    "id": "battle_counter",
-    "name": "返し刃",
+    "id": "battle_brace",
+    "name": "踏ん張り",
     "type": "battle",
     "rarity": "common",
-    "attack": 2,
+    "attack": 1,
     "block": 2,
-    "speed": 1,
+    "speed": 0,
     "tags": [
       "balanced"
     ],
     "effects": [],
-    "notes": "平均的なカウンター向けカード。"
+    "notes": "大きな弱点のない中継ぎ。"
   },
   {
     "id": "battle_break",
@@ -147,6 +82,94 @@
       }
     ],
     "notes": "相手の防御を崩す。"
+  },
+  {
+    "id": "battle_counter",
+    "name": "返し刃",
+    "type": "battle",
+    "rarity": "common",
+    "attack": 2,
+    "block": 2,
+    "speed": 1,
+    "tags": [
+      "balanced"
+    ],
+    "effects": [],
+    "notes": "平均的なカウンター向けカード。"
+  },
+  {
+    "id": "battle_cross_guard",
+    "name": "十字受け",
+    "type": "battle",
+    "rarity": "common",
+    "attack": 0,
+    "block": 2,
+    "speed": 2,
+    "tags": [
+      "defense",
+      "speed"
+    ],
+    "effects": [],
+    "notes": "軽い受けでテンポを維持する。"
+  },
+  {
+    "id": "battle_crush",
+    "name": "粉砕",
+    "type": "battle",
+    "rarity": "uncommon",
+    "attack": 3,
+    "block": -1,
+    "speed": 0,
+    "tags": [
+      "attack",
+      "risk"
+    ],
+    "effects": [],
+    "notes": "前のめりで防御に穴が空く。"
+  },
+  {
+    "id": "battle_dash",
+    "name": "疾走",
+    "type": "battle",
+    "rarity": "rare",
+    "attack": 1,
+    "block": 0,
+    "speed": 5,
+    "tags": [
+      "speed",
+      "risk"
+    ],
+    "effects": [],
+    "notes": "最速クラスだが防御はない。"
+  },
+  {
+    "id": "battle_feint",
+    "name": "フェイント",
+    "type": "battle",
+    "rarity": "uncommon",
+    "attack": -1,
+    "block": 0,
+    "speed": 4,
+    "tags": [
+      "speed",
+      "trick"
+    ],
+    "effects": [],
+    "notes": "先制は取りやすいが決定打にはならない。"
+  },
+  {
+    "id": "battle_guard",
+    "name": "受け流し",
+    "type": "battle",
+    "rarity": "common",
+    "attack": 0,
+    "block": 3,
+    "speed": 1,
+    "tags": [
+      "defense"
+    ],
+    "effects": [],
+    "notes": "堅実な防御。"
   },
   {
     "id": "battle_heavy_swing",
@@ -178,21 +201,6 @@
     "notes": "守りやすいが主導権は取りづらい。"
   },
   {
-    "id": "battle_cross_guard",
-    "name": "十字受け",
-    "type": "battle",
-    "rarity": "common",
-    "attack": 0,
-    "block": 2,
-    "speed": 2,
-    "tags": [
-      "defense",
-      "speed"
-    ],
-    "effects": [],
-    "notes": "軽い受けでテンポを維持する。"
-  },
-  {
     "id": "battle_pierce",
     "name": "貫き",
     "type": "battle",
@@ -213,62 +221,119 @@
     "notes": "防御を削りながら通しにいく。"
   },
   {
-    "id": "battle_afterimage",
-    "name": "残像",
-    "type": "battle",
-    "rarity": "rare",
-    "attack": -1,
-    "block": 0,
-    "speed": 5,
-    "tags": [
-      "speed"
-    ],
-    "effects": [],
-    "notes": "極端に速いが打点は持たない。"
-  },
-  {
-    "id": "battle_brace",
-    "name": "踏ん張り",
+    "id": "battle_press",
+    "name": "押し込み",
     "type": "battle",
     "rarity": "common",
-    "attack": 1,
-    "block": 2,
-    "speed": 0,
+    "attack": 2,
+    "block": 1,
+    "speed": 2,
     "tags": [
       "balanced"
     ],
     "effects": [],
-    "notes": "大きな弱点のない中継ぎ。"
+    "notes": "標準的な攻防一体カード。"
   },
   {
-    "id": "battle_backstep",
-    "name": "退き足",
-    "type": "battle",
-    "rarity": "uncommon",
-    "attack": -1,
-    "block": 2,
-    "speed": 3,
-    "tags": [
-      "speed",
-      "defense"
-    ],
-    "effects": [],
-    "notes": "攻めない代わりに位置取りを優先する。"
-  },
-  {
-    "id": "battle_crush",
-    "name": "粉砕",
+    "id": "battle_step_in",
+    "name": "踏み込み",
     "type": "battle",
     "rarity": "uncommon",
     "attack": 3,
-    "block": -1,
-    "speed": 0,
+    "block": 0,
+    "speed": 2,
     "tags": [
       "attack",
       "risk"
     ],
+    "effects": [
+      {
+        "timing": "battle",
+        "kind": "set_self_block_limit",
+        "value": 0
+      }
+    ],
+    "notes": "このターン、自分はブロック値を得られない。"
+  },
+  {
+    "id": "battle_wall",
+    "name": "鉄壁",
+    "type": "battle",
+    "rarity": "rare",
+    "attack": -1,
+    "block": 4,
+    "speed": -2,
+    "tags": [
+      "defense",
+      "heavy"
+    ],
     "effects": [],
-    "notes": "前のめりで防御に穴が空く。"
+    "notes": "非常に硬いが、攻撃できず動きも重い。"
+  },
+  {
+    "id": "control_anchor",
+    "name": "重心落とし",
+    "type": "control",
+    "rarity": "uncommon",
+    "attack": 0,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "debuff"
+    ],
+    "effects": [
+      {
+        "timing": "battle",
+        "kind": "modify_opponent_speed",
+        "value": 2
+      }
+    ],
+    "notes": "このターン、相手の素早さ-2。"
+  },
+  {
+    "id": "control_cover",
+    "name": "受け直し",
+    "type": "control",
+    "rarity": "uncommon",
+    "attack": 0,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "buff"
+    ],
+    "effects": [
+      {
+        "timing": "battle",
+        "kind": "modify_self_block",
+        "value": 1
+      },
+      {
+        "timing": "battle",
+        "kind": "modify_self_speed",
+        "value": 1
+      }
+    ],
+    "notes": "このターン、ブロック+1、素早さ+1。"
+  },
+  {
+    "id": "control_disrupt",
+    "name": "牽制",
+    "type": "control",
+    "rarity": "common",
+    "attack": 0,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "debuff"
+    ],
+    "effects": [
+      {
+        "timing": "battle",
+        "kind": "modify_opponent_attack",
+        "value": 1
+      }
+    ],
+    "notes": "このターン、相手の攻撃-1。"
   },
   {
     "id": "control_focus",
@@ -290,6 +355,26 @@
       }
     ],
     "notes": "次ターン、自分の攻撃+1。"
+  },
+  {
+    "id": "control_fortify",
+    "name": "補強",
+    "type": "control",
+    "rarity": "uncommon",
+    "attack": 0,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "buff"
+    ],
+    "effects": [
+      {
+        "timing": "battle",
+        "kind": "modify_self_block",
+        "value": 2
+      }
+    ],
+    "notes": "このターン、自分のブロック+2。"
   },
   {
     "id": "control_guard",
@@ -332,50 +417,10 @@
     "notes": "このターン、自分の素早さ+2。"
   },
   {
-    "id": "control_pressure",
-    "name": "圧迫",
+    "id": "control_momentum",
+    "name": "勢い溜め",
     "type": "control",
-    "rarity": "common",
-    "attack": 0,
-    "block": 0,
-    "speed": 0,
-    "tags": [
-      "debuff"
-    ],
-    "effects": [
-      {
-        "timing": "battle",
-        "kind": "modify_opponent_block",
-        "value": 1
-      }
-    ],
-    "notes": "このターン、相手のブロック-1。"
-  },
-  {
-    "id": "control_disrupt",
-    "name": "牽制",
-    "type": "control",
-    "rarity": "common",
-    "attack": 0,
-    "block": 0,
-    "speed": 0,
-    "tags": [
-      "debuff"
-    ],
-    "effects": [
-      {
-        "timing": "battle",
-        "kind": "modify_opponent_attack",
-        "value": 1
-      }
-    ],
-    "notes": "このターン、相手の攻撃-1。"
-  },
-  {
-    "id": "control_reserve",
-    "name": "蓄え",
-    "type": "control",
-    "rarity": "rare",
+    "rarity": "uncommon",
     "attack": 0,
     "block": 0,
     "speed": 0,
@@ -385,11 +430,11 @@
     "effects": [
       {
         "timing": "next_turn",
-        "kind": "draw_cards",
-        "value": 1
+        "kind": "modify_self_speed",
+        "value": 2
       }
     ],
-    "notes": "次ターン開始時、追加で1枚引く。"
+    "notes": "次ターン、自分の素早さ+2。"
   },
   {
     "id": "control_overclock",
@@ -418,10 +463,10 @@
     "notes": "このターン、攻撃+1、素早さ+1。"
   },
   {
-    "id": "control_anchor",
-    "name": "重心落とし",
+    "id": "control_pressure",
+    "name": "圧迫",
     "type": "control",
-    "rarity": "uncommon",
+    "rarity": "common",
     "attack": 0,
     "block": 0,
     "speed": 0,
@@ -431,37 +476,17 @@
     "effects": [
       {
         "timing": "battle",
-        "kind": "modify_opponent_speed",
-        "value": 2
+        "kind": "modify_opponent_block",
+        "value": 1
       }
     ],
-    "notes": "このターン、相手の素早さ-2。"
+    "notes": "このターン、相手のブロック-1。"
   },
   {
-    "id": "control_fortify",
-    "name": "補強",
+    "id": "control_reserve",
+    "name": "蓄え",
     "type": "control",
-    "rarity": "uncommon",
-    "attack": 0,
-    "block": 0,
-    "speed": 0,
-    "tags": [
-      "buff"
-    ],
-    "effects": [
-      {
-        "timing": "battle",
-        "kind": "modify_self_block",
-        "value": 2
-      }
-    ],
-    "notes": "このターン、自分のブロック+2。"
-  },
-  {
-    "id": "control_momentum",
-    "name": "勢い溜め",
-    "type": "control",
-    "rarity": "uncommon",
+    "rarity": "rare",
     "attack": 0,
     "block": 0,
     "speed": 0,
@@ -471,35 +496,10 @@
     "effects": [
       {
         "timing": "next_turn",
-        "kind": "modify_self_speed",
-        "value": 2
-      }
-    ],
-    "notes": "次ターン、自分の素早さ+2。"
-  },
-  {
-    "id": "control_cover",
-    "name": "受け直し",
-    "type": "control",
-    "rarity": "uncommon",
-    "attack": 0,
-    "block": 0,
-    "speed": 0,
-    "tags": [
-      "buff"
-    ],
-    "effects": [
-      {
-        "timing": "battle",
-        "kind": "modify_self_block",
-        "value": 1
-      },
-      {
-        "timing": "battle",
-        "kind": "modify_self_speed",
+        "kind": "draw_cards",
         "value": 1
       }
     ],
-    "notes": "このターン、ブロック+1、素早さ+1。"
+    "notes": "次ターン開始時、追加で1枚引く。"
   }
 ]

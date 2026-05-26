@@ -1,0 +1,25 @@
+{
+  "id": "control_cover",
+  "name": "受け直し",
+  "type": "control",
+  "rarity": "uncommon",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": [
+    "buff"
+  ],
+  "effects": [
+    {
+      "timing": "battle",
+      "kind": "modify_self_block",
+      "value": 1
+    },
+    {
+      "timing": "battle",
+      "kind": "modify_self_speed",
+      "value": 1
+    }
+  ],
+  "notes": "このターン、ブロック+1、素早さ+1。"
+}

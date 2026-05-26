@@ -1,0 +1,20 @@
+{
+  "id": "control_anchor",
+  "name": "重心落とし",
+  "type": "control",
+  "rarity": "uncommon",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": [
+    "debuff"
+  ],
+  "effects": [
+    {
+      "timing": "battle",
+      "kind": "modify_opponent_speed",
+      "value": 2
+    }
+  ],
+  "notes": "このターン、相手の素早さ-2。"
+}

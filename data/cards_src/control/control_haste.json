@@ -1,0 +1,20 @@
+{
+  "id": "control_haste",
+  "name": "加速",
+  "type": "control",
+  "rarity": "uncommon",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": [
+    "buff"
+  ],
+  "effects": [
+    {
+      "timing": "battle",
+      "kind": "modify_self_speed",
+      "value": 2
+    }
+  ],
+  "notes": "このターン、自分の素早さ+2。"
+}

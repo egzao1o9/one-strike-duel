@@ -1,0 +1,21 @@
+{
+  "id": "battle_step_in",
+  "name": "踏み込み",
+  "type": "battle",
+  "rarity": "uncommon",
+  "attack": 3,
+  "block": 0,
+  "speed": 2,
+  "tags": [
+    "attack",
+    "risk"
+  ],
+  "effects": [
+    {
+      "timing": "battle",
+      "kind": "set_self_block_limit",
+      "value": 0
+    }
+  ],
+  "notes": "このターン、自分はブロック値を得られない。"
+}

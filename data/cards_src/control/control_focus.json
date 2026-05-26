@@ -1,0 +1,21 @@
+{
+  "id": "control_focus",
+  "name": "集中",
+  "type": "control",
+  "rarity": "common",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": [
+    "buff",
+    "next_turn"
+  ],
+  "effects": [
+    {
+      "timing": "next_turn",
+      "kind": "modify_self_attack",
+      "value": 1
+    }
+  ],
+  "notes": "次ターン、自分の攻撃+1。"
+}

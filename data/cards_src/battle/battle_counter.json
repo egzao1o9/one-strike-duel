@@ -1,0 +1,14 @@
+{
+  "id": "battle_counter",
+  "name": "返し刃",
+  "type": "battle",
+  "rarity": "common",
+  "attack": 2,
+  "block": 2,
+  "speed": 1,
+  "tags": [
+    "balanced"
+  ],
+  "effects": [],
+  "notes": "平均的なカウンター向けカード。"
+}

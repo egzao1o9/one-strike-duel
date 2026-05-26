@@ -1,0 +1,20 @@
+{
+  "id": "control_guard",
+  "name": "構え",
+  "type": "control",
+  "rarity": "common",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": [
+    "buff"
+  ],
+  "effects": [
+    {
+      "timing": "battle",
+      "kind": "modify_self_block",
+      "value": 1
+    }
+  ],
+  "notes": "このターン、自分のブロック+1。"
+}

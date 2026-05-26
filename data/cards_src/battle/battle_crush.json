@@ -1,0 +1,15 @@
+{
+  "id": "battle_crush",
+  "name": "粉砕",
+  "type": "battle",
+  "rarity": "uncommon",
+  "attack": 3,
+  "block": -1,
+  "speed": 0,
+  "tags": [
+    "attack",
+    "risk"
+  ],
+  "effects": [],
+  "notes": "前のめりで防御に穴が空く。"
+}

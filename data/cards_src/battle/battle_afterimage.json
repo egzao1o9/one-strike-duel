@@ -1,0 +1,14 @@
+{
+  "id": "battle_afterimage",
+  "name": "残像",
+  "type": "battle",
+  "rarity": "rare",
+  "attack": -1,
+  "block": 0,
+  "speed": 5,
+  "tags": [
+    "speed"
+  ],
+  "effects": [],
+  "notes": "極端に速いが打点は持たない。"
+}

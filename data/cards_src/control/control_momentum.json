@@ -1,0 +1,20 @@
+{
+  "id": "control_momentum",
+  "name": "勢い溜め",
+  "type": "control",
+  "rarity": "uncommon",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": [
+    "next_turn"
+  ],
+  "effects": [
+    {
+      "timing": "next_turn",
+      "kind": "modify_self_speed",
+      "value": 2
+    }
+  ],
+  "notes": "次ターン、自分の素早さ+2。"
+}

@@ -1,0 +1,14 @@
+{
+  "id": "battle_low_stance",
+  "name": "低姿勢",
+  "type": "battle",
+  "rarity": "uncommon",
+  "attack": 1,
+  "block": 3,
+  "speed": -1,
+  "tags": [
+    "defense"
+  ],
+  "effects": [],
+  "notes": "守りやすいが主導権は取りづらい。"
+}

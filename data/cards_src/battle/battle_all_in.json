@@ -1,0 +1,21 @@
+{
+  "id": "battle_all_in",
+  "name": "渾身",
+  "type": "battle",
+  "rarity": "rare",
+  "attack": 4,
+  "block": 0,
+  "speed": -1,
+  "tags": [
+    "attack",
+    "finisher"
+  ],
+  "effects": [
+    {
+      "timing": "battle",
+      "kind": "set_self_block_limit",
+      "value": 0
+    }
+  ],
+  "notes": "高火力だが無防備で遅い。"
+}

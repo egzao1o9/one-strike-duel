@@ -1,0 +1,20 @@
+{
+  "id": "control_disrupt",
+  "name": "牽制",
+  "type": "control",
+  "rarity": "common",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": [
+    "debuff"
+  ],
+  "effects": [
+    {
+      "timing": "battle",
+      "kind": "modify_opponent_attack",
+      "value": 1
+    }
+  ],
+  "notes": "このターン、相手の攻撃-1。"
+}

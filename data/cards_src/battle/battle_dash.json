@@ -1,0 +1,15 @@
+{
+  "id": "battle_dash",
+  "name": "疾走",
+  "type": "battle",
+  "rarity": "rare",
+  "attack": 1,
+  "block": 0,
+  "speed": 5,
+  "tags": [
+    "speed",
+    "risk"
+  ],
+  "effects": [],
+  "notes": "最速クラスだが防御はない。"
+}

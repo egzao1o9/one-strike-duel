@@ -1,0 +1,14 @@
+{
+  "id": "battle_press",
+  "name": "押し込み",
+  "type": "battle",
+  "rarity": "common",
+  "attack": 2,
+  "block": 1,
+  "speed": 2,
+  "tags": [
+    "balanced"
+  ],
+  "effects": [],
+  "notes": "標準的な攻防一体カード。"
+}

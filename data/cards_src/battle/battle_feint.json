@@ -1,0 +1,15 @@
+{
+  "id": "battle_feint",
+  "name": "フェイント",
+  "type": "battle",
+  "rarity": "uncommon",
+  "attack": -1,
+  "block": 0,
+  "speed": 4,
+  "tags": [
+    "speed",
+    "trick"
+  ],
+  "effects": [],
+  "notes": "先制は取りやすいが決定打にはならない。"
+}

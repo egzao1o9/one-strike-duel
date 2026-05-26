@@ -1,0 +1,20 @@
+{
+  "id": "control_fortify",
+  "name": "補強",
+  "type": "control",
+  "rarity": "uncommon",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": [
+    "buff"
+  ],
+  "effects": [
+    {
+      "timing": "battle",
+      "kind": "modify_self_block",
+      "value": 2
+    }
+  ],
+  "notes": "このターン、自分のブロック+2。"
+}

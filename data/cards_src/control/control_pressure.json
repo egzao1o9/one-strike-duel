@@ -1,0 +1,20 @@
+{
+  "id": "control_pressure",
+  "name": "圧迫",
+  "type": "control",
+  "rarity": "common",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": [
+    "debuff"
+  ],
+  "effects": [
+    {
+      "timing": "battle",
+      "kind": "modify_opponent_block",
+      "value": 1
+    }
+  ],
+  "notes": "このターン、相手のブロック-1。"
+}

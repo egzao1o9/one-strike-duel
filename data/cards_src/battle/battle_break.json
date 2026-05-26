@@ -1,0 +1,20 @@
+{
+  "id": "battle_break",
+  "name": "崩し",
+  "type": "battle",
+  "rarity": "uncommon",
+  "attack": 2,
+  "block": 0,
+  "speed": 2,
+  "tags": [
+    "attack"
+  ],
+  "effects": [
+    {
+      "timing": "battle",
+      "kind": "modify_opponent_block",
+      "value": 1
+    }
+  ],
+  "notes": "相手の防御を崩す。"
+}

@@ -1,0 +1,14 @@
+{
+  "id": "battle_brace",
+  "name": "踏ん張り",
+  "type": "battle",
+  "rarity": "common",
+  "attack": 1,
+  "block": 2,
+  "speed": 0,
+  "tags": [
+    "balanced"
+  ],
+  "effects": [],
+  "notes": "大きな弱点のない中継ぎ。"
+}

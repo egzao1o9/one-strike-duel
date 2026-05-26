@@ -1,0 +1,15 @@
+{
+  "id": "battle_backstep",
+  "name": "退き足",
+  "type": "battle",
+  "rarity": "uncommon",
+  "attack": -1,
+  "block": 2,
+  "speed": 3,
+  "tags": [
+    "speed",
+    "defense"
+  ],
+  "effects": [],
+  "notes": "攻めない代わりに位置取りを優先する。"
+}

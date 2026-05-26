@@ -1,0 +1,15 @@
+{
+  "id": "battle_wall",
+  "name": "鉄壁",
+  "type": "battle",
+  "rarity": "rare",
+  "attack": -1,
+  "block": 4,
+  "speed": -2,
+  "tags": [
+    "defense",
+    "heavy"
+  ],
+  "effects": [],
+  "notes": "非常に硬いが、攻撃できず動きも重い。"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "battle_cross_guard",
+  "name": "十字受け",
+  "type": "battle",
+  "rarity": "common",
+  "attack": 0,
+  "block": 2,
+  "speed": 2,
+  "tags": [
+    "defense",
+    "speed"
+  ],
+  "effects": [],
+  "notes": "軽い受けでテンポを維持する。"
+}

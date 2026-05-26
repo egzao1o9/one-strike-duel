@@ -1,0 +1,26 @@
+{
+  "id": "control_overclock",
+  "name": "前のめり",
+  "type": "control",
+  "rarity": "uncommon",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": [
+    "buff",
+    "risk"
+  ],
+  "effects": [
+    {
+      "timing": "battle",
+      "kind": "modify_self_attack",
+      "value": 1
+    },
+    {
+      "timing": "battle",
+      "kind": "modify_self_speed",
+      "value": 1
+    }
+  ],
+  "notes": "このターン、攻撃+1、素早さ+1。"
+}
