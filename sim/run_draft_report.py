@@ -205,9 +205,15 @@ def build_draft_summary(records: list[dict[str, Any]], cards: dict[str, Any], dr
             "action_counts": Counter(),
             "first_pass_matches": 0,
             "first_pass_wins": 0,
+            "starting_player_matches": 0,
+            "starting_player_wins": 0,
+            "responding_player_matches": 0,
+            "responding_player_wins": 0,
             "wins_with_fewer_cards": 0,
             "wins_with_same_cards": 0,
             "wins_with_more_cards": 0,
+            "winning_facedown_counts": [],
+            "losing_facedown_counts": [],
             "match_links": [],
         }
 
@@ -246,6 +252,14 @@ def build_draft_summary(records: list[dict[str, Any]], cards: dict[str, Any], dr
                 stats["first_pass_matches"] += 1
                 if record["winner_side"] == side:
                     stats["first_pass_wins"] += 1
+            if record["starting_player"] == side:
+                stats["starting_player_matches"] += 1
+                if record["winner_side"] == side:
+                    stats["starting_player_wins"] += 1
+            else:
+                stats["responding_player_matches"] += 1
+                if record["winner_side"] == side:
+                    stats["responding_player_wins"] += 1
 
         if record["winner_side"] is None:
             pair["draws"] += 1
@@ -264,6 +278,10 @@ def build_draft_summary(records: list[dict[str, Any]], cards: dict[str, Any], dr
             drafter_stats[winner_name]["wins_with_fewer_cards"] += int(record["won_with_fewer_cards"])
             drafter_stats[winner_name]["wins_with_same_cards"] += int(record["won_with_same_cards"])
             drafter_stats[winner_name]["wins_with_more_cards"] += int(record["won_with_more_cards"])
+            if record["winner_facedown_count"] is not None:
+                drafter_stats[winner_name]["winning_facedown_counts"].append(record["winner_facedown_count"])
+            if record["loser_facedown_count"] is not None:
+                drafter_stats[loser_name]["losing_facedown_counts"].append(record["loser_facedown_count"])
             pair["wins"][winner_name] += 1
 
         seen_in_match: set[str] = set()
@@ -295,6 +313,8 @@ def finalize_drafter_stats(name: str, stats: dict[str, Any]) -> dict[str, Any]:
     wins = stats["wins"]
     total_actions = sum(stats["action_counts"].values()) or 1
     first_pass_matches = stats["first_pass_matches"]
+    starting_player_matches = stats["starting_player_matches"]
+    responding_player_matches = stats["responding_player_matches"]
     return {
         "drafter": name,
         "matches": stats["matches"],
@@ -313,8 +333,14 @@ def finalize_drafter_stats(name: str, stats: dict[str, Any]) -> dict[str, Any]:
         "rarity_common": summarize_numbers(stats["rarity_common"]),
         "rarity_uncommon": summarize_numbers(stats["rarity_uncommon"]),
         "rarity_rare": summarize_numbers(stats["rarity_rare"]),
+        "winning_facedown": summarize_numbers(stats["winning_facedown_counts"]),
+        "losing_facedown": summarize_numbers(stats["losing_facedown_counts"]),
         "first_pass_matches": first_pass_matches,
         "first_pass_win_rate": stats["first_pass_wins"] / first_pass_matches if first_pass_matches else None,
+        "starting_player_matches": starting_player_matches,
+        "starting_player_win_rate": stats["starting_player_wins"] / starting_player_matches if starting_player_matches else None,
+        "responding_player_matches": responding_player_matches,
+        "responding_player_win_rate": stats["responding_player_wins"] / responding_player_matches if responding_player_matches else None,
         "fewer_card_win_rate": (stats["wins_with_fewer_cards"] / wins) if wins else None,
         "same_card_win_rate": (stats["wins_with_same_cards"] / wins) if wins else None,
         "more_card_win_rate": (stats["wins_with_more_cards"] / wins) if wins else None,
@@ -359,13 +385,16 @@ def render_draft_report_markdown(summary: dict[str, Any]) -> str:
         "",
         "## Drafter Summary",
         "",
-        "| Drafter | Matches | Wins | Losses | Draws | Win Rate | First Pass Win | Fewer Card Win | Set Rate | Set+Pass Rate | Pass Rate | Battle Avg | Control Avg | Red Avg | Blue Avg | Green Avg | White Avg | Common Avg | Uncommon Avg | Rare Avg |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+        "| Drafter | Matches | Wins | Losses | Draws | Win Rate | First Pass Win | Fewer Win | Same Win | More Win | Winner Set Avg | Loser Set Avg | Start Win | Second Win | Set Rate | Set+Pass Rate | Pass Rate | Battle Avg | Control Avg | Red Avg | Blue Avg | Green Avg | White Avg | Common Avg | Uncommon Avg | Rare Avg |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for name, stats in sorted(summary["drafters"].items()):
         lines.append(
             f"| `{name}` | {stats['matches']} | {stats['wins']} | {stats['losses']} | {stats['draws']} | {format_rate(stats['win_rate'])} | "
             f"{format_optional_rate(stats['first_pass_win_rate'])} | {format_optional_rate(stats['fewer_card_win_rate'])} | "
+            f"{format_optional_rate(stats['same_card_win_rate'])} | {format_optional_rate(stats['more_card_win_rate'])} | "
+            f"{fmt(stats['winning_facedown']['avg'])} | {fmt(stats['losing_facedown']['avg'])} | "
+            f"{format_optional_rate(stats['starting_player_win_rate'])} | {format_optional_rate(stats['responding_player_win_rate'])} | "
             f"{format_rate(stats['action_rates']['set'])} | {format_rate(stats['action_rates']['set_pass'])} | {format_rate(stats['action_rates']['pass'])} | "
             f"{fmt(stats['battle_count']['avg'])} | {fmt(stats['control_count']['avg'])} | "
             f"{fmt(stats['role_red']['avg'])} | {fmt(stats['role_blue']['avg'])} | {fmt(stats['role_green']['avg'])} | {fmt(stats['role_white']['avg'])} | "
@@ -398,6 +427,10 @@ def render_draft_report_markdown(summary: dict[str, Any]) -> str:
                 f"- Win With Fewer Cards: {format_optional_rate(stats['fewer_card_win_rate'])}",
                 f"- Win With Same Cards: {format_optional_rate(stats['same_card_win_rate'])}",
                 f"- Win With More Cards: {format_optional_rate(stats['more_card_win_rate'])}",
+                f"- Winner Facedown Avg: {fmt(stats['winning_facedown']['avg'])}",
+                f"- Loser Facedown Avg: {fmt(stats['losing_facedown']['avg'])}",
+                f"- Starting Player Win Rate: {format_optional_rate(stats['starting_player_win_rate'])}",
+                f"- Responding Player Win Rate: {format_optional_rate(stats['responding_player_win_rate'])}",
                 f"- Action Rates: set={format_rate(stats['action_rates']['set'])}, set_pass={format_rate(stats['action_rates']['set_pass'])}, pass={format_rate(stats['action_rates']['pass'])}",
                 f"- Turns: min={fmt(stats['turns']['min'])}, avg={fmt(stats['turns']['avg'])}, max={fmt(stats['turns']['max'])}",
                 f"- Battle / Control: avg={fmt(stats['battle_count']['avg'])} / {fmt(stats['control_count']['avg'])}",

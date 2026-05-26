@@ -13,3 +13,5 @@ def test_aggregate_report_builds_from_existing_logs() -> None:
 
     markdown = render_aggregate_markdown(summary)
     assert "# Aggregate Report" in markdown
+    assert "Winner Set Avg" in markdown
+    assert "Start Win" in markdown

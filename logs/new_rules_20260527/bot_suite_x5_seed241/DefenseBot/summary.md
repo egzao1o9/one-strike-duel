@@ -10,13 +10,13 @@
 
 ## Deck Summary
 
-| Deck | Matches | Wins | Losses | Draws | Win Rate | First Pass Win | Fewer Card Win | Set Rate | Set+Pass Rate | Pass Rate | Turn Min | Turn Avg | Turn Max |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| `starter_attack` | 40 | 8 | 27 | 5 | 20.0% | 12.5% | 0.0% | 18.3% | 73.1% | 8.7% | 1 | 2.12 | 4 |
-| `starter_balanced` | 40 | 19 | 20 | 1 | 47.5% | 18.8% | 0.0% | 32.9% | 43.6% | 23.5% | 1 | 3.92 | 8 |
-| `starter_defense` | 40 | 36 | 4 | 0 | 90.0% | 80.0% | 0.0% | 42.0% | 43.7% | 14.3% | 1 | 4.25 | 8 |
-| `starter_heavy` | 40 | 25 | 13 | 2 | 62.5% | 42.1% | 0.0% | 25.6% | 58.0% | 16.4% | 1 | 4.08 | 8 |
-| `starter_speed` | 40 | 6 | 30 | 4 | 15.0% | 7.1% | 0.0% | 25.5% | 38.3% | 36.2% | 1 | 2.62 | 6 |
+| Deck | Matches | Wins | Losses | Draws | Win Rate | First Pass Win | Fewer Win | Same Win | More Win | Winner Set Avg | Loser Set Avg | Start Win | Second Win | Set Rate | Set+Pass Rate | Pass Rate | Turn Min | Turn Avg | Turn Max |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| `starter_attack` | 40 | 8 | 27 | 5 | 20.0% | 12.5% | 0.0% | 75.0% | 25.0% | 1.38 | 1 | 20.0% | 20.0% | 18.3% | 73.1% | 8.7% | 1 | 2.12 | 4 |
+| `starter_balanced` | 40 | 19 | 20 | 1 | 47.5% | 18.8% | 0.0% | 36.8% | 63.2% | 1.32 | 0.4 | 47.4% | 47.6% | 32.9% | 43.6% | 23.5% | 1 | 3.92 | 8 |
+| `starter_defense` | 40 | 36 | 4 | 0 | 90.0% | 80.0% | 0.0% | 27.8% | 72.2% | 1.19 | 0.5 | 95.0% | 85.0% | 42.0% | 43.7% | 14.3% | 1 | 4.25 | 8 |
+| `starter_heavy` | 40 | 25 | 13 | 2 | 62.5% | 42.1% | 0.0% | 44.0% | 56.0% | 1.08 | 0.54 | 73.3% | 56.0% | 25.6% | 58.0% | 16.4% | 1 | 4.08 | 8 |
+| `starter_speed` | 40 | 6 | 30 | 4 | 15.0% | 7.1% | 0.0% | 50.0% | 50.0% | 1.17 | 0.4 | 14.3% | 15.8% | 25.5% | 38.3% | 36.2% | 1 | 2.62 | 6 |
 
 ## Pair Summary
 
@@ -105,6 +105,10 @@
 - Win With Fewer Cards: 0.0%
 - Win With Same Cards: 75.0%
 - Win With More Cards: 25.0%
+- Winner Facedown Avg: 1.38
+- Loser Facedown Avg: 1
+- Starting Player Win Rate: 20.0%
+- Responding Player Win Rate: 20.0%
 - Action Rates: set=18.3%, set_pass=73.1%, pass=8.7%
 - Turn Stats: min=1, avg=2.12, max=4
 - Winning Attack Stats: min=2, avg=3.38, max=7
@@ -202,6 +206,10 @@
 - Win With Fewer Cards: 0.0%
 - Win With Same Cards: 36.8%
 - Win With More Cards: 63.2%
+- Winner Facedown Avg: 1.32
+- Loser Facedown Avg: 0.4
+- Starting Player Win Rate: 47.4%
+- Responding Player Win Rate: 47.6%
 - Action Rates: set=32.9%, set_pass=43.6%, pass=23.5%
 - Turn Stats: min=1, avg=3.92, max=8
 - Winning Attack Stats: min=1, avg=2.32, max=6
@@ -299,6 +307,10 @@
 - Win With Fewer Cards: 0.0%
 - Win With Same Cards: 27.8%
 - Win With More Cards: 72.2%
+- Winner Facedown Avg: 1.19
+- Loser Facedown Avg: 0.5
+- Starting Player Win Rate: 95.0%
+- Responding Player Win Rate: 85.0%
 - Action Rates: set=42.0%, set_pass=43.7%, pass=14.3%
 - Turn Stats: min=1, avg=4.25, max=8
 - Winning Attack Stats: min=1, avg=1.83, max=4
@@ -397,6 +409,10 @@
 - Win With Fewer Cards: 0.0%
 - Win With Same Cards: 44.0%
 - Win With More Cards: 56.0%
+- Winner Facedown Avg: 1.08
+- Loser Facedown Avg: 0.54
+- Starting Player Win Rate: 73.3%
+- Responding Player Win Rate: 56.0%
 - Action Rates: set=25.6%, set_pass=58.0%, pass=16.4%
 - Turn Stats: min=1, avg=4.08, max=8
 - Winning Attack Stats: min=1, avg=2.28, max=4
@@ -496,6 +512,10 @@
 - Win With Fewer Cards: 0.0%
 - Win With Same Cards: 50.0%
 - Win With More Cards: 50.0%
+- Winner Facedown Avg: 1.17
+- Loser Facedown Avg: 0.4
+- Starting Player Win Rate: 14.3%
+- Responding Player Win Rate: 15.8%
 - Action Rates: set=25.5%, set_pass=38.3%, pass=36.2%
 - Turn Stats: min=1, avg=2.62, max=6
 - Winning Attack Stats: min=1, avg=2.67, max=4

@@ -14,10 +14,10 @@
 
 ## Drafter Summary
 
-| Drafter | Matches | Wins | Losses | Draws | Win Rate | First Pass Win | Fewer Card Win | Set Rate | Set+Pass Rate | Pass Rate | Battle Avg | Control Avg | Red Avg | Blue Avg | Green Avg | White Avg | Common Avg | Uncommon Avg | Rare Avg |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| `RandomDraftBot` | 200 | 118 | 59 | 23 | 59.0% | 44.4% | 0.8% | 21.0% | 76.5% | 2.6% | 10.62 | 9.38 | 5.97 | 2.88 | 1.77 | 9.38 | 11.62 | 7.96 | 0.42 |
-| `RoleBalanceDraftBot` | 200 | 59 | 118 | 23 | 29.5% | 21.2% | 1.7% | 8.1% | 90.2% | 1.7% | 12.04 | 7.96 | 6.76 | 2.98 | 2.31 | 7.96 | 0.3 | 14.12 | 5.58 |
+| Drafter | Matches | Wins | Losses | Draws | Win Rate | First Pass Win | Fewer Win | Same Win | More Win | Winner Set Avg | Loser Set Avg | Start Win | Second Win | Set Rate | Set+Pass Rate | Pass Rate | Battle Avg | Control Avg | Red Avg | Blue Avg | Green Avg | White Avg | Common Avg | Uncommon Avg | Rare Avg |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| `RandomDraftBot` | 200 | 118 | 59 | 23 | 59.0% | 44.4% | 0.8% | 65.3% | 33.9% | 1.36 | 0.98 | 67.7% | 50.5% | 21.0% | 76.5% | 2.6% | 10.62 | 9.38 | 5.97 | 2.88 | 1.77 | 9.38 | 11.62 | 7.96 | 0.42 |
+| `RoleBalanceDraftBot` | 200 | 59 | 118 | 23 | 29.5% | 21.2% | 1.7% | 83.1% | 15.3% | 1.12 | 1.03 | 32.7% | 26.3% | 8.1% | 90.2% | 1.7% | 12.04 | 7.96 | 6.76 | 2.98 | 2.31 | 7.96 | 0.3 | 14.12 | 5.58 |
 
 ## Pair Summary
 
@@ -97,6 +97,10 @@
 - Win With Fewer Cards: 0.8%
 - Win With Same Cards: 65.3%
 - Win With More Cards: 33.9%
+- Winner Facedown Avg: 1.36
+- Loser Facedown Avg: 0.98
+- Starting Player Win Rate: 67.7%
+- Responding Player Win Rate: 50.5%
 - Action Rates: set=21.0%, set_pass=76.5%, pass=2.6%
 - Turns: min=1, avg=1.07, max=3
 - Battle / Control: avg=10.62 / 9.38
@@ -164,6 +168,10 @@
 - Win With Fewer Cards: 1.7%
 - Win With Same Cards: 83.1%
 - Win With More Cards: 15.3%
+- Winner Facedown Avg: 1.12
+- Loser Facedown Avg: 1.03
+- Starting Player Win Rate: 32.7%
+- Responding Player Win Rate: 26.3%
 - Action Rates: set=8.1%, set_pass=90.2%, pass=1.7%
 - Turns: min=1, avg=1.07, max=3
 - Battle / Control: avg=12.04 / 7.96

@@ -79,6 +79,23 @@ def detect_report_type(path: Path, payload: dict[str, Any]) -> str:
     return "unknown"
 
 
+def collect_values(
+    reports: list[dict[str, Any]],
+    section: str,
+    item_key: str,
+    getter,
+) -> list[float]:
+    values: list[float] = []
+    for report in reports:
+        item = report["payload"].get(section, {}).get(item_key)
+        if item is None:
+            continue
+        value = getter(item)
+        if value is not None:
+            values.append(value)
+    return values
+
+
 def summarize_random_mix(
     reports: list[dict[str, Any]],
     canonical: dict[str, Any] | None,
@@ -137,6 +154,12 @@ def summarize_random_mix(
                     "turn_avg": stats["turns"]["avg"],
                     "first_pass_win_rate": stats.get("first_pass_win_rate"),
                     "fewer_card_win_rate": stats.get("fewer_card_win_rate"),
+                    "same_card_win_rate": stats.get("same_card_win_rate"),
+                    "more_card_win_rate": stats.get("more_card_win_rate"),
+                    "winner_facedown_avg": stats.get("winning_facedown", {}).get("avg"),
+                    "loser_facedown_avg": stats.get("losing_facedown", {}).get("avg"),
+                    "starting_player_win_rate": stats.get("starting_player_win_rate"),
+                    "responding_player_win_rate": stats.get("responding_player_win_rate"),
                     "set_rate": stats.get("action_rates", {}).get("set"),
                     "set_pass_rate": stats.get("action_rates", {}).get("set_pass"),
                     "pass_rate": stats.get("action_rates", {}).get("pass"),
@@ -212,30 +235,30 @@ def summarize_deck_reports(reports: list[dict[str, Any]]) -> dict[str, Any]:
                 "avg_turns": round(mean(row["turn_avg"] for row in rows), 2),
                 "best_bot": best_row["bot"],
                 "worst_bot": worst_row["bot"],
-                "avg_first_pass_win_rate": mean(
-                    row["first_pass_win_rate"] for row in (
-                        {
-                            "first_pass_win_rate": report["payload"]["decks"][deck_id].get("first_pass_win_rate")
-                        }
-                        for report in reports
-                        if deck_id in report["payload"]["decks"] and report["payload"]["decks"][deck_id].get("first_pass_win_rate") is not None
-                    )
-                ) if any(
-                    deck_id in report["payload"]["decks"] and report["payload"]["decks"][deck_id].get("first_pass_win_rate") is not None
-                    for report in reports
-                ) else None,
-                "avg_fewer_card_win_rate": mean(
-                    row["fewer_card_win_rate"] for row in (
-                        {
-                            "fewer_card_win_rate": report["payload"]["decks"][deck_id].get("fewer_card_win_rate")
-                        }
-                        for report in reports
-                        if deck_id in report["payload"]["decks"] and report["payload"]["decks"][deck_id].get("fewer_card_win_rate") is not None
-                    )
-                ) if any(
-                    deck_id in report["payload"]["decks"] and report["payload"]["decks"][deck_id].get("fewer_card_win_rate") is not None
-                    for report in reports
-                ) else None,
+                "avg_first_pass_win_rate": mean_or_none(
+                    collect_values(reports, "decks", deck_id, lambda item: item.get("first_pass_win_rate"))
+                ),
+                "avg_fewer_card_win_rate": mean_or_none(
+                    collect_values(reports, "decks", deck_id, lambda item: item.get("fewer_card_win_rate"))
+                ),
+                "avg_same_card_win_rate": mean_or_none(
+                    collect_values(reports, "decks", deck_id, lambda item: item.get("same_card_win_rate"))
+                ),
+                "avg_more_card_win_rate": mean_or_none(
+                    collect_values(reports, "decks", deck_id, lambda item: item.get("more_card_win_rate"))
+                ),
+                "avg_winner_facedown": mean_or_none(
+                    collect_values(reports, "decks", deck_id, lambda item: item.get("winning_facedown", {}).get("avg"))
+                ),
+                "avg_loser_facedown": mean_or_none(
+                    collect_values(reports, "decks", deck_id, lambda item: item.get("losing_facedown", {}).get("avg"))
+                ),
+                "avg_starting_player_win_rate": mean_or_none(
+                    collect_values(reports, "decks", deck_id, lambda item: item.get("starting_player_win_rate"))
+                ),
+                "avg_responding_player_win_rate": mean_or_none(
+                    collect_values(reports, "decks", deck_id, lambda item: item.get("responding_player_win_rate"))
+                ),
             }
         )
     average_by_deck.sort(key=lambda item: item["avg_win_rate"], reverse=True)
@@ -278,6 +301,12 @@ def summarize_draft_reports(reports: list[dict[str, Any]]) -> dict[str, Any]:
                     "win_rate": stats["win_rate"],
                     "first_pass_win_rate": stats.get("first_pass_win_rate"),
                     "fewer_card_win_rate": stats.get("fewer_card_win_rate"),
+                    "same_card_win_rate": stats.get("same_card_win_rate"),
+                    "more_card_win_rate": stats.get("more_card_win_rate"),
+                    "winner_facedown_avg": stats.get("winning_facedown", {}).get("avg"),
+                    "loser_facedown_avg": stats.get("losing_facedown", {}).get("avg"),
+                    "starting_player_win_rate": stats.get("starting_player_win_rate"),
+                    "responding_player_win_rate": stats.get("responding_player_win_rate"),
                     "set_rate": stats.get("action_rates", {}).get("set"),
                     "set_pass_rate": stats.get("action_rates", {}).get("set_pass"),
                     "pass_rate": stats.get("action_rates", {}).get("pass"),
@@ -390,11 +419,14 @@ def render_aggregate_markdown(summary: dict[str, Any]) -> str:
 
     canonical = random_mix["canonical"]
     if canonical:
-        lines.extend(["", "### Canonical Bot Ranking", "", "| Rank | Bot | Matches | Wins | Losses | Draws | Win Rate | First Pass Win | Fewer Card Win | Set Rate | Set+Pass Rate | Pass Rate | Turn Avg |", "|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|"])
+        lines.extend(["", "### Canonical Bot Ranking", "", "| Rank | Bot | Matches | Wins | Losses | Draws | Win Rate | First Pass Win | Fewer Win | Same Win | More Win | Winner Set Avg | Loser Set Avg | Start Win | Second Win | Set Rate | Set+Pass Rate | Pass Rate | Turn Avg |", "|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|"])
         for index, item in enumerate(canonical["bot_rankings"], start=1):
             lines.append(
                 f"| {index} | `{item['bot']}` | {item['matches']} | {item['wins']} | {item['losses']} | {item['draws']} | {item['win_rate']*100:.1f}% | "
                 f"{format_optional_rate(item.get('first_pass_win_rate'))} | {format_optional_rate(item.get('fewer_card_win_rate'))} | "
+                f"{format_optional_rate(item.get('same_card_win_rate'))} | {format_optional_rate(item.get('more_card_win_rate'))} | "
+                f"{fmt(item.get('winner_facedown_avg'))} | {fmt(item.get('loser_facedown_avg'))} | "
+                f"{format_optional_rate(item.get('starting_player_win_rate'))} | {format_optional_rate(item.get('responding_player_win_rate'))} | "
                 f"{format_optional_rate(item.get('set_rate'))} | {format_optional_rate(item.get('set_pass_rate'))} | {format_optional_rate(item.get('pass_rate'))} | {item['turn_avg']} |"
             )
         lines.extend(["", "### Random Mix Stability", "", "| Bot | Small Sample | Large Sample | Delta |", "|---|---:|---:|---:|"])
@@ -407,10 +439,10 @@ def render_aggregate_markdown(summary: dict[str, Any]) -> str:
         lines.extend(render_rank_section("Most Lethal Cards", canonical["most_lethal_cards"]))
 
     deck_reports = summary["deck_reports"]
-    lines.extend(["", "## Deck Overview", "", "| Deck | Avg Win Rate | First Pass Win | Fewer Card Win | Min | Max | Avg Turns | Best Bot | Worst Bot |", "|---|---:|---:|---:|---:|---:|---:|---|---|"])
+    lines.extend(["", "## Deck Overview", "", "| Deck | Avg Win Rate | First Pass Win | Fewer Win | Same Win | More Win | Winner Set Avg | Loser Set Avg | Start Win | Second Win | Min | Max | Avg Turns | Best Bot | Worst Bot |", "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|"])
     for item in deck_reports["average_by_deck"]:
         lines.append(
-            f"| `{item['deck']}` | {item['avg_win_rate']*100:.1f}% | {format_optional_rate(item.get('avg_first_pass_win_rate'))} | {format_optional_rate(item.get('avg_fewer_card_win_rate'))} | {item['min_win_rate']*100:.1f}% | {item['max_win_rate']*100:.1f}% | {item['avg_turns']} | `{item['best_bot']}` | `{item['worst_bot']}` |"
+            f"| `{item['deck']}` | {item['avg_win_rate']*100:.1f}% | {format_optional_rate(item.get('avg_first_pass_win_rate'))} | {format_optional_rate(item.get('avg_fewer_card_win_rate'))} | {format_optional_rate(item.get('avg_same_card_win_rate'))} | {format_optional_rate(item.get('avg_more_card_win_rate'))} | {fmt(item.get('avg_winner_facedown'))} | {fmt(item.get('avg_loser_facedown'))} | {format_optional_rate(item.get('avg_starting_player_win_rate'))} | {format_optional_rate(item.get('avg_responding_player_win_rate'))} | {item['min_win_rate']*100:.1f}% | {item['max_win_rate']*100:.1f}% | {item['avg_turns']} | `{item['best_bot']}` | `{item['worst_bot']}` |"
         )
     lines.extend(["", "### Bot x Deck Fit", "", "| Bot | Avg Deck Win Rate | Best Deck | Best Rate | Worst Deck | Worst Rate |", "|---|---:|---|---:|---|---:|"])
     for item in deck_reports["average_by_bot"]:
@@ -429,13 +461,15 @@ def render_aggregate_markdown(summary: dict[str, Any]) -> str:
                 f"- Play Bots: `{report['play_bot1']}` / `{report['play_bot2']}`",
                 f"- Path: `{report['path']}`",
                 "",
-                "| Rank | Drafter | Win Rate | First Pass Win | Fewer Card Win | Set Rate | Set+Pass Rate | Pass Rate | Battle Avg | Control Avg | Red Avg | Blue Avg | Green Avg | White Avg | Common Avg | Uncommon Avg | Rare Avg |",
-                "|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+                "| Rank | Drafter | Win Rate | First Pass Win | Fewer Win | Same Win | More Win | Winner Set Avg | Loser Set Avg | Start Win | Second Win | Set Rate | Set+Pass Rate | Pass Rate | Battle Avg | Control Avg | Red Avg | Blue Avg | Green Avg | White Avg | Common Avg | Uncommon Avg | Rare Avg |",
+                "|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
             ]
         )
         for index, item in enumerate(report["rankings"], start=1):
             lines.append(
                 f"| {index} | `{item['drafter']}` | {item['win_rate']*100:.1f}% | {format_optional_rate(item.get('first_pass_win_rate'))} | {format_optional_rate(item.get('fewer_card_win_rate'))} | "
+                f"{format_optional_rate(item.get('same_card_win_rate'))} | {format_optional_rate(item.get('more_card_win_rate'))} | {fmt(item.get('winner_facedown_avg'))} | {fmt(item.get('loser_facedown_avg'))} | "
+                f"{format_optional_rate(item.get('starting_player_win_rate'))} | {format_optional_rate(item.get('responding_player_win_rate'))} | "
                 f"{format_optional_rate(item.get('set_rate'))} | {format_optional_rate(item.get('set_pass_rate'))} | {format_optional_rate(item.get('pass_rate'))} | {item['battle_avg']} | {item['control_avg']} | "
                 f"{item['red_avg']} | {item['blue_avg']} | {item['green_avg']} | {item['white_avg']} | "
                 f"{item['common_avg']} | {item['uncommon_avg']} | {item['rare_avg']} |"
@@ -456,8 +490,22 @@ def render_rank_section(title: str, items: list[list[Any]]) -> list[str]:
     return lines
 
 
+def mean_or_none(values: list[float]) -> float | None:
+    if not values:
+        return None
+    return mean(values)
+
+
 def format_optional_rate(value: float | None) -> str:
     return "-" if value is None else f"{value * 100:.1f}%"
+
+
+def fmt(value: float | int | None) -> str:
+    if value is None:
+        return "-"
+    if isinstance(value, float):
+        return f"{value:.2f}".rstrip("0").rstrip(".")
+    return str(value)
 
 
 if __name__ == "__main__":

@@ -28,8 +28,22 @@
         "avg": 2.91,
         "max": 13
       },
+      "winning_facedown": {
+        "min": 0,
+        "avg": 1.9,
+        "max": 5
+      },
+      "losing_facedown": {
+        "min": 0,
+        "avg": 1.71,
+        "max": 5
+      },
       "first_pass_matches": 460,
       "first_pass_win_rate": 0.33043478260869563,
+      "starting_player_matches": 574,
+      "starting_player_win_rate": 0.5383275261324042,
+      "responding_player_matches": 538,
+      "responding_player_win_rate": 0.38847583643122674,
       "fewer_card_win_rate": 0.10810810810810811,
       "same_card_win_rate": 0.4575289575289575,
       "more_card_win_rate": 0.4343629343629344,
@@ -4670,8 +4684,22 @@
         "avg": 2.71,
         "max": 19
       },
+      "winning_facedown": {
+        "min": 0,
+        "avg": 1.57,
+        "max": 5
+      },
+      "losing_facedown": {
+        "min": 0,
+        "avg": 1.45,
+        "max": 5
+      },
       "first_pass_matches": 593,
       "first_pass_win_rate": 0.35075885328836426,
+      "starting_player_matches": 576,
+      "starting_player_win_rate": 0.5034722222222222,
+      "responding_player_matches": 500,
+      "responding_player_win_rate": 0.388,
       "fewer_card_win_rate": 0.09504132231404959,
       "same_card_win_rate": 0.5805785123966942,
       "more_card_win_rate": 0.3243801652892562,
@@ -9168,8 +9196,22 @@
         "avg": 1.96,
         "max": 11
       },
+      "winning_facedown": {
+        "min": 0,
+        "avg": 1.66,
+        "max": 5
+      },
+      "losing_facedown": {
+        "min": 0,
+        "avg": 1.03,
+        "max": 4
+      },
       "first_pass_matches": 417,
       "first_pass_win_rate": 0.34292565947242204,
+      "starting_player_matches": 528,
+      "starting_player_win_rate": 0.6420454545454546,
+      "responding_player_matches": 509,
+      "responding_player_win_rate": 0.5127701375245579,
       "fewer_card_win_rate": 0.056666666666666664,
       "same_card_win_rate": 0.43333333333333335,
       "more_card_win_rate": 0.51,
@@ -13510,8 +13552,22 @@
         "avg": 3.98,
         "max": 17
       },
+      "winning_facedown": {
+        "min": 1,
+        "avg": 1.77,
+        "max": 5
+      },
+      "losing_facedown": {
+        "min": 0,
+        "avg": 1.24,
+        "max": 5
+      },
       "first_pass_matches": 612,
       "first_pass_win_rate": 0.32189542483660133,
+      "starting_player_matches": 544,
+      "starting_player_win_rate": 0.5477941176470589,
+      "responding_player_matches": 577,
+      "responding_player_win_rate": 0.41594454072790293,
       "fewer_card_win_rate": 0.08550185873605948,
       "same_card_win_rate": 0.4758364312267658,
       "more_card_win_rate": 0.43866171003717475,
@@ -18188,8 +18244,22 @@
         "avg": 2.32,
         "max": 16
       },
+      "winning_facedown": {
+        "min": 1,
+        "avg": 1.73,
+        "max": 6
+      },
+      "losing_facedown": {
+        "min": 0,
+        "avg": 1.15,
+        "max": 5
+      },
       "first_pass_matches": 618,
       "first_pass_win_rate": 0.21844660194174756,
+      "starting_player_matches": 543,
+      "starting_player_win_rate": 0.4143646408839779,
+      "responding_player_matches": 558,
+      "responding_player_win_rate": 0.3100358422939068,
       "fewer_card_win_rate": 0.0678391959798995,
       "same_card_win_rate": 0.5150753768844221,
       "more_card_win_rate": 0.41708542713567837,
@@ -22786,8 +22856,22 @@
         "avg": 2.54,
         "max": 17
       },
+      "winning_facedown": {
+        "min": 0,
+        "avg": 1.67,
+        "max": 5
+      },
+      "losing_facedown": {
+        "min": 0,
+        "avg": 1.51,
+        "max": 5
+      },
       "first_pass_matches": 580,
       "first_pass_win_rate": 0.3120689655172414,
+      "starting_player_matches": 579,
+      "starting_player_win_rate": 0.5250431778929189,
+      "responding_player_matches": 593,
+      "responding_player_win_rate": 0.38785834738617203,
       "fewer_card_win_rate": 0.06554307116104868,
       "same_card_win_rate": 0.4419475655430712,
       "more_card_win_rate": 0.49250936329588013,
@@ -27668,8 +27752,22 @@
         "avg": 1.53,
         "max": 9
       },
+      "winning_facedown": {
+        "min": 1,
+        "avg": 1.83,
+        "max": 5
+      },
+      "losing_facedown": {
+        "min": 0,
+        "avg": 1.69,
+        "max": 5
+      },
       "first_pass_matches": 457,
       "first_pass_win_rate": 0.31072210065645517,
+      "starting_player_matches": 589,
+      "starting_player_win_rate": 0.5602716468590832,
+      "responding_player_matches": 496,
+      "responding_player_win_rate": 0.39314516129032256,
       "fewer_card_win_rate": 0.06476190476190476,
       "same_card_win_rate": 0.37523809523809526,
       "more_card_win_rate": 0.56,
@@ -32202,8 +32300,22 @@
         "avg": 3.96,
         "max": 18
       },
+      "winning_facedown": {
+        "min": 1,
+        "avg": 1.52,
+        "max": 5
+      },
+      "losing_facedown": {
+        "min": 0,
+        "avg": 1.19,
+        "max": 4
+      },
       "first_pass_matches": 674,
       "first_pass_win_rate": 0.29080118694362017,
+      "starting_player_matches": 535,
+      "starting_player_win_rate": 0.4934579439252336,
+      "responding_player_matches": 635,
+      "responding_player_win_rate": 0.35118110236220473,
       "fewer_card_win_rate": 0.08213552361396304,
       "same_card_win_rate": 0.5564681724845996,
       "more_card_win_rate": 0.3613963039014374,
@@ -37076,8 +37188,22 @@
         "avg": 1.09,
         "max": 6
       },
+      "winning_facedown": {
+        "min": 1,
+        "avg": 1.58,
+        "max": 5
+      },
+      "losing_facedown": {
+        "min": 0,
+        "avg": 0.88,
+        "max": 5
+      },
       "first_pass_matches": 589,
       "first_pass_win_rate": 0.2937181663837012,
+      "starting_player_matches": 532,
+      "starting_player_win_rate": 0.5601503759398496,
+      "responding_player_matches": 594,
+      "responding_player_win_rate": 0.36363636363636365,
       "fewer_card_win_rate": 0.058365758754863814,
       "same_card_win_rate": 0.43190661478599224,
       "more_card_win_rate": 0.5097276264591439,
