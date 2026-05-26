@@ -25,6 +25,10 @@ class MatchLogger:
         self._current_turn = {"turn": turn}
         self.payload["turns"].append(self._current_turn)
 
+    def record_turn_start(self, payload: dict[str, object]) -> None:
+        assert self._current_turn is not None
+        self._current_turn["turn_start"] = payload
+
     def record_phase1(self, discarded: dict[str, list[str]]) -> None:
         assert self._current_turn is not None
         self._current_turn["phase1_mulligan"] = {
@@ -52,6 +56,16 @@ class MatchLogger:
         self._current_turn["battle"] = battle_payload
 
     def finish(self, state: GameState) -> dict[str, object]:
+        self.payload["players"] = {
+            player_id: {
+                "bot": player.bot_name,
+                "deck": player.deck_id,
+                "reshuffle_count": player.reshuffle_count,
+                "reshuffle_turns": list(player.reshuffle_turns),
+                "draw_shortfall_turns": list(player.draw_shortfall_turns),
+            }
+            for player_id, player in state.players.items()
+        }
         self.payload["winner"] = state.winner
         self.payload["end_reason"] = state.end_reason
         self.payload["turn_count"] = len(self.payload["turns"])

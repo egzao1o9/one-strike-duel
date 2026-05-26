@@ -1,16 +1,26 @@
 from __future__ import annotations
 
+import argparse
 import json
 from pathlib import Path
 from statistics import mean
 from typing import Any
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Render an aggregate report from summary.json files.")
+    parser.add_argument("--root", default="logs")
+    parser.add_argument("--output-md", default=None)
+    parser.add_argument("--output-json", default=None)
+    return parser.parse_args()
+
+
 def main() -> None:
-    root = Path("logs")
+    args = parse_args()
+    root = Path(args.root)
     summary = build_aggregate_summary(root)
-    output_path = root / "aggregate_report.md"
-    json_path = root / "aggregate_report.json"
+    output_path = Path(args.output_md) if args.output_md else root / "aggregate_report.md"
+    json_path = Path(args.output_json) if args.output_json else root / "aggregate_report.json"
     output_path.write_text(render_aggregate_markdown(summary), encoding="utf-8")
     json_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
     print(output_path)

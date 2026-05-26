@@ -1,0 +1,2065 @@
+{
+  "decks": {
+    "starter_attack": {
+      "deck_id": "starter_attack",
+      "matches": 40,
+      "wins": 15,
+      "losses": 16,
+      "draws": 9,
+      "win_rate": 0.375,
+      "draw_rate": 0.225,
+      "turns": {
+        "min": 1,
+        "avg": 1,
+        "max": 1
+      },
+      "winning_attack": {
+        "min": 2,
+        "avg": 7.87,
+        "max": 14
+      },
+      "winning_block": {
+        "min": 0,
+        "avg": 0.4,
+        "max": 2
+      },
+      "winning_speed": {
+        "min": -1,
+        "avg": 3.47,
+        "max": 9
+      },
+      "most_used_cards": [
+        [
+          "踏み込み",
+          22
+        ],
+        [
+          "押し込み",
+          21
+        ],
+        [
+          "集中",
+          20
+        ],
+        [
+          "渾身",
+          20
+        ],
+        [
+          "圧迫",
+          17
+        ],
+        [
+          "貫き",
+          16
+        ],
+        [
+          "崩し",
+          16
+        ],
+        [
+          "返し刃",
+          11
+        ],
+        [
+          "粉砕",
+          10
+        ],
+        [
+          "加速",
+          2
+        ]
+      ],
+      "winner_side_cards": [
+        [
+          "押し込み",
+          10
+        ],
+        [
+          "踏み込み",
+          9
+        ],
+        [
+          "崩し",
+          7
+        ],
+        [
+          "圧迫",
+          7
+        ],
+        [
+          "集中",
+          7
+        ],
+        [
+          "渾身",
+          7
+        ],
+        [
+          "貫き",
+          6
+        ],
+        [
+          "返し刃",
+          3
+        ],
+        [
+          "粉砕",
+          2
+        ],
+        [
+          "加速",
+          1
+        ]
+      ],
+      "lethal_cards": [
+        [
+          "押し込み",
+          10
+        ],
+        [
+          "踏み込み",
+          9
+        ],
+        [
+          "崩し",
+          7
+        ],
+        [
+          "渾身",
+          7
+        ],
+        [
+          "貫き",
+          6
+        ],
+        [
+          "返し刃",
+          3
+        ],
+        [
+          "粉砕",
+          2
+        ]
+      ],
+      "match_links": [
+        [
+          "match_0001",
+          "matches/match_0001_starter_attack_vs_starter_balanced.md"
+        ],
+        [
+          "match_0002",
+          "matches/match_0002_starter_balanced_vs_starter_attack.md"
+        ],
+        [
+          "match_0003",
+          "matches/match_0003_starter_attack_vs_starter_balanced.md"
+        ],
+        [
+          "match_0004",
+          "matches/match_0004_starter_balanced_vs_starter_attack.md"
+        ],
+        [
+          "match_0005",
+          "matches/match_0005_starter_attack_vs_starter_balanced.md"
+        ],
+        [
+          "match_0006",
+          "matches/match_0006_starter_balanced_vs_starter_attack.md"
+        ],
+        [
+          "match_0007",
+          "matches/match_0007_starter_attack_vs_starter_balanced.md"
+        ],
+        [
+          "match_0008",
+          "matches/match_0008_starter_balanced_vs_starter_attack.md"
+        ],
+        [
+          "match_0009",
+          "matches/match_0009_starter_attack_vs_starter_balanced.md"
+        ],
+        [
+          "match_0010",
+          "matches/match_0010_starter_balanced_vs_starter_attack.md"
+        ],
+        [
+          "match_0011",
+          "matches/match_0011_starter_attack_vs_starter_defense.md"
+        ],
+        [
+          "match_0012",
+          "matches/match_0012_starter_defense_vs_starter_attack.md"
+        ],
+        [
+          "match_0013",
+          "matches/match_0013_starter_attack_vs_starter_defense.md"
+        ],
+        [
+          "match_0014",
+          "matches/match_0014_starter_defense_vs_starter_attack.md"
+        ],
+        [
+          "match_0015",
+          "matches/match_0015_starter_attack_vs_starter_defense.md"
+        ],
+        [
+          "match_0016",
+          "matches/match_0016_starter_defense_vs_starter_attack.md"
+        ],
+        [
+          "match_0017",
+          "matches/match_0017_starter_attack_vs_starter_defense.md"
+        ],
+        [
+          "match_0018",
+          "matches/match_0018_starter_defense_vs_starter_attack.md"
+        ],
+        [
+          "match_0019",
+          "matches/match_0019_starter_attack_vs_starter_defense.md"
+        ],
+        [
+          "match_0020",
+          "matches/match_0020_starter_defense_vs_starter_attack.md"
+        ],
+        [
+          "match_0021",
+          "matches/match_0021_starter_attack_vs_starter_heavy.md"
+        ],
+        [
+          "match_0022",
+          "matches/match_0022_starter_heavy_vs_starter_attack.md"
+        ],
+        [
+          "match_0023",
+          "matches/match_0023_starter_attack_vs_starter_heavy.md"
+        ],
+        [
+          "match_0024",
+          "matches/match_0024_starter_heavy_vs_starter_attack.md"
+        ],
+        [
+          "match_0025",
+          "matches/match_0025_starter_attack_vs_starter_heavy.md"
+        ],
+        [
+          "match_0026",
+          "matches/match_0026_starter_heavy_vs_starter_attack.md"
+        ],
+        [
+          "match_0027",
+          "matches/match_0027_starter_attack_vs_starter_heavy.md"
+        ],
+        [
+          "match_0028",
+          "matches/match_0028_starter_heavy_vs_starter_attack.md"
+        ],
+        [
+          "match_0029",
+          "matches/match_0029_starter_attack_vs_starter_heavy.md"
+        ],
+        [
+          "match_0030",
+          "matches/match_0030_starter_heavy_vs_starter_attack.md"
+        ],
+        [
+          "match_0031",
+          "matches/match_0031_starter_attack_vs_starter_speed.md"
+        ],
+        [
+          "match_0032",
+          "matches/match_0032_starter_speed_vs_starter_attack.md"
+        ],
+        [
+          "match_0033",
+          "matches/match_0033_starter_attack_vs_starter_speed.md"
+        ],
+        [
+          "match_0034",
+          "matches/match_0034_starter_speed_vs_starter_attack.md"
+        ],
+        [
+          "match_0035",
+          "matches/match_0035_starter_attack_vs_starter_speed.md"
+        ],
+        [
+          "match_0036",
+          "matches/match_0036_starter_speed_vs_starter_attack.md"
+        ],
+        [
+          "match_0037",
+          "matches/match_0037_starter_attack_vs_starter_speed.md"
+        ],
+        [
+          "match_0038",
+          "matches/match_0038_starter_speed_vs_starter_attack.md"
+        ],
+        [
+          "match_0039",
+          "matches/match_0039_starter_attack_vs_starter_speed.md"
+        ],
+        [
+          "match_0040",
+          "matches/match_0040_starter_speed_vs_starter_attack.md"
+        ]
+      ]
+    },
+    "starter_balanced": {
+      "deck_id": "starter_balanced",
+      "matches": 40,
+      "wins": 27,
+      "losses": 7,
+      "draws": 6,
+      "win_rate": 0.675,
+      "draw_rate": 0.15,
+      "turns": {
+        "min": 1,
+        "avg": 1,
+        "max": 1
+      },
+      "winning_attack": {
+        "min": 3,
+        "avg": 6,
+        "max": 12
+      },
+      "winning_block": {
+        "min": 0,
+        "avg": 1.15,
+        "max": 4
+      },
+      "winning_speed": {
+        "min": 2,
+        "avg": 4.85,
+        "max": 8
+      },
+      "most_used_cards": [
+        [
+          "押し込み",
+          38
+        ],
+        [
+          "前のめり",
+          17
+        ],
+        [
+          "貫き",
+          15
+        ],
+        [
+          "返し刃",
+          15
+        ],
+        [
+          "崩し",
+          13
+        ],
+        [
+          "踏み込み",
+          11
+        ],
+        [
+          "圧迫",
+          9
+        ],
+        [
+          "集中",
+          7
+        ],
+        [
+          "加速",
+          3
+        ],
+        [
+          "勢い溜め",
+          2
+        ]
+      ],
+      "winner_side_cards": [
+        [
+          "押し込み",
+          29
+        ],
+        [
+          "前のめり",
+          13
+        ],
+        [
+          "崩し",
+          10
+        ],
+        [
+          "貫き",
+          10
+        ],
+        [
+          "踏み込み",
+          8
+        ],
+        [
+          "返し刃",
+          8
+        ],
+        [
+          "圧迫",
+          7
+        ],
+        [
+          "加速",
+          3
+        ],
+        [
+          "集中",
+          2
+        ],
+        [
+          "低姿勢",
+          1
+        ]
+      ],
+      "lethal_cards": [
+        [
+          "押し込み",
+          29
+        ],
+        [
+          "崩し",
+          10
+        ],
+        [
+          "貫き",
+          10
+        ],
+        [
+          "踏み込み",
+          8
+        ],
+        [
+          "返し刃",
+          8
+        ],
+        [
+          "低姿勢",
+          1
+        ]
+      ],
+      "match_links": [
+        [
+          "match_0001",
+          "matches/match_0001_starter_attack_vs_starter_balanced.md"
+        ],
+        [
+          "match_0002",
+          "matches/match_0002_starter_balanced_vs_starter_attack.md"
+        ],
+        [
+          "match_0003",
+          "matches/match_0003_starter_attack_vs_starter_balanced.md"
+        ],
+        [
+          "match_0004",
+          "matches/match_0004_starter_balanced_vs_starter_attack.md"
+        ],
+        [
+          "match_0005",
+          "matches/match_0005_starter_attack_vs_starter_balanced.md"
+        ],
+        [
+          "match_0006",
+          "matches/match_0006_starter_balanced_vs_starter_attack.md"
+        ],
+        [
+          "match_0007",
+          "matches/match_0007_starter_attack_vs_starter_balanced.md"
+        ],
+        [
+          "match_0008",
+          "matches/match_0008_starter_balanced_vs_starter_attack.md"
+        ],
+        [
+          "match_0009",
+          "matches/match_0009_starter_attack_vs_starter_balanced.md"
+        ],
+        [
+          "match_0010",
+          "matches/match_0010_starter_balanced_vs_starter_attack.md"
+        ],
+        [
+          "match_0041",
+          "matches/match_0041_starter_balanced_vs_starter_defense.md"
+        ],
+        [
+          "match_0042",
+          "matches/match_0042_starter_defense_vs_starter_balanced.md"
+        ],
+        [
+          "match_0043",
+          "matches/match_0043_starter_balanced_vs_starter_defense.md"
+        ],
+        [
+          "match_0044",
+          "matches/match_0044_starter_defense_vs_starter_balanced.md"
+        ],
+        [
+          "match_0045",
+          "matches/match_0045_starter_balanced_vs_starter_defense.md"
+        ],
+        [
+          "match_0046",
+          "matches/match_0046_starter_defense_vs_starter_balanced.md"
+        ],
+        [
+          "match_0047",
+          "matches/match_0047_starter_balanced_vs_starter_defense.md"
+        ],
+        [
+          "match_0048",
+          "matches/match_0048_starter_defense_vs_starter_balanced.md"
+        ],
+        [
+          "match_0049",
+          "matches/match_0049_starter_balanced_vs_starter_defense.md"
+        ],
+        [
+          "match_0050",
+          "matches/match_0050_starter_defense_vs_starter_balanced.md"
+        ],
+        [
+          "match_0051",
+          "matches/match_0051_starter_balanced_vs_starter_heavy.md"
+        ],
+        [
+          "match_0052",
+          "matches/match_0052_starter_heavy_vs_starter_balanced.md"
+        ],
+        [
+          "match_0053",
+          "matches/match_0053_starter_balanced_vs_starter_heavy.md"
+        ],
+        [
+          "match_0054",
+          "matches/match_0054_starter_heavy_vs_starter_balanced.md"
+        ],
+        [
+          "match_0055",
+          "matches/match_0055_starter_balanced_vs_starter_heavy.md"
+        ],
+        [
+          "match_0056",
+          "matches/match_0056_starter_heavy_vs_starter_balanced.md"
+        ],
+        [
+          "match_0057",
+          "matches/match_0057_starter_balanced_vs_starter_heavy.md"
+        ],
+        [
+          "match_0058",
+          "matches/match_0058_starter_heavy_vs_starter_balanced.md"
+        ],
+        [
+          "match_0059",
+          "matches/match_0059_starter_balanced_vs_starter_heavy.md"
+        ],
+        [
+          "match_0060",
+          "matches/match_0060_starter_heavy_vs_starter_balanced.md"
+        ],
+        [
+          "match_0061",
+          "matches/match_0061_starter_balanced_vs_starter_speed.md"
+        ],
+        [
+          "match_0062",
+          "matches/match_0062_starter_speed_vs_starter_balanced.md"
+        ],
+        [
+          "match_0063",
+          "matches/match_0063_starter_balanced_vs_starter_speed.md"
+        ],
+        [
+          "match_0064",
+          "matches/match_0064_starter_speed_vs_starter_balanced.md"
+        ],
+        [
+          "match_0065",
+          "matches/match_0065_starter_balanced_vs_starter_speed.md"
+        ],
+        [
+          "match_0066",
+          "matches/match_0066_starter_speed_vs_starter_balanced.md"
+        ],
+        [
+          "match_0067",
+          "matches/match_0067_starter_balanced_vs_starter_speed.md"
+        ],
+        [
+          "match_0068",
+          "matches/match_0068_starter_speed_vs_starter_balanced.md"
+        ],
+        [
+          "match_0069",
+          "matches/match_0069_starter_balanced_vs_starter_speed.md"
+        ],
+        [
+          "match_0070",
+          "matches/match_0070_starter_speed_vs_starter_balanced.md"
+        ]
+      ]
+    },
+    "starter_defense": {
+      "deck_id": "starter_defense",
+      "matches": 40,
+      "wins": 16,
+      "losses": 19,
+      "draws": 5,
+      "win_rate": 0.4,
+      "draw_rate": 0.125,
+      "turns": {
+        "min": 1,
+        "avg": 1,
+        "max": 1
+      },
+      "winning_attack": {
+        "min": 2,
+        "avg": 3.5,
+        "max": 6
+      },
+      "winning_block": {
+        "min": 1,
+        "avg": 4.31,
+        "max": 8
+      },
+      "winning_speed": {
+        "min": 0,
+        "avg": 2.38,
+        "max": 7
+      },
+      "most_used_cards": [
+        [
+          "返し刃",
+          61
+        ],
+        [
+          "集中",
+          16
+        ],
+        [
+          "加速",
+          9
+        ],
+        [
+          "構え",
+          7
+        ],
+        [
+          "牽制",
+          4
+        ],
+        [
+          "蓄え",
+          4
+        ],
+        [
+          "低姿勢",
+          3
+        ],
+        [
+          "鉄壁",
+          2
+        ],
+        [
+          "退き足",
+          2
+        ],
+        [
+          "受け流し",
+          1
+        ]
+      ],
+      "winner_side_cards": [
+        [
+          "返し刃",
+          28
+        ],
+        [
+          "集中",
+          5
+        ],
+        [
+          "構え",
+          5
+        ],
+        [
+          "加速",
+          3
+        ],
+        [
+          "牽制",
+          3
+        ],
+        [
+          "退き足",
+          2
+        ],
+        [
+          "低姿勢",
+          2
+        ]
+      ],
+      "lethal_cards": [
+        [
+          "返し刃",
+          28
+        ],
+        [
+          "退き足",
+          2
+        ],
+        [
+          "低姿勢",
+          2
+        ]
+      ],
+      "match_links": [
+        [
+          "match_0011",
+          "matches/match_0011_starter_attack_vs_starter_defense.md"
+        ],
+        [
+          "match_0012",
+          "matches/match_0012_starter_defense_vs_starter_attack.md"
+        ],
+        [
+          "match_0013",
+          "matches/match_0013_starter_attack_vs_starter_defense.md"
+        ],
+        [
+          "match_0014",
+          "matches/match_0014_starter_defense_vs_starter_attack.md"
+        ],
+        [
+          "match_0015",
+          "matches/match_0015_starter_attack_vs_starter_defense.md"
+        ],
+        [
+          "match_0016",
+          "matches/match_0016_starter_defense_vs_starter_attack.md"
+        ],
+        [
+          "match_0017",
+          "matches/match_0017_starter_attack_vs_starter_defense.md"
+        ],
+        [
+          "match_0018",
+          "matches/match_0018_starter_defense_vs_starter_attack.md"
+        ],
+        [
+          "match_0019",
+          "matches/match_0019_starter_attack_vs_starter_defense.md"
+        ],
+        [
+          "match_0020",
+          "matches/match_0020_starter_defense_vs_starter_attack.md"
+        ],
+        [
+          "match_0041",
+          "matches/match_0041_starter_balanced_vs_starter_defense.md"
+        ],
+        [
+          "match_0042",
+          "matches/match_0042_starter_defense_vs_starter_balanced.md"
+        ],
+        [
+          "match_0043",
+          "matches/match_0043_starter_balanced_vs_starter_defense.md"
+        ],
+        [
+          "match_0044",
+          "matches/match_0044_starter_defense_vs_starter_balanced.md"
+        ],
+        [
+          "match_0045",
+          "matches/match_0045_starter_balanced_vs_starter_defense.md"
+        ],
+        [
+          "match_0046",
+          "matches/match_0046_starter_defense_vs_starter_balanced.md"
+        ],
+        [
+          "match_0047",
+          "matches/match_0047_starter_balanced_vs_starter_defense.md"
+        ],
+        [
+          "match_0048",
+          "matches/match_0048_starter_defense_vs_starter_balanced.md"
+        ],
+        [
+          "match_0049",
+          "matches/match_0049_starter_balanced_vs_starter_defense.md"
+        ],
+        [
+          "match_0050",
+          "matches/match_0050_starter_defense_vs_starter_balanced.md"
+        ],
+        [
+          "match_0071",
+          "matches/match_0071_starter_defense_vs_starter_heavy.md"
+        ],
+        [
+          "match_0072",
+          "matches/match_0072_starter_heavy_vs_starter_defense.md"
+        ],
+        [
+          "match_0073",
+          "matches/match_0073_starter_defense_vs_starter_heavy.md"
+        ],
+        [
+          "match_0074",
+          "matches/match_0074_starter_heavy_vs_starter_defense.md"
+        ],
+        [
+          "match_0075",
+          "matches/match_0075_starter_defense_vs_starter_heavy.md"
+        ],
+        [
+          "match_0076",
+          "matches/match_0076_starter_heavy_vs_starter_defense.md"
+        ],
+        [
+          "match_0077",
+          "matches/match_0077_starter_defense_vs_starter_heavy.md"
+        ],
+        [
+          "match_0078",
+          "matches/match_0078_starter_heavy_vs_starter_defense.md"
+        ],
+        [
+          "match_0079",
+          "matches/match_0079_starter_defense_vs_starter_heavy.md"
+        ],
+        [
+          "match_0080",
+          "matches/match_0080_starter_heavy_vs_starter_defense.md"
+        ],
+        [
+          "match_0081",
+          "matches/match_0081_starter_defense_vs_starter_speed.md"
+        ],
+        [
+          "match_0082",
+          "matches/match_0082_starter_speed_vs_starter_defense.md"
+        ],
+        [
+          "match_0083",
+          "matches/match_0083_starter_defense_vs_starter_speed.md"
+        ],
+        [
+          "match_0084",
+          "matches/match_0084_starter_speed_vs_starter_defense.md"
+        ],
+        [
+          "match_0085",
+          "matches/match_0085_starter_defense_vs_starter_speed.md"
+        ],
+        [
+          "match_0086",
+          "matches/match_0086_starter_speed_vs_starter_defense.md"
+        ],
+        [
+          "match_0087",
+          "matches/match_0087_starter_defense_vs_starter_speed.md"
+        ],
+        [
+          "match_0088",
+          "matches/match_0088_starter_speed_vs_starter_defense.md"
+        ],
+        [
+          "match_0089",
+          "matches/match_0089_starter_defense_vs_starter_speed.md"
+        ],
+        [
+          "match_0090",
+          "matches/match_0090_starter_speed_vs_starter_defense.md"
+        ]
+      ]
+    },
+    "starter_heavy": {
+      "deck_id": "starter_heavy",
+      "matches": 40,
+      "wins": 1,
+      "losses": 37,
+      "draws": 2,
+      "win_rate": 0.025,
+      "draw_rate": 0.05,
+      "turns": {
+        "min": 1,
+        "avg": 1,
+        "max": 1
+      },
+      "winning_attack": {
+        "min": 3,
+        "avg": 3,
+        "max": 3
+      },
+      "winning_block": {
+        "min": 1,
+        "avg": 1,
+        "max": 1
+      },
+      "winning_speed": {
+        "min": 2,
+        "avg": 2,
+        "max": 2
+      },
+      "most_used_cards": [
+        [
+          "渾身",
+          35
+        ],
+        [
+          "大振り",
+          29
+        ],
+        [
+          "返し刃",
+          19
+        ],
+        [
+          "集中",
+          13
+        ],
+        [
+          "粉砕",
+          12
+        ],
+        [
+          "前のめり",
+          12
+        ],
+        [
+          "勢い溜め",
+          8
+        ],
+        [
+          "重心落とし",
+          2
+        ],
+        [
+          "補強",
+          2
+        ],
+        [
+          "蓄え",
+          2
+        ]
+      ],
+      "winner_side_cards": [
+        [
+          "前のめり",
+          1
+        ],
+        [
+          "返し刃",
+          1
+        ]
+      ],
+      "lethal_cards": [
+        [
+          "返し刃",
+          1
+        ]
+      ],
+      "match_links": [
+        [
+          "match_0021",
+          "matches/match_0021_starter_attack_vs_starter_heavy.md"
+        ],
+        [
+          "match_0022",
+          "matches/match_0022_starter_heavy_vs_starter_attack.md"
+        ],
+        [
+          "match_0023",
+          "matches/match_0023_starter_attack_vs_starter_heavy.md"
+        ],
+        [
+          "match_0024",
+          "matches/match_0024_starter_heavy_vs_starter_attack.md"
+        ],
+        [
+          "match_0025",
+          "matches/match_0025_starter_attack_vs_starter_heavy.md"
+        ],
+        [
+          "match_0026",
+          "matches/match_0026_starter_heavy_vs_starter_attack.md"
+        ],
+        [
+          "match_0027",
+          "matches/match_0027_starter_attack_vs_starter_heavy.md"
+        ],
+        [
+          "match_0028",
+          "matches/match_0028_starter_heavy_vs_starter_attack.md"
+        ],
+        [
+          "match_0029",
+          "matches/match_0029_starter_attack_vs_starter_heavy.md"
+        ],
+        [
+          "match_0030",
+          "matches/match_0030_starter_heavy_vs_starter_attack.md"
+        ],
+        [
+          "match_0051",
+          "matches/match_0051_starter_balanced_vs_starter_heavy.md"
+        ],
+        [
+          "match_0052",
+          "matches/match_0052_starter_heavy_vs_starter_balanced.md"
+        ],
+        [
+          "match_0053",
+          "matches/match_0053_starter_balanced_vs_starter_heavy.md"
+        ],
+        [
+          "match_0054",
+          "matches/match_0054_starter_heavy_vs_starter_balanced.md"
+        ],
+        [
+          "match_0055",
+          "matches/match_0055_starter_balanced_vs_starter_heavy.md"
+        ],
+        [
+          "match_0056",
+          "matches/match_0056_starter_heavy_vs_starter_balanced.md"
+        ],
+        [
+          "match_0057",
+          "matches/match_0057_starter_balanced_vs_starter_heavy.md"
+        ],
+        [
+          "match_0058",
+          "matches/match_0058_starter_heavy_vs_starter_balanced.md"
+        ],
+        [
+          "match_0059",
+          "matches/match_0059_starter_balanced_vs_starter_heavy.md"
+        ],
+        [
+          "match_0060",
+          "matches/match_0060_starter_heavy_vs_starter_balanced.md"
+        ],
+        [
+          "match_0071",
+          "matches/match_0071_starter_defense_vs_starter_heavy.md"
+        ],
+        [
+          "match_0072",
+          "matches/match_0072_starter_heavy_vs_starter_defense.md"
+        ],
+        [
+          "match_0073",
+          "matches/match_0073_starter_defense_vs_starter_heavy.md"
+        ],
+        [
+          "match_0074",
+          "matches/match_0074_starter_heavy_vs_starter_defense.md"
+        ],
+        [
+          "match_0075",
+          "matches/match_0075_starter_defense_vs_starter_heavy.md"
+        ],
+        [
+          "match_0076",
+          "matches/match_0076_starter_heavy_vs_starter_defense.md"
+        ],
+        [
+          "match_0077",
+          "matches/match_0077_starter_defense_vs_starter_heavy.md"
+        ],
+        [
+          "match_0078",
+          "matches/match_0078_starter_heavy_vs_starter_defense.md"
+        ],
+        [
+          "match_0079",
+          "matches/match_0079_starter_defense_vs_starter_heavy.md"
+        ],
+        [
+          "match_0080",
+          "matches/match_0080_starter_heavy_vs_starter_defense.md"
+        ],
+        [
+          "match_0091",
+          "matches/match_0091_starter_heavy_vs_starter_speed.md"
+        ],
+        [
+          "match_0092",
+          "matches/match_0092_starter_speed_vs_starter_heavy.md"
+        ],
+        [
+          "match_0093",
+          "matches/match_0093_starter_heavy_vs_starter_speed.md"
+        ],
+        [
+          "match_0094",
+          "matches/match_0094_starter_speed_vs_starter_heavy.md"
+        ],
+        [
+          "match_0095",
+          "matches/match_0095_starter_heavy_vs_starter_speed.md"
+        ],
+        [
+          "match_0096",
+          "matches/match_0096_starter_speed_vs_starter_heavy.md"
+        ],
+        [
+          "match_0097",
+          "matches/match_0097_starter_heavy_vs_starter_speed.md"
+        ],
+        [
+          "match_0098",
+          "matches/match_0098_starter_speed_vs_starter_heavy.md"
+        ],
+        [
+          "match_0099",
+          "matches/match_0099_starter_heavy_vs_starter_speed.md"
+        ],
+        [
+          "match_0100",
+          "matches/match_0100_starter_speed_vs_starter_heavy.md"
+        ]
+      ]
+    },
+    "starter_speed": {
+      "deck_id": "starter_speed",
+      "matches": 40,
+      "wins": 27,
+      "losses": 7,
+      "draws": 6,
+      "win_rate": 0.675,
+      "draw_rate": 0.15,
+      "turns": {
+        "min": 1,
+        "avg": 1,
+        "max": 1
+      },
+      "winning_attack": {
+        "min": 2,
+        "avg": 5.19,
+        "max": 9
+      },
+      "winning_block": {
+        "min": 0,
+        "avg": 0.81,
+        "max": 4
+      },
+      "winning_speed": {
+        "min": 2,
+        "avg": 5.3,
+        "max": 10
+      },
+      "most_used_cards": [
+        [
+          "押し込み",
+          35
+        ],
+        [
+          "前のめり",
+          27
+        ],
+        [
+          "崩し",
+          19
+        ],
+        [
+          "貫き",
+          16
+        ],
+        [
+          "圧迫",
+          7
+        ],
+        [
+          "加速",
+          4
+        ],
+        [
+          "疾走",
+          3
+        ],
+        [
+          "退き足",
+          1
+        ],
+        [
+          "フェイント",
+          1
+        ],
+        [
+          "蓄え",
+          1
+        ]
+      ],
+      "winner_side_cards": [
+        [
+          "押し込み",
+          25
+        ],
+        [
+          "崩し",
+          18
+        ],
+        [
+          "前のめり",
+          17
+        ],
+        [
+          "貫き",
+          12
+        ],
+        [
+          "圧迫",
+          5
+        ],
+        [
+          "加速",
+          3
+        ],
+        [
+          "疾走",
+          3
+        ],
+        [
+          "退き足",
+          1
+        ],
+        [
+          "フェイント",
+          1
+        ],
+        [
+          "蓄え",
+          1
+        ]
+      ],
+      "lethal_cards": [
+        [
+          "押し込み",
+          25
+        ],
+        [
+          "崩し",
+          18
+        ],
+        [
+          "貫き",
+          12
+        ],
+        [
+          "疾走",
+          3
+        ],
+        [
+          "退き足",
+          1
+        ],
+        [
+          "フェイント",
+          1
+        ]
+      ],
+      "match_links": [
+        [
+          "match_0031",
+          "matches/match_0031_starter_attack_vs_starter_speed.md"
+        ],
+        [
+          "match_0032",
+          "matches/match_0032_starter_speed_vs_starter_attack.md"
+        ],
+        [
+          "match_0033",
+          "matches/match_0033_starter_attack_vs_starter_speed.md"
+        ],
+        [
+          "match_0034",
+          "matches/match_0034_starter_speed_vs_starter_attack.md"
+        ],
+        [
+          "match_0035",
+          "matches/match_0035_starter_attack_vs_starter_speed.md"
+        ],
+        [
+          "match_0036",
+          "matches/match_0036_starter_speed_vs_starter_attack.md"
+        ],
+        [
+          "match_0037",
+          "matches/match_0037_starter_attack_vs_starter_speed.md"
+        ],
+        [
+          "match_0038",
+          "matches/match_0038_starter_speed_vs_starter_attack.md"
+        ],
+        [
+          "match_0039",
+          "matches/match_0039_starter_attack_vs_starter_speed.md"
+        ],
+        [
+          "match_0040",
+          "matches/match_0040_starter_speed_vs_starter_attack.md"
+        ],
+        [
+          "match_0061",
+          "matches/match_0061_starter_balanced_vs_starter_speed.md"
+        ],
+        [
+          "match_0062",
+          "matches/match_0062_starter_speed_vs_starter_balanced.md"
+        ],
+        [
+          "match_0063",
+          "matches/match_0063_starter_balanced_vs_starter_speed.md"
+        ],
+        [
+          "match_0064",
+          "matches/match_0064_starter_speed_vs_starter_balanced.md"
+        ],
+        [
+          "match_0065",
+          "matches/match_0065_starter_balanced_vs_starter_speed.md"
+        ],
+        [
+          "match_0066",
+          "matches/match_0066_starter_speed_vs_starter_balanced.md"
+        ],
+        [
+          "match_0067",
+          "matches/match_0067_starter_balanced_vs_starter_speed.md"
+        ],
+        [
+          "match_0068",
+          "matches/match_0068_starter_speed_vs_starter_balanced.md"
+        ],
+        [
+          "match_0069",
+          "matches/match_0069_starter_balanced_vs_starter_speed.md"
+        ],
+        [
+          "match_0070",
+          "matches/match_0070_starter_speed_vs_starter_balanced.md"
+        ],
+        [
+          "match_0081",
+          "matches/match_0081_starter_defense_vs_starter_speed.md"
+        ],
+        [
+          "match_0082",
+          "matches/match_0082_starter_speed_vs_starter_defense.md"
+        ],
+        [
+          "match_0083",
+          "matches/match_0083_starter_defense_vs_starter_speed.md"
+        ],
+        [
+          "match_0084",
+          "matches/match_0084_starter_speed_vs_starter_defense.md"
+        ],
+        [
+          "match_0085",
+          "matches/match_0085_starter_defense_vs_starter_speed.md"
+        ],
+        [
+          "match_0086",
+          "matches/match_0086_starter_speed_vs_starter_defense.md"
+        ],
+        [
+          "match_0087",
+          "matches/match_0087_starter_defense_vs_starter_speed.md"
+        ],
+        [
+          "match_0088",
+          "matches/match_0088_starter_speed_vs_starter_defense.md"
+        ],
+        [
+          "match_0089",
+          "matches/match_0089_starter_defense_vs_starter_speed.md"
+        ],
+        [
+          "match_0090",
+          "matches/match_0090_starter_speed_vs_starter_defense.md"
+        ],
+        [
+          "match_0091",
+          "matches/match_0091_starter_heavy_vs_starter_speed.md"
+        ],
+        [
+          "match_0092",
+          "matches/match_0092_starter_speed_vs_starter_heavy.md"
+        ],
+        [
+          "match_0093",
+          "matches/match_0093_starter_heavy_vs_starter_speed.md"
+        ],
+        [
+          "match_0094",
+          "matches/match_0094_starter_speed_vs_starter_heavy.md"
+        ],
+        [
+          "match_0095",
+          "matches/match_0095_starter_heavy_vs_starter_speed.md"
+        ],
+        [
+          "match_0096",
+          "matches/match_0096_starter_speed_vs_starter_heavy.md"
+        ],
+        [
+          "match_0097",
+          "matches/match_0097_starter_heavy_vs_starter_speed.md"
+        ],
+        [
+          "match_0098",
+          "matches/match_0098_starter_speed_vs_starter_heavy.md"
+        ],
+        [
+          "match_0099",
+          "matches/match_0099_starter_heavy_vs_starter_speed.md"
+        ],
+        [
+          "match_0100",
+          "matches/match_0100_starter_speed_vs_starter_heavy.md"
+        ]
+      ]
+    }
+  },
+  "pairs": {
+    "starter_attack vs starter_balanced": {
+      "pair_key": "starter_attack vs starter_balanced",
+      "decks": [
+        "starter_attack",
+        "starter_balanced"
+      ],
+      "matches": 10,
+      "draws": 2,
+      "wins": {
+        "starter_balanced": 7,
+        "starter_attack": 1
+      },
+      "turns": {
+        "min": 1,
+        "avg": 1,
+        "max": 1
+      }
+    },
+    "starter_attack vs starter_defense": {
+      "pair_key": "starter_attack vs starter_defense",
+      "decks": [
+        "starter_attack",
+        "starter_defense"
+      ],
+      "matches": 10,
+      "draws": 2,
+      "wins": {
+        "starter_attack": 5,
+        "starter_defense": 3
+      },
+      "turns": {
+        "min": 1,
+        "avg": 1,
+        "max": 1
+      }
+    },
+    "starter_attack vs starter_heavy": {
+      "pair_key": "starter_attack vs starter_heavy",
+      "decks": [
+        "starter_attack",
+        "starter_heavy"
+      ],
+      "matches": 10,
+      "draws": 1,
+      "wins": {
+        "starter_attack": 8,
+        "starter_heavy": 1
+      },
+      "turns": {
+        "min": 1,
+        "avg": 1,
+        "max": 1
+      }
+    },
+    "starter_attack vs starter_speed": {
+      "pair_key": "starter_attack vs starter_speed",
+      "decks": [
+        "starter_attack",
+        "starter_speed"
+      ],
+      "matches": 10,
+      "draws": 4,
+      "wins": {
+        "starter_speed": 5,
+        "starter_attack": 1
+      },
+      "turns": {
+        "min": 1,
+        "avg": 1,
+        "max": 1
+      }
+    },
+    "starter_balanced vs starter_defense": {
+      "pair_key": "starter_balanced vs starter_defense",
+      "decks": [
+        "starter_balanced",
+        "starter_defense"
+      ],
+      "matches": 10,
+      "draws": 2,
+      "wins": {
+        "starter_defense": 1,
+        "starter_balanced": 7
+      },
+      "turns": {
+        "min": 1,
+        "avg": 1,
+        "max": 1
+      }
+    },
+    "starter_balanced vs starter_heavy": {
+      "pair_key": "starter_balanced vs starter_heavy",
+      "decks": [
+        "starter_balanced",
+        "starter_heavy"
+      ],
+      "matches": 10,
+      "draws": 0,
+      "wins": {
+        "starter_balanced": 10
+      },
+      "turns": {
+        "min": 1,
+        "avg": 1,
+        "max": 1
+      }
+    },
+    "starter_balanced vs starter_speed": {
+      "pair_key": "starter_balanced vs starter_speed",
+      "decks": [
+        "starter_balanced",
+        "starter_speed"
+      ],
+      "matches": 10,
+      "draws": 2,
+      "wins": {
+        "starter_speed": 5,
+        "starter_balanced": 3
+      },
+      "turns": {
+        "min": 1,
+        "avg": 1,
+        "max": 1
+      }
+    },
+    "starter_defense vs starter_heavy": {
+      "pair_key": "starter_defense vs starter_heavy",
+      "decks": [
+        "starter_defense",
+        "starter_heavy"
+      ],
+      "matches": 10,
+      "draws": 1,
+      "wins": {
+        "starter_defense": 9
+      },
+      "turns": {
+        "min": 1,
+        "avg": 1,
+        "max": 1
+      }
+    },
+    "starter_defense vs starter_speed": {
+      "pair_key": "starter_defense vs starter_speed",
+      "decks": [
+        "starter_defense",
+        "starter_speed"
+      ],
+      "matches": 10,
+      "draws": 0,
+      "wins": {
+        "starter_speed": 7,
+        "starter_defense": 3
+      },
+      "turns": {
+        "min": 1,
+        "avg": 1,
+        "max": 1
+      }
+    },
+    "starter_heavy vs starter_speed": {
+      "pair_key": "starter_heavy vs starter_speed",
+      "decks": [
+        "starter_heavy",
+        "starter_speed"
+      ],
+      "matches": 10,
+      "draws": 0,
+      "wins": {
+        "starter_speed": 10
+      },
+      "turns": {
+        "min": 1,
+        "avg": 1,
+        "max": 1
+      }
+    }
+  },
+  "cards": {
+    "all": {
+      "返し刃": {
+        "id": "battle_counter",
+        "type": "battle",
+        "usage_count": 106,
+        "usage_match_count": 71,
+        "winner_usage_count": 40,
+        "winner_match_count": 28,
+        "lethal_count": 40
+      },
+      "押し込み": {
+        "id": "battle_press",
+        "type": "battle",
+        "usage_count": 94,
+        "usage_match_count": 68,
+        "winner_usage_count": 64,
+        "winner_match_count": 51,
+        "lethal_count": 64
+      },
+      "前のめり": {
+        "id": "control_overclock",
+        "type": "control",
+        "usage_count": 56,
+        "usage_match_count": 51,
+        "winner_usage_count": 31,
+        "winner_match_count": 31,
+        "lethal_count": 0
+      },
+      "集中": {
+        "id": "control_focus",
+        "type": "control",
+        "usage_count": 56,
+        "usage_match_count": 49,
+        "winner_usage_count": 14,
+        "winner_match_count": 14,
+        "lethal_count": 0
+      },
+      "渾身": {
+        "id": "battle_all_in",
+        "type": "battle",
+        "usage_count": 55,
+        "usage_match_count": 42,
+        "winner_usage_count": 7,
+        "winner_match_count": 6,
+        "lethal_count": 7
+      },
+      "崩し": {
+        "id": "battle_break",
+        "type": "battle",
+        "usage_count": 48,
+        "usage_match_count": 43,
+        "winner_usage_count": 35,
+        "winner_match_count": 35,
+        "lethal_count": 35
+      },
+      "貫き": {
+        "id": "battle_pierce",
+        "type": "battle",
+        "usage_count": 47,
+        "usage_match_count": 40,
+        "winner_usage_count": 28,
+        "winner_match_count": 28,
+        "lethal_count": 28
+      },
+      "圧迫": {
+        "id": "control_pressure",
+        "type": "control",
+        "usage_count": 33,
+        "usage_match_count": 31,
+        "winner_usage_count": 19,
+        "winner_match_count": 19,
+        "lethal_count": 0
+      },
+      "踏み込み": {
+        "id": "battle_step_in",
+        "type": "battle",
+        "usage_count": 33,
+        "usage_match_count": 28,
+        "winner_usage_count": 17,
+        "winner_match_count": 16,
+        "lethal_count": 17
+      },
+      "大振り": {
+        "id": "battle_heavy_swing",
+        "type": "battle",
+        "usage_count": 29,
+        "usage_match_count": 26,
+        "winner_usage_count": 0,
+        "winner_match_count": 0,
+        "lethal_count": 0
+      },
+      "粉砕": {
+        "id": "battle_crush",
+        "type": "battle",
+        "usage_count": 22,
+        "usage_match_count": 21,
+        "winner_usage_count": 2,
+        "winner_match_count": 2,
+        "lethal_count": 2
+      },
+      "加速": {
+        "id": "control_haste",
+        "type": "control",
+        "usage_count": 18,
+        "usage_match_count": 16,
+        "winner_usage_count": 10,
+        "winner_match_count": 10,
+        "lethal_count": 0
+      },
+      "勢い溜め": {
+        "id": "control_momentum",
+        "type": "control",
+        "usage_count": 11,
+        "usage_match_count": 11,
+        "winner_usage_count": 2,
+        "winner_match_count": 2,
+        "lethal_count": 0
+      },
+      "構え": {
+        "id": "control_guard",
+        "type": "control",
+        "usage_count": 8,
+        "usage_match_count": 8,
+        "winner_usage_count": 5,
+        "winner_match_count": 5,
+        "lethal_count": 0
+      },
+      "蓄え": {
+        "id": "control_reserve",
+        "type": "control",
+        "usage_count": 8,
+        "usage_match_count": 8,
+        "winner_usage_count": 1,
+        "winner_match_count": 1,
+        "lethal_count": 0
+      },
+      "牽制": {
+        "id": "control_disrupt",
+        "type": "control",
+        "usage_count": 5,
+        "usage_match_count": 5,
+        "winner_usage_count": 3,
+        "winner_match_count": 3,
+        "lethal_count": 0
+      },
+      "低姿勢": {
+        "id": "battle_low_stance",
+        "type": "battle",
+        "usage_count": 4,
+        "usage_match_count": 4,
+        "winner_usage_count": 3,
+        "winner_match_count": 3,
+        "lethal_count": 3
+      },
+      "疾走": {
+        "id": "battle_dash",
+        "type": "battle",
+        "usage_count": 3,
+        "usage_match_count": 3,
+        "winner_usage_count": 3,
+        "winner_match_count": 3,
+        "lethal_count": 3
+      },
+      "退き足": {
+        "id": "battle_backstep",
+        "type": "battle",
+        "usage_count": 3,
+        "usage_match_count": 3,
+        "winner_usage_count": 3,
+        "winner_match_count": 3,
+        "lethal_count": 3
+      },
+      "受け流し": {
+        "id": "battle_guard",
+        "type": "battle",
+        "usage_count": 2,
+        "usage_match_count": 2,
+        "winner_usage_count": 0,
+        "winner_match_count": 0,
+        "lethal_count": 0
+      },
+      "補強": {
+        "id": "control_fortify",
+        "type": "control",
+        "usage_count": 2,
+        "usage_match_count": 2,
+        "winner_usage_count": 0,
+        "winner_match_count": 0,
+        "lethal_count": 0
+      },
+      "重心落とし": {
+        "id": "control_anchor",
+        "type": "control",
+        "usage_count": 2,
+        "usage_match_count": 2,
+        "winner_usage_count": 0,
+        "winner_match_count": 0,
+        "lethal_count": 0
+      },
+      "鉄壁": {
+        "id": "battle_wall",
+        "type": "battle",
+        "usage_count": 2,
+        "usage_match_count": 2,
+        "winner_usage_count": 0,
+        "winner_match_count": 0,
+        "lethal_count": 0
+      },
+      "フェイント": {
+        "id": "battle_feint",
+        "type": "battle",
+        "usage_count": 1,
+        "usage_match_count": 1,
+        "winner_usage_count": 1,
+        "winner_match_count": 1,
+        "lethal_count": 1
+      },
+      "受け直し": {
+        "id": "control_cover",
+        "type": "control",
+        "usage_count": 1,
+        "usage_match_count": 1,
+        "winner_usage_count": 1,
+        "winner_match_count": 1,
+        "lethal_count": 0
+      },
+      "踏ん張り": {
+        "id": "battle_brace",
+        "type": "battle",
+        "usage_count": 1,
+        "usage_match_count": 1,
+        "winner_usage_count": 0,
+        "winner_match_count": 0,
+        "lethal_count": 0
+      },
+      "十字受け": {
+        "id": "battle_cross_guard",
+        "type": "battle",
+        "usage_count": 0,
+        "usage_match_count": 0,
+        "winner_usage_count": 0,
+        "winner_match_count": 0,
+        "lethal_count": 0
+      },
+      "残像": {
+        "id": "battle_afterimage",
+        "type": "battle",
+        "usage_count": 0,
+        "usage_match_count": 0,
+        "winner_usage_count": 0,
+        "winner_match_count": 0,
+        "lethal_count": 0
+      }
+    },
+    "most_used": [
+      [
+        "返し刃",
+        106
+      ],
+      [
+        "押し込み",
+        94
+      ],
+      [
+        "前のめり",
+        56
+      ],
+      [
+        "集中",
+        56
+      ],
+      [
+        "渾身",
+        55
+      ],
+      [
+        "崩し",
+        48
+      ],
+      [
+        "貫き",
+        47
+      ],
+      [
+        "圧迫",
+        33
+      ],
+      [
+        "踏み込み",
+        33
+      ],
+      [
+        "大振り",
+        29
+      ],
+      [
+        "粉砕",
+        22
+      ],
+      [
+        "加速",
+        18
+      ],
+      [
+        "勢い溜め",
+        11
+      ],
+      [
+        "構え",
+        8
+      ],
+      [
+        "蓄え",
+        8
+      ]
+    ],
+    "most_effective": [
+      [
+        "押し込み",
+        64
+      ],
+      [
+        "返し刃",
+        40
+      ],
+      [
+        "崩し",
+        35
+      ],
+      [
+        "前のめり",
+        31
+      ],
+      [
+        "貫き",
+        28
+      ],
+      [
+        "圧迫",
+        19
+      ],
+      [
+        "踏み込み",
+        17
+      ],
+      [
+        "集中",
+        14
+      ],
+      [
+        "加速",
+        10
+      ],
+      [
+        "渾身",
+        7
+      ],
+      [
+        "構え",
+        5
+      ],
+      [
+        "低姿勢",
+        3
+      ],
+      [
+        "疾走",
+        3
+      ],
+      [
+        "退き足",
+        3
+      ],
+      [
+        "牽制",
+        3
+      ]
+    ],
+    "most_lethal": [
+      [
+        "押し込み",
+        64
+      ],
+      [
+        "返し刃",
+        40
+      ],
+      [
+        "崩し",
+        35
+      ],
+      [
+        "貫き",
+        28
+      ],
+      [
+        "踏み込み",
+        17
+      ],
+      [
+        "渾身",
+        7
+      ],
+      [
+        "低姿勢",
+        3
+      ],
+      [
+        "疾走",
+        3
+      ],
+      [
+        "退き足",
+        3
+      ],
+      [
+        "粉砕",
+        2
+      ],
+      [
+        "フェイント",
+        1
+      ],
+      [
+        "前のめり",
+        0
+      ],
+      [
+        "圧迫",
+        0
+      ],
+      [
+        "集中",
+        0
+      ],
+      [
+        "加速",
+        0
+      ]
+    ]
+  },
+  "config": {
+    "bot": "AttackBot",
+    "matches_per_pair": 5,
+    "pairing_mode": "unordered pairings with mirrored seats",
+    "total_matches": 100,
+    "seed": 241
+  }
+}

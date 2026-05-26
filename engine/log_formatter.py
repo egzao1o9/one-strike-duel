@@ -11,18 +11,17 @@ PLAYER_LABELS = {
 }
 
 RESULT_LABELS = {
-    "win": "勝敗決着",
-    "draw": "引き分け",
-    "no_decision": "決着なし",
+    "win": "Win",
+    "draw": "Draw",
+    "no_decision": "No Decision",
 }
 
 END_REASON_LABELS = {
-    None: "未決着",
-    "p1_attack_success": "P1 の攻撃成功",
-    "p2_attack_success": "P2 の攻撃成功",
-    "simultaneous_attack": "同速相打ち",
-    "both_players_stuck": "両者行動不能",
-    "max_turns_reached": "最大ターン到達",
+    None: "No Decision",
+    "p1_attack_success": "P1 attack success",
+    "p2_attack_success": "P2 attack success",
+    "simultaneous_attack": "Simultaneous attack draw",
+    "max_turns_reached": "Max turns reached",
 }
 
 
@@ -62,10 +61,10 @@ def render_match_log_markdown(payload: dict[str, Any]) -> str:
         "",
         "## Summary",
         "",
-        "| Side | Bot | Deck |",
-        "|---|---|---|",
-        f"| P1 | {players['p1']['bot']} | `{players['p1']['deck']}` |",
-        f"| P2 | {players['p2']['bot']} | `{players['p2']['deck']}` |",
+        "| Side | Bot | Deck | Reshuffles | Draw Shortfall Turns |",
+        "|---|---|---|---:|---|",
+        _render_player_summary_row("p1", players["p1"]),
+        _render_player_summary_row("p2", players["p2"]),
         "",
         f"- Winner: {PLAYER_LABELS[winner] if winner else 'Draw'}",
         f"- End Reason: {END_REASON_LABELS.get(end_reason, str(end_reason))}",
@@ -82,89 +81,127 @@ def render_match_log_markdown(payload: dict[str, Any]) -> str:
     return "\n".join(lines).rstrip() + "\n"
 
 
+def _render_player_summary_row(player_id: str, player: dict[str, Any]) -> str:
+    return (
+        f"| {PLAYER_LABELS[player_id]} | {player['bot']} | `{player['deck']}` | "
+        f"{player.get('reshuffle_count', 0)} | {', '.join(str(value) for value in player.get('draw_shortfall_turns', [])) or '-'} |"
+    )
+
+
 def _render_turn(turn: dict[str, Any]) -> list[str]:
+    turn_start = turn.get("turn_start", {})
     phase1 = turn.get("phase1_mulligan", {})
     control = turn.get("control", {})
     phase3 = turn.get("phase3_mulligan", {})
     battle = turn.get("battle", {})
 
-    p1_speed = battle.get("p1_final", {}).get("speed")
-    p2_speed = battle.get("p2_final", {}).get("speed")
-    if p1_speed is None or p2_speed is None:
-        initiative = "不明"
-    elif p1_speed == p2_speed:
-        initiative = f"同速 ({p1_speed})"
-    else:
-        faster = "P1" if p1_speed > p2_speed else "P2"
-        initiative = f"{faster} 先制"
-
     lines = [
         f"Turn {turn['turn']}",
+        f"- Start: first={PLAYER_LABELS.get(turn_start.get('starting_player'), '?')} / P1 draw={turn_start.get('p1', {}).get('draw_count', 0)} / P2 draw={turn_start.get('p2', {}).get('draw_count', 0)}",
         f"- Mulligan1: P1 {_render_card_list(phase1.get('p1_discarded', []))} / P2 {_render_card_list(phase1.get('p2_discarded', []))}",
         f"- Control: P1 {_render_card_name(control.get('p1'))} / P2 {_render_card_name(control.get('p2'))}",
         f"- Mulligan2: P1 {_render_card_list(phase3.get('p1_discarded', []))} / P2 {_render_card_list(phase3.get('p2_discarded', []))}",
     ]
 
+    for side in ("p1", "p2"):
+        start_info = turn_start.get(side, {})
+        if start_info.get("overflow_discarded"):
+            lines.append(f"- Overflow {PLAYER_LABELS[side]}: {_render_card_list(start_info.get('overflow_discarded', []))}")
+        if start_info.get("reshuffled"):
+            lines.append(f"- Reshuffle: {PLAYER_LABELS[side]}")
+        if start_info.get("draw_shortfall"):
+            lines.append(f"- Draw Shortfall {PLAYER_LABELS[side]}: {start_info.get('draw_shortfall')}")
+
     reveals = control.get("reveals", {})
     if reveals.get("p1") or reveals.get("p2"):
         lines.append(f"- Reveals: P1 {_render_card_list(reveals.get('p1', []))} / P2 {_render_card_list(reveals.get('p2', []))}")
 
-    lines.extend(
-        [
-            f"- Battle: P1 {_render_battle_side(battle, 'p1')} vs P2 {_render_battle_side(battle, 'p2')}",
-            f"- Initiative: {initiative}",
-            f"- Result: {RESULT_LABELS.get(battle.get('result'), battle.get('result', 'unknown'))}",
-        ]
+    lines.append(
+        f"- Battle: P1 {_render_battle_side(battle, 'p1')} vs P2 {_render_battle_side(battle, 'p2')}"
     )
+    lines.append(f"- Initiative: {_get_initiative_label(battle)}")
+    lines.append(f"- Result: {RESULT_LABELS.get(battle.get('result'), battle.get('result', 'unknown'))}")
+    if battle.get("actions"):
+        for action in battle["actions"]:
+            lines.append(
+                f"- Action: {PLAYER_LABELS.get(action['player_id'], action['player_id'])} {action.get('action_name', action.get('action_type'))} "
+                f"set={action.get('set_count', 0)} after={action.get('counts_after', {})}"
+            )
     return lines
 
 
 def _render_turn_markdown(turn: dict[str, Any]) -> list[str]:
+    turn_start = turn.get("turn_start", {})
     phase1 = turn.get("phase1_mulligan", {})
     control = turn.get("control", {})
     phase3 = turn.get("phase3_mulligan", {})
     battle = turn.get("battle", {})
-    initiative = _get_initiative_label(battle)
 
     lines = [
         f"### Turn {turn['turn']}",
         "",
         "| Item | P1 | P2 |",
         "|---|---|---|",
+        f"| Start Draw | {_render_start_info(turn_start.get('p1', {}))} | {_render_start_info(turn_start.get('p2', {}))} |",
         f"| Mulligan1 | {_render_card_list(phase1.get('p1_discarded', []))} | {_render_card_list(phase1.get('p2_discarded', []))} |",
         f"| Control | {_render_card_name(control.get('p1'))} | {_render_card_name(control.get('p2'))} |",
         f"| Mulligan2 | {_render_card_list(phase3.get('p1_discarded', []))} | {_render_card_list(phase3.get('p2_discarded', []))} |",
         f"| Battle Cards | {_render_played_cards(battle, 'p1')} | {_render_played_cards(battle, 'p2')} |",
         f"| Final Stats | {_render_battle_stats(battle, 'p1')} | {_render_battle_stats(battle, 'p2')} |",
+        f"| Facedown Count | {battle.get('p1_facedown_count', '-')} | {battle.get('p2_facedown_count', '-')} |",
         "",
-        f"- Initiative: {initiative}",
+        f"- Starting Player: {PLAYER_LABELS.get(battle.get('starting_player'), PLAYER_LABELS.get(turn_start.get('starting_player'), '?'))}",
+        f"- First Pass Player: {PLAYER_LABELS.get(battle.get('first_pass_player'), '-') if battle.get('first_pass_player') else '-'}",
+        f"- Initiative: {_get_initiative_label(battle)}",
         f"- Result: {RESULT_LABELS.get(battle.get('result'), battle.get('result', 'unknown'))}",
     ]
+
+    if battle.get("winner_facedown_count") is not None:
+        lines.append(
+            f"- Winner Card Count: winner={battle.get('winner_facedown_count')} loser={battle.get('loser_facedown_count')} "
+            f"/ fewer={battle.get('won_with_fewer_cards')} same={battle.get('won_with_same_cards')} more={battle.get('won_with_more_cards')}"
+        )
 
     reveals = control.get("reveals", {})
     if reveals.get("p1") or reveals.get("p2"):
         lines.append(f"- Reveals: P1 {_render_card_list(reveals.get('p1', []))} / P2 {_render_card_list(reveals.get('p2', []))}")
 
+    if battle.get("actions"):
+        lines.extend(["", "| Action Order | Type | Set Count | Counts After |", "|---|---|---:|---|"])
+        for action in battle["actions"]:
+            lines.append(
+                f"| {PLAYER_LABELS.get(action['player_id'], action['player_id'])} | {action.get('action_name', action.get('action_type'))} | "
+                f"{action.get('set_count', 0)} | P1={action.get('counts_after', {}).get('p1', '?')} / P2={action.get('counts_after', {}).get('p2', '?')} |"
+            )
+
     return lines
+
+
+def _render_start_info(info: dict[str, Any]) -> str:
+    parts = [f"draw={info.get('draw_count', 0)}", f"hand={info.get('hand_count', '?')}"]
+    if info.get("overflow_discarded"):
+        parts.append(f"overflow={_render_card_list(info.get('overflow_discarded', []))}")
+    if info.get("reshuffled"):
+        parts.append("reshuffle")
+    if info.get("draw_shortfall"):
+        parts.append(f"short={info.get('draw_shortfall')}")
+    return " / ".join(parts)
 
 
 def _get_initiative_label(battle: dict[str, Any]) -> str:
     p1_speed = battle.get("p1_final", {}).get("speed")
     p2_speed = battle.get("p2_final", {}).get("speed")
     if p1_speed is None or p2_speed is None:
-        return "不明"
+        return "Unknown"
     if p1_speed == p2_speed:
-        return f"同速 ({p1_speed})"
+        return f"Tie ({p1_speed})"
     faster = "P1" if p1_speed > p2_speed else "P2"
-    return f"{faster} 先制"
+    return f"{faster} First"
 
 
 def _render_battle_side(battle: dict[str, Any], player_id: str) -> str:
     card_name = _render_played_cards(battle, player_id)
-    return (
-        f"{card_name} "
-        f"[{_render_battle_stats(battle, player_id)}]"
-    )
+    return f"{card_name} [{_render_battle_stats(battle, player_id)}]"
 
 
 def _render_battle_stats(battle: dict[str, Any], player_id: str) -> str:
@@ -177,7 +214,7 @@ def _render_card_name(card_name: str | None) -> str:
 
 
 def _render_card_list(cards: list[str]) -> str:
-    return ", ".join(cards) if cards else "なし"
+    return ", ".join(cards) if cards else "-"
 
 
 def _render_played_cards(battle: dict[str, Any], player_id: str) -> str:

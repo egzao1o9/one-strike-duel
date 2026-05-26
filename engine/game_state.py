@@ -22,9 +22,13 @@ class PlayerState:
     active_turn_effects: list[Effect] = field(default_factory=list)
     current_control_card: Card | None = None
     set_cards: list[Card] = field(default_factory=list)
+    battle_passed: bool = False
     current_reveals: list[str] = field(default_factory=list)
     mulligan1_discarded: int = 0
     mulligan2_discarded: int = 0
+    reshuffle_count: int = 0
+    reshuffle_turns: list[int] = field(default_factory=list)
+    draw_shortfall_turns: list[int] = field(default_factory=list)
 
     def draw(self, count: int) -> list[Card]:
         drawn: list[Card] = []
@@ -65,19 +69,29 @@ class PlayerView:
     opponent_deck_count: int
     opponent_last_battle_cards: tuple[Card, ...]
     opponent_control_card: Card | None
+    own_facedown_count: int
+    opponent_facedown_count: int
+    own_battle_passed: bool
+    opponent_battle_passed: bool
+    battle_starting_player: str
+    acting_player: str
 
 
 @dataclass
 class GameState:
     players: dict[str, PlayerState]
     rng: random.Random
-    hand_limit: int = 4
+    hand_limit: int = 6
+    initial_hand_size: int = 4
+    turn_draw_limit: int = 4
     turn: int = 1
     phase: str = "setup"
     winner: str | None = None
     end_reason: str | None = None
     finished: bool = False
     max_turns: int = 50
+    battle_starting_player: str = "p1"
+    acting_player: str = "p1"
 
     def opponent_of(self, player_id: str) -> str:
         return "p2" if player_id == "p1" else "p1"
@@ -101,4 +115,10 @@ class GameState:
             opponent_deck_count=len(opponent.draw_pile),
             opponent_last_battle_cards=opponent.visible_last_battle_cards(),
             opponent_control_card=opponent.current_control_card,
+            own_facedown_count=len(player.set_cards),
+            opponent_facedown_count=len(opponent.set_cards),
+            own_battle_passed=player.battle_passed,
+            opponent_battle_passed=opponent.battle_passed,
+            battle_starting_player=self.battle_starting_player,
+            acting_player=self.acting_player,
         )
