@@ -28,6 +28,21 @@
         "avg": 2.91,
         "max": 13
       },
+      "first_pass_matches": 460,
+      "first_pass_win_rate": 0.33043478260869563,
+      "fewer_card_win_rate": 0.10810810810810811,
+      "same_card_win_rate": 0.4575289575289575,
+      "more_card_win_rate": 0.4343629343629344,
+      "action_counts": {
+        "set": 881,
+        "pass": 748,
+        "set_pass": 1102
+      },
+      "action_rates": {
+        "set": 0.32259245697546685,
+        "set_pass": 0.40351519589893814,
+        "pass": 0.273892347125595
+      },
       "deck_usage": [
         [
           "starter_speed",
@@ -4655,6 +4670,21 @@
         "avg": 2.71,
         "max": 19
       },
+      "first_pass_matches": 593,
+      "first_pass_win_rate": 0.35075885328836426,
+      "fewer_card_win_rate": 0.09504132231404959,
+      "same_card_win_rate": 0.5805785123966942,
+      "more_card_win_rate": 0.3243801652892562,
+      "action_counts": {
+        "set": 517,
+        "set_pass": 1291,
+        "pass": 276
+      },
+      "action_rates": {
+        "set": 0.2480806142034549,
+        "set_pass": 0.6194817658349329,
+        "pass": 0.1324376199616123
+      },
       "deck_usage": [
         [
           "starter_balanced",
@@ -9138,6 +9168,21 @@
         "avg": 1.96,
         "max": 11
       },
+      "first_pass_matches": 417,
+      "first_pass_win_rate": 0.34292565947242204,
+      "fewer_card_win_rate": 0.056666666666666664,
+      "same_card_win_rate": 0.43333333333333335,
+      "more_card_win_rate": 0.51,
+      "action_counts": {
+        "set": 1287,
+        "set_pass": 2108,
+        "pass": 789
+      },
+      "action_rates": {
+        "set": 0.3076003824091778,
+        "set_pass": 0.5038240917782026,
+        "pass": 0.1885755258126195
+      },
       "deck_usage": [
         [
           "starter_balanced",
@@ -13464,6 +13509,21 @@
         "min": -2,
         "avg": 3.98,
         "max": 17
+      },
+      "first_pass_matches": 612,
+      "first_pass_win_rate": 0.32189542483660133,
+      "fewer_card_win_rate": 0.08550185873605948,
+      "same_card_win_rate": 0.4758364312267658,
+      "more_card_win_rate": 0.43866171003717475,
+      "action_counts": {
+        "set_pass": 1887,
+        "set": 465,
+        "pass": 598
+      },
+      "action_rates": {
+        "set": 0.1576271186440678,
+        "set_pass": 0.6396610169491526,
+        "pass": 0.20271186440677966
       },
       "deck_usage": [
         [
@@ -18128,6 +18188,21 @@
         "avg": 2.32,
         "max": 16
       },
+      "first_pass_matches": 618,
+      "first_pass_win_rate": 0.21844660194174756,
+      "fewer_card_win_rate": 0.0678391959798995,
+      "same_card_win_rate": 0.5150753768844221,
+      "more_card_win_rate": 0.41708542713567837,
+      "action_counts": {
+        "set": 726,
+        "pass": 867,
+        "set_pass": 1374
+      },
+      "action_rates": {
+        "set": 0.24469160768452983,
+        "set_pass": 0.46309403437815977,
+        "pass": 0.29221435793731043
+      },
       "deck_usage": [
         [
           "starter_heavy",
@@ -22710,6 +22785,21 @@
         "min": -7,
         "avg": 2.54,
         "max": 17
+      },
+      "first_pass_matches": 580,
+      "first_pass_win_rate": 0.3120689655172414,
+      "fewer_card_win_rate": 0.06554307116104868,
+      "same_card_win_rate": 0.4419475655430712,
+      "more_card_win_rate": 0.49250936329588013,
+      "action_counts": {
+        "set_pass": 2142,
+        "set": 965,
+        "pass": 524
+      },
+      "action_rates": {
+        "set": 0.26576700633434314,
+        "set_pass": 0.5899201321949876,
+        "pass": 0.14431286147066924
       },
       "deck_usage": [
         [
@@ -27578,6 +27668,21 @@
         "avg": 1.53,
         "max": 9
       },
+      "first_pass_matches": 457,
+      "first_pass_win_rate": 0.31072210065645517,
+      "fewer_card_win_rate": 0.06476190476190476,
+      "same_card_win_rate": 0.37523809523809526,
+      "more_card_win_rate": 0.56,
+      "action_counts": {
+        "set_pass": 1879,
+        "set": 1066,
+        "pass": 968
+      },
+      "action_rates": {
+        "set": 0.2724252491694352,
+        "set_pass": 0.4801942243802709,
+        "pass": 0.2473805264502939
+      },
       "deck_usage": [
         [
           "starter_speed",
@@ -32096,6 +32201,21 @@
         "min": -2,
         "avg": 3.96,
         "max": 18
+      },
+      "first_pass_matches": 674,
+      "first_pass_win_rate": 0.29080118694362017,
+      "fewer_card_win_rate": 0.08213552361396304,
+      "same_card_win_rate": 0.5564681724845996,
+      "more_card_win_rate": 0.3613963039014374,
+      "action_counts": {
+        "set": 417,
+        "set_pass": 2172,
+        "pass": 474
+      },
+      "action_rates": {
+        "set": 0.13614103819784526,
+        "set_pass": 0.7091087169441724,
+        "pass": 0.15475024485798236
       },
       "deck_usage": [
         [
@@ -36955,6 +37075,21 @@
         "min": -3,
         "avg": 1.09,
         "max": 6
+      },
+      "first_pass_matches": 589,
+      "first_pass_win_rate": 0.2937181663837012,
+      "fewer_card_win_rate": 0.058365758754863814,
+      "same_card_win_rate": 0.43190661478599224,
+      "more_card_win_rate": 0.5097276264591439,
+      "action_counts": {
+        "set_pass": 2548,
+        "set": 1103,
+        "pass": 1323
+      },
+      "action_rates": {
+        "set": 0.22175311620426216,
+        "set_pass": 0.5122637716123843,
+        "pass": 0.26598311218335347
       },
       "deck_usage": [
         [

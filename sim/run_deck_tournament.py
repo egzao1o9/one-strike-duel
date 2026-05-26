@@ -115,6 +115,10 @@ def build_match_record(payload: dict[str, Any], markdown_path: str) -> dict[str,
         "p1": list(battle.get("p1_cards", [])),
         "p2": list(battle.get("p2_cards", [])),
     }
+    action_counts = {
+        "p1": collect_action_counts(payload, "p1"),
+        "p2": collect_action_counts(payload, "p2"),
+    }
 
     record: dict[str, Any] = {
         "match_id": payload["match_id"],
@@ -130,6 +134,12 @@ def build_match_record(payload: dict[str, Any], markdown_path: str) -> dict[str,
         "battle": battle,
         "side_usage": side_usage,
         "decisive_cards": decisive_cards,
+        "action_counts": action_counts,
+        "first_pass_player": battle.get("first_pass_player"),
+        "first_pass_won": winner_side is not None and battle.get("first_pass_player") == winner_side,
+        "won_with_fewer_cards": bool(battle.get("won_with_fewer_cards")),
+        "won_with_same_cards": bool(battle.get("won_with_same_cards")),
+        "won_with_more_cards": bool(battle.get("won_with_more_cards")),
     }
     if winner_side:
         record["winner_final_stats"] = battle[f"{winner_side}_final"]
@@ -151,6 +161,15 @@ def collect_used_cards(payload: dict[str, Any], side: str) -> list[str]:
         battle_cards = turn.get("battle", {}).get(f"{side}_cards", [])
         cards.extend(battle_cards)
     return cards
+
+
+def collect_action_counts(payload: dict[str, Any], side: str) -> Counter[str]:
+    counts: Counter[str] = Counter()
+    for turn in payload.get("turns", []):
+        for action in turn.get("battle", {}).get("actions", []):
+            if action.get("player_id") == side:
+                counts[action.get("action_type", "unknown")] += 1
+    return counts
 
 
 def build_tournament_summary(records: list[dict[str, Any]], cards: dict[str, Any]) -> dict[str, Any]:
@@ -183,6 +202,12 @@ def build_tournament_summary(records: list[dict[str, Any]], cards: dict[str, Any
             "used_cards": Counter(),
             "winning_used_cards": Counter(),
             "lethal_cards": Counter(),
+            "action_counts": Counter(),
+            "first_pass_matches": 0,
+            "first_pass_wins": 0,
+            "wins_with_fewer_cards": 0,
+            "wins_with_same_cards": 0,
+            "wins_with_more_cards": 0,
             "match_links": [],
         }
 
@@ -192,7 +217,12 @@ def build_tournament_summary(records: list[dict[str, Any]], cards: dict[str, Any
             stats["matches"] += 1
             stats["turn_counts"].append(record["turn_count"])
             stats["used_cards"].update(record["side_usage"][side])
+            stats["action_counts"].update(record["action_counts"][side])
             stats["match_links"].append((record["match_id"], record["markdown_path"]))
+            if record["first_pass_player"] == side:
+                stats["first_pass_matches"] += 1
+                if record["winner_side"] == side:
+                    stats["first_pass_wins"] += 1
 
         if record["winner_side"] is None:
             deck_stats[record["p1_deck"]]["draws"] += 1
@@ -210,6 +240,9 @@ def build_tournament_summary(records: list[dict[str, Any]], cards: dict[str, Any
             winner_stats["winning_speed"].append(final_stats["speed"])
             winner_stats["winning_used_cards"].update(record["winner_used_cards"])
             winner_stats["lethal_cards"].update(record["winner_decisive_cards"])
+            winner_stats["wins_with_fewer_cards"] += int(record["won_with_fewer_cards"])
+            winner_stats["wins_with_same_cards"] += int(record["won_with_same_cards"])
+            winner_stats["wins_with_more_cards"] += int(record["won_with_more_cards"])
 
         pair_key = " vs ".join(sorted((record["p1_deck"], record["p2_deck"])))
         if pair_key not in pair_stats:
@@ -254,6 +287,9 @@ def build_tournament_summary(records: list[dict[str, Any]], cards: dict[str, Any
 
 def finalize_deck_stats(deck_id: str, stats: dict[str, Any]) -> dict[str, Any]:
     matches = stats["matches"] or 1
+    wins = stats["wins"]
+    total_actions = sum(stats["action_counts"].values()) or 1
+    first_pass_matches = stats["first_pass_matches"]
     return {
         "deck_id": deck_id,
         "matches": stats["matches"],
@@ -266,6 +302,17 @@ def finalize_deck_stats(deck_id: str, stats: dict[str, Any]) -> dict[str, Any]:
         "winning_attack": summarize_numbers(stats["winning_attack"]),
         "winning_block": summarize_numbers(stats["winning_block"]),
         "winning_speed": summarize_numbers(stats["winning_speed"]),
+        "first_pass_matches": first_pass_matches,
+        "first_pass_win_rate": stats["first_pass_wins"] / first_pass_matches if first_pass_matches else None,
+        "fewer_card_win_rate": (stats["wins_with_fewer_cards"] / wins) if wins else None,
+        "same_card_win_rate": (stats["wins_with_same_cards"] / wins) if wins else None,
+        "more_card_win_rate": (stats["wins_with_more_cards"] / wins) if wins else None,
+        "action_counts": dict(stats["action_counts"]),
+        "action_rates": {
+            "set": stats["action_counts"].get("set", 0) / total_actions,
+            "set_pass": stats["action_counts"].get("set_pass", 0) / total_actions,
+            "pass": stats["action_counts"].get("pass", 0) / total_actions,
+        },
         "most_used_cards": stats["used_cards"].most_common(10),
         "winner_side_cards": stats["winning_used_cards"].most_common(10),
         "lethal_cards": stats["lethal_cards"].most_common(10),
@@ -340,17 +387,16 @@ def render_tournament_markdown(summary: dict[str, Any]) -> str:
         "",
         "## Deck Summary",
         "",
-        "| Deck | Matches | Wins | Losses | Draws | Win Rate | Turn Min | Turn Avg | Turn Max | Win A Min | Win A Avg | Win A Max | Win B Min | Win B Avg | Win B Max | Win S Min | Win S Avg | Win S Max |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+        "| Deck | Matches | Wins | Losses | Draws | Win Rate | First Pass Win | Fewer Card Win | Set Rate | Set+Pass Rate | Pass Rate | Turn Min | Turn Avg | Turn Max |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
 
     for deck_id, stats in sorted(summary["decks"].items()):
         lines.append(
             f"| `{deck_id}` | {stats['matches']} | {stats['wins']} | {stats['losses']} | {stats['draws']} | {format_rate(stats['win_rate'])} | "
-            f"{fmt(stats['turns']['min'])} | {fmt(stats['turns']['avg'])} | {fmt(stats['turns']['max'])} | "
-            f"{fmt(stats['winning_attack']['min'])} | {fmt(stats['winning_attack']['avg'])} | {fmt(stats['winning_attack']['max'])} | "
-            f"{fmt(stats['winning_block']['min'])} | {fmt(stats['winning_block']['avg'])} | {fmt(stats['winning_block']['max'])} | "
-            f"{fmt(stats['winning_speed']['min'])} | {fmt(stats['winning_speed']['avg'])} | {fmt(stats['winning_speed']['max'])} |"
+            f"{format_optional_rate(stats['first_pass_win_rate'])} | {format_optional_rate(stats['fewer_card_win_rate'])} | "
+            f"{format_rate(stats['action_rates']['set'])} | {format_rate(stats['action_rates']['set_pass'])} | {format_rate(stats['action_rates']['pass'])} | "
+            f"{fmt(stats['turns']['min'])} | {fmt(stats['turns']['avg'])} | {fmt(stats['turns']['max'])} |"
         )
 
     lines.extend(["", "## Pair Summary", "", "| Pair | Matches | Draws | Wins | Turn Min | Turn Avg | Turn Max |", "|---|---:|---:|---|---:|---:|---:|"])
@@ -377,6 +423,11 @@ def render_tournament_markdown(summary: dict[str, Any]) -> str:
                 "",
                 f"- Win Rate: {format_rate(stats['win_rate'])}",
                 f"- Draw Rate: {format_rate(stats['draw_rate'])}",
+                f"- First Pass Win Rate: {format_optional_rate(stats['first_pass_win_rate'])}",
+                f"- Win With Fewer Cards: {format_optional_rate(stats['fewer_card_win_rate'])}",
+                f"- Win With Same Cards: {format_optional_rate(stats['same_card_win_rate'])}",
+                f"- Win With More Cards: {format_optional_rate(stats['more_card_win_rate'])}",
+                f"- Action Rates: set={format_rate(stats['action_rates']['set'])}, set_pass={format_rate(stats['action_rates']['set_pass'])}, pass={format_rate(stats['action_rates']['pass'])}",
                 f"- Turn Stats: min={fmt(stats['turns']['min'])}, avg={fmt(stats['turns']['avg'])}, max={fmt(stats['turns']['max'])}",
                 f"- Winning Attack Stats: min={fmt(stats['winning_attack']['min'])}, avg={fmt(stats['winning_attack']['avg'])}, max={fmt(stats['winning_attack']['max'])}",
                 f"- Winning Block Stats: min={fmt(stats['winning_block']['min'])}, avg={fmt(stats['winning_block']['avg'])}, max={fmt(stats['winning_block']['max'])}",
@@ -410,6 +461,10 @@ def render_rank_table(title: str, items: list[tuple[str, int]]) -> list[str]:
 
 def format_rate(value: float) -> str:
     return f"{value * 100:.1f}%"
+
+
+def format_optional_rate(value: float | None) -> str:
+    return "-" if value is None else format_rate(value)
 
 
 def fmt(value: float | int | None) -> str:

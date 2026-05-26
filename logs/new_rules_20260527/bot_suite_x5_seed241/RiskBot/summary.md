@@ -10,13 +10,13 @@
 
 ## Deck Summary
 
-| Deck | Matches | Wins | Losses | Draws | Win Rate | Turn Min | Turn Avg | Turn Max | Win A Min | Win A Avg | Win A Max | Win B Min | Win B Avg | Win B Max | Win S Min | Win S Avg | Win S Max |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| `starter_attack` | 40 | 22 | 16 | 2 | 55.0% | 1 | 1.3 | 4 | 1 | 6.05 | 12 | 0 | 0.59 | 3 | -2 | 2.68 | 8 |
-| `starter_balanced` | 40 | 23 | 16 | 1 | 57.5% | 1 | 1.7 | 6 | 1 | 3.87 | 8 | 0 | 3.13 | 8 | -1 | 2.74 | 7 |
-| `starter_defense` | 40 | 34 | 6 | 0 | 85.0% | 1 | 2.38 | 6 | 1 | 2.35 | 5 | 2 | 6.03 | 13 | -1 | 1.32 | 5 |
-| `starter_heavy` | 40 | 6 | 33 | 1 | 15.0% | 1 | 1.82 | 6 | 1 | 3.33 | 6 | 0 | 3.67 | 7 | -5 | -1.83 | -1 |
-| `starter_speed` | 40 | 12 | 26 | 2 | 30.0% | 1 | 1.45 | 5 | 1 | 2.17 | 5 | 0 | 1.08 | 3 | 1 | 3.33 | 12 |
+| Deck | Matches | Wins | Losses | Draws | Win Rate | First Pass Win | Fewer Card Win | Set Rate | Set+Pass Rate | Pass Rate | Turn Min | Turn Avg | Turn Max |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| `starter_attack` | 40 | 22 | 16 | 2 | 55.0% | 22.2% | 4.5% | 42.2% | 56.7% | 1.1% | 1 | 1.3 | 4 |
+| `starter_balanced` | 40 | 23 | 16 | 1 | 57.5% | 38.1% | 21.7% | 38.7% | 55.9% | 5.4% | 1 | 1.7 | 6 |
+| `starter_defense` | 40 | 34 | 6 | 0 | 85.0% | 53.8% | 14.7% | 40.6% | 56.2% | 3.1% | 1 | 2.38 | 6 |
+| `starter_heavy` | 40 | 6 | 33 | 1 | 15.0% | 0.0% | 0.0% | 39.2% | 51.7% | 9.2% | 1 | 1.82 | 6 |
+| `starter_speed` | 40 | 12 | 26 | 2 | 30.0% | 21.2% | 33.3% | 13.4% | 86.6% | 0.0% | 1 | 1.45 | 5 |
 
 ## Pair Summary
 
@@ -101,6 +101,11 @@
 
 - Win Rate: 55.0%
 - Draw Rate: 5.0%
+- First Pass Win Rate: 22.2%
+- Win With Fewer Cards: 4.5%
+- Win With Same Cards: 31.8%
+- Win With More Cards: 63.6%
+- Action Rates: set=42.2%, set_pass=56.7%, pass=1.1%
 - Turn Stats: min=1, avg=1.3, max=4
 - Winning Attack Stats: min=1, avg=6.05, max=12
 - Winning Block Stats: min=0, avg=0.59, max=3
@@ -194,6 +199,11 @@
 
 - Win Rate: 57.5%
 - Draw Rate: 2.5%
+- First Pass Win Rate: 38.1%
+- Win With Fewer Cards: 21.7%
+- Win With Same Cards: 26.1%
+- Win With More Cards: 52.2%
+- Action Rates: set=38.7%, set_pass=55.9%, pass=5.4%
 - Turn Stats: min=1, avg=1.7, max=6
 - Winning Attack Stats: min=1, avg=3.87, max=8
 - Winning Block Stats: min=0, avg=3.13, max=8
@@ -291,6 +301,11 @@
 
 - Win Rate: 85.0%
 - Draw Rate: 0.0%
+- First Pass Win Rate: 53.8%
+- Win With Fewer Cards: 14.7%
+- Win With Same Cards: 29.4%
+- Win With More Cards: 55.9%
+- Action Rates: set=40.6%, set_pass=56.2%, pass=3.1%
 - Turn Stats: min=1, avg=2.38, max=6
 - Winning Attack Stats: min=1, avg=2.35, max=5
 - Winning Block Stats: min=2, avg=6.03, max=13
@@ -385,6 +400,11 @@
 
 - Win Rate: 15.0%
 - Draw Rate: 2.5%
+- First Pass Win Rate: 0.0%
+- Win With Fewer Cards: 0.0%
+- Win With Same Cards: 50.0%
+- Win With More Cards: 50.0%
+- Action Rates: set=39.2%, set_pass=51.7%, pass=9.2%
 - Turn Stats: min=1, avg=1.82, max=6
 - Winning Attack Stats: min=1, avg=3.33, max=6
 - Winning Block Stats: min=0, avg=3.67, max=7
@@ -477,6 +497,11 @@
 
 - Win Rate: 30.0%
 - Draw Rate: 5.0%
+- First Pass Win Rate: 21.2%
+- Win With Fewer Cards: 33.3%
+- Win With Same Cards: 50.0%
+- Win With More Cards: 16.7%
+- Action Rates: set=13.4%, set_pass=86.6%, pass=0.0%
 - Turn Stats: min=1, avg=1.45, max=5
 - Winning Attack Stats: min=1, avg=2.17, max=5
 - Winning Block Stats: min=0, avg=1.08, max=3

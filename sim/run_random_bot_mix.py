@@ -134,6 +134,12 @@ def build_random_mix_summary(
             "used_cards": Counter(),
             "winning_used_cards": Counter(),
             "lethal_cards": Counter(),
+            "action_counts": Counter(),
+            "first_pass_matches": 0,
+            "first_pass_wins": 0,
+            "wins_with_fewer_cards": 0,
+            "wins_with_same_cards": 0,
+            "wins_with_more_cards": 0,
             "match_links": [],
         }
 
@@ -146,8 +152,13 @@ def build_random_mix_summary(
             bot["turn_counts"].append(record["turn_count"])
             bot["deck_usage"][deck_id] += 1
             bot["used_cards"].update(record["side_usage"][side])
+            bot["action_counts"].update(record["action_counts"][side])
             bot["match_links"].append((record["match_id"], record["markdown_path"]))
             deck_stats[deck_id]["matches"] += 1
+            if record["first_pass_player"] == side:
+                bot["first_pass_matches"] += 1
+                if record["winner_side"] == side:
+                    bot["first_pass_wins"] += 1
 
         if record["winner_side"] is None:
             bot_stats[record["p1_bot"]]["draws"] += 1
@@ -167,6 +178,9 @@ def build_random_mix_summary(
             winner_bot["winning_speed"].append(final_stats["speed"])
             winner_bot["winning_used_cards"].update(record["winner_used_cards"])
             winner_bot["lethal_cards"].update(record["winner_decisive_cards"])
+            winner_bot["wins_with_fewer_cards"] += int(record["won_with_fewer_cards"])
+            winner_bot["wins_with_same_cards"] += int(record["won_with_same_cards"])
+            winner_bot["wins_with_more_cards"] += int(record["won_with_more_cards"])
             deck_stats[record[f"{winner_side}_deck"]]["wins"] += 1
 
         pair_key = " vs ".join(sorted((record["p1_bot"], record["p2_bot"])))
@@ -213,6 +227,9 @@ def build_random_mix_summary(
 
 def finalize_bot_stats(bot_name: str, stats: dict[str, Any]) -> dict[str, Any]:
     matches = stats["matches"] or 1
+    wins = stats["wins"]
+    total_actions = sum(stats["action_counts"].values()) or 1
+    first_pass_matches = stats["first_pass_matches"]
     return {
         "bot": bot_name,
         "matches": stats["matches"],
@@ -225,6 +242,17 @@ def finalize_bot_stats(bot_name: str, stats: dict[str, Any]) -> dict[str, Any]:
         "winning_attack": summarize_numbers(stats["winning_attack"]),
         "winning_block": summarize_numbers(stats["winning_block"]),
         "winning_speed": summarize_numbers(stats["winning_speed"]),
+        "first_pass_matches": first_pass_matches,
+        "first_pass_win_rate": stats["first_pass_wins"] / first_pass_matches if first_pass_matches else None,
+        "fewer_card_win_rate": (stats["wins_with_fewer_cards"] / wins) if wins else None,
+        "same_card_win_rate": (stats["wins_with_same_cards"] / wins) if wins else None,
+        "more_card_win_rate": (stats["wins_with_more_cards"] / wins) if wins else None,
+        "action_counts": dict(stats["action_counts"]),
+        "action_rates": {
+            "set": stats["action_counts"].get("set", 0) / total_actions,
+            "set_pass": stats["action_counts"].get("set_pass", 0) / total_actions,
+            "pass": stats["action_counts"].get("pass", 0) / total_actions,
+        },
         "deck_usage": stats["deck_usage"].most_common(),
         "most_used_cards": stats["used_cards"].most_common(10),
         "winner_side_cards": stats["winning_used_cards"].most_common(10),
@@ -274,12 +302,14 @@ def render_random_mix_markdown(summary: dict[str, Any]) -> str:
         "",
         "## Bot Win Rates",
         "",
-        "| Bot | Matches | Wins | Losses | Draws | Win Rate | Turn Min | Turn Avg | Turn Max | Win A Avg | Win B Avg | Win S Avg |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+        "| Bot | Matches | Wins | Losses | Draws | Win Rate | First Pass Win | Fewer Card Win | Set Rate | Set+Pass Rate | Pass Rate | Turn Min | Turn Avg | Turn Max | Win A Avg | Win B Avg | Win S Avg |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for bot_name, stats in sorted(summary["bots"].items()):
         lines.append(
             f"| `{bot_name}` | {stats['matches']} | {stats['wins']} | {stats['losses']} | {stats['draws']} | {format_rate(stats['win_rate'])} | "
+            f"{format_optional_rate(stats['first_pass_win_rate'])} | {format_optional_rate(stats['fewer_card_win_rate'])} | "
+            f"{format_rate(stats['action_rates']['set'])} | {format_rate(stats['action_rates']['set_pass'])} | {format_rate(stats['action_rates']['pass'])} | "
             f"{fmt(stats['turns']['min'])} | {fmt(stats['turns']['avg'])} | {fmt(stats['turns']['max'])} | "
             f"{fmt(stats['winning_attack']['avg'])} | {fmt(stats['winning_block']['avg'])} | {fmt(stats['winning_speed']['avg'])} |"
         )
@@ -314,6 +344,11 @@ def render_random_mix_markdown(summary: dict[str, Any]) -> str:
                 "",
                 f"- Win Rate: {format_rate(stats['win_rate'])}",
                 f"- Draw Rate: {format_rate(stats['draw_rate'])}",
+                f"- First Pass Win Rate: {format_optional_rate(stats['first_pass_win_rate'])}",
+                f"- Win With Fewer Cards: {format_optional_rate(stats['fewer_card_win_rate'])}",
+                f"- Win With Same Cards: {format_optional_rate(stats['same_card_win_rate'])}",
+                f"- Win With More Cards: {format_optional_rate(stats['more_card_win_rate'])}",
+                f"- Action Rates: set={format_rate(stats['action_rates']['set'])}, set_pass={format_rate(stats['action_rates']['set_pass'])}, pass={format_rate(stats['action_rates']['pass'])}",
                 f"- Turn Stats: min={fmt(stats['turns']['min'])}, avg={fmt(stats['turns']['avg'])}, max={fmt(stats['turns']['max'])}",
                 f"- Winning Attack Stats: min={fmt(stats['winning_attack']['min'])}, avg={fmt(stats['winning_attack']['avg'])}, max={fmt(stats['winning_attack']['max'])}",
                 f"- Winning Block Stats: min={fmt(stats['winning_block']['min'])}, avg={fmt(stats['winning_block']['avg'])}, max={fmt(stats['winning_block']['max'])}",
@@ -343,6 +378,10 @@ def render_rank_table(title: str, items: list[tuple[str, int]]) -> list[str]:
 
 def format_rate(value: float) -> str:
     return f"{value * 100:.1f}%"
+
+
+def format_optional_rate(value: float | None) -> str:
+    return "-" if value is None else format_rate(value)
 
 
 def fmt(value: float | int | None) -> str:

@@ -28,6 +28,21 @@
         "avg": 3.47,
         "max": 9
       },
+      "first_pass_matches": 10,
+      "first_pass_win_rate": 0.4,
+      "fewer_card_win_rate": 0.13333333333333333,
+      "same_card_win_rate": 0.4,
+      "more_card_win_rate": 0.4666666666666667,
+      "action_counts": {
+        "set": 53,
+        "set_pass": 30,
+        "pass": 10
+      },
+      "action_rates": {
+        "set": 0.5698924731182796,
+        "set_pass": 0.3225806451612903,
+        "pass": 0.10752688172043011
+      },
       "most_used_cards": [
         [
           "踏み込み",
@@ -333,6 +348,21 @@
         "avg": 4.85,
         "max": 8
       },
+      "first_pass_matches": 15,
+      "first_pass_win_rate": 0.4666666666666667,
+      "fewer_card_win_rate": 0.14814814814814814,
+      "same_card_win_rate": 0.4444444444444444,
+      "more_card_win_rate": 0.4074074074074074,
+      "action_counts": {
+        "set": 43,
+        "pass": 16,
+        "set_pass": 24
+      },
+      "action_rates": {
+        "set": 0.5180722891566265,
+        "set_pass": 0.2891566265060241,
+        "pass": 0.1927710843373494
+      },
       "most_used_cards": [
         [
           "押し込み",
@@ -634,6 +664,21 @@
         "avg": 2.38,
         "max": 7
       },
+      "first_pass_matches": 30,
+      "first_pass_win_rate": 0.26666666666666666,
+      "fewer_card_win_rate": 0.375,
+      "same_card_win_rate": 0.3125,
+      "more_card_win_rate": 0.3125,
+      "action_counts": {
+        "set_pass": 34,
+        "set": 25,
+        "pass": 6
+      },
+      "action_rates": {
+        "set": 0.38461538461538464,
+        "set_pass": 0.5230769230769231,
+        "pass": 0.09230769230769231
+      },
       "most_used_cards": [
         [
           "返し刃",
@@ -911,6 +956,21 @@
         "avg": 2,
         "max": 2
       },
+      "first_pass_matches": 20,
+      "first_pass_win_rate": 0.05,
+      "fewer_card_win_rate": 0.0,
+      "same_card_win_rate": 1.0,
+      "more_card_win_rate": 0.0,
+      "action_counts": {
+        "set": 44,
+        "set_pass": 25,
+        "pass": 15
+      },
+      "action_rates": {
+        "set": 0.5238095238095238,
+        "set_pass": 0.2976190476190476,
+        "pass": 0.17857142857142858
+      },
       "most_used_cards": [
         [
           "渾身",
@@ -1159,6 +1219,21 @@
         "min": 2,
         "avg": 5.3,
         "max": 10
+      },
+      "first_pass_matches": 25,
+      "first_pass_win_rate": 0.48,
+      "fewer_card_win_rate": 0.3333333333333333,
+      "same_card_win_rate": 0.2962962962962963,
+      "more_card_win_rate": 0.37037037037037035,
+      "action_counts": {
+        "set": 30,
+        "pass": 11,
+        "set_pass": 29
+      },
+      "action_rates": {
+        "set": 0.42857142857142855,
+        "set_pass": 0.4142857142857143,
+        "pass": 0.15714285714285714
       },
       "most_used_cards": [
         [

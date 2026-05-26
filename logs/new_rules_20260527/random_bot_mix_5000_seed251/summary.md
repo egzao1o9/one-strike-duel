@@ -10,17 +10,17 @@
 
 ## Bot Win Rates
 
-| Bot | Matches | Wins | Losses | Draws | Win Rate | Turn Min | Turn Avg | Turn Max | Win A Avg | Win B Avg | Win S Avg |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| `AttackBot` | 1112 | 518 | 487 | 107 | 46.6% | 1 | 1.66 | 50 | 4.86 | 1.26 | 2.91 |
-| `BurstBot` | 1076 | 484 | 490 | 102 | 45.0% | 1 | 1.46 | 50 | 3.99 | 0.92 | 2.71 |
-| `DefenseBot` | 1037 | 600 | 379 | 58 | 57.9% | 1 | 2.79 | 50 | 2.48 | 3.23 | 1.96 |
-| `DisruptBot` | 1121 | 538 | 500 | 83 | 48.0% | 1 | 2.22 | 50 | 3.61 | 0.73 | 3.98 |
-| `GreedyBot` | 1101 | 398 | 601 | 102 | 36.1% | 1 | 2.04 | 50 | 3.07 | 1.81 | 2.32 |
-| `RandomBot` | 1172 | 534 | 553 | 85 | 45.6% | 1 | 2.27 | 50 | 3.1 | 1.68 | 2.54 |
-| `RiskBot` | 1085 | 525 | 470 | 90 | 48.4% | 1 | 2.62 | 50 | 3.42 | 2.66 | 1.53 |
-| `TempoBot` | 1170 | 487 | 601 | 82 | 41.6% | 1 | 2.26 | 50 | 2.78 | 0.84 | 3.96 |
-| `TurtleBot` | 1126 | 514 | 517 | 95 | 45.6% | 1 | 3.44 | 50 | 2.13 | 3.54 | 1.09 |
+| Bot | Matches | Wins | Losses | Draws | Win Rate | First Pass Win | Fewer Card Win | Set Rate | Set+Pass Rate | Pass Rate | Turn Min | Turn Avg | Turn Max | Win A Avg | Win B Avg | Win S Avg |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| `AttackBot` | 1112 | 518 | 487 | 107 | 46.6% | 33.0% | 10.8% | 32.3% | 40.4% | 27.4% | 1 | 1.66 | 50 | 4.86 | 1.26 | 2.91 |
+| `BurstBot` | 1076 | 484 | 490 | 102 | 45.0% | 35.1% | 9.5% | 24.8% | 61.9% | 13.2% | 1 | 1.46 | 50 | 3.99 | 0.92 | 2.71 |
+| `DefenseBot` | 1037 | 600 | 379 | 58 | 57.9% | 34.3% | 5.7% | 30.8% | 50.4% | 18.9% | 1 | 2.79 | 50 | 2.48 | 3.23 | 1.96 |
+| `DisruptBot` | 1121 | 538 | 500 | 83 | 48.0% | 32.2% | 8.6% | 15.8% | 64.0% | 20.3% | 1 | 2.22 | 50 | 3.61 | 0.73 | 3.98 |
+| `GreedyBot` | 1101 | 398 | 601 | 102 | 36.1% | 21.8% | 6.8% | 24.5% | 46.3% | 29.2% | 1 | 2.04 | 50 | 3.07 | 1.81 | 2.32 |
+| `RandomBot` | 1172 | 534 | 553 | 85 | 45.6% | 31.2% | 6.6% | 26.6% | 59.0% | 14.4% | 1 | 2.27 | 50 | 3.1 | 1.68 | 2.54 |
+| `RiskBot` | 1085 | 525 | 470 | 90 | 48.4% | 31.1% | 6.5% | 27.2% | 48.0% | 24.7% | 1 | 2.62 | 50 | 3.42 | 2.66 | 1.53 |
+| `TempoBot` | 1170 | 487 | 601 | 82 | 41.6% | 29.1% | 8.2% | 13.6% | 70.9% | 15.5% | 1 | 2.26 | 50 | 2.78 | 0.84 | 3.96 |
+| `TurtleBot` | 1126 | 514 | 517 | 95 | 45.6% | 29.4% | 5.8% | 22.2% | 51.2% | 26.6% | 1 | 3.44 | 50 | 2.13 | 3.54 | 1.09 |
 
 ## Bot Pair Summary
 
@@ -150,6 +150,11 @@
 
 - Win Rate: 46.6%
 - Draw Rate: 9.6%
+- First Pass Win Rate: 33.0%
+- Win With Fewer Cards: 10.8%
+- Win With Same Cards: 45.8%
+- Win With More Cards: 43.4%
+- Action Rates: set=32.3%, set_pass=40.4%, pass=27.4%
 - Turn Stats: min=1, avg=1.66, max=50
 - Winning Attack Stats: min=1, avg=4.86, max=16
 - Winning Block Stats: min=0, avg=1.26, max=9
@@ -214,6 +219,11 @@
 
 - Win Rate: 45.0%
 - Draw Rate: 9.5%
+- First Pass Win Rate: 35.1%
+- Win With Fewer Cards: 9.5%
+- Win With Same Cards: 58.1%
+- Win With More Cards: 32.4%
+- Action Rates: set=24.8%, set_pass=61.9%, pass=13.2%
 - Turn Stats: min=1, avg=1.46, max=50
 - Winning Attack Stats: min=1, avg=3.99, max=15
 - Winning Block Stats: min=0, avg=0.92, max=8
@@ -278,6 +288,11 @@
 
 - Win Rate: 57.9%
 - Draw Rate: 5.6%
+- First Pass Win Rate: 34.3%
+- Win With Fewer Cards: 5.7%
+- Win With Same Cards: 43.3%
+- Win With More Cards: 51.0%
+- Action Rates: set=30.8%, set_pass=50.4%, pass=18.9%
 - Turn Stats: min=1, avg=2.79, max=50
 - Winning Attack Stats: min=1, avg=2.48, max=9
 - Winning Block Stats: min=0, avg=3.23, max=13
@@ -342,6 +357,11 @@
 
 - Win Rate: 48.0%
 - Draw Rate: 7.4%
+- First Pass Win Rate: 32.2%
+- Win With Fewer Cards: 8.6%
+- Win With Same Cards: 47.6%
+- Win With More Cards: 43.9%
+- Action Rates: set=15.8%, set_pass=64.0%, pass=20.3%
 - Turn Stats: min=1, avg=2.22, max=50
 - Winning Attack Stats: min=1, avg=3.61, max=12
 - Winning Block Stats: min=0, avg=0.73, max=4
@@ -406,6 +426,11 @@
 
 - Win Rate: 36.1%
 - Draw Rate: 9.3%
+- First Pass Win Rate: 21.8%
+- Win With Fewer Cards: 6.8%
+- Win With Same Cards: 51.5%
+- Win With More Cards: 41.7%
+- Action Rates: set=24.5%, set_pass=46.3%, pass=29.2%
 - Turn Stats: min=1, avg=2.04, max=50
 - Winning Attack Stats: min=1, avg=3.07, max=13
 - Winning Block Stats: min=0, avg=1.81, max=11
@@ -470,6 +495,11 @@
 
 - Win Rate: 45.6%
 - Draw Rate: 7.3%
+- First Pass Win Rate: 31.2%
+- Win With Fewer Cards: 6.6%
+- Win With Same Cards: 44.2%
+- Win With More Cards: 49.3%
+- Action Rates: set=26.6%, set_pass=59.0%, pass=14.4%
 - Turn Stats: min=1, avg=2.27, max=50
 - Winning Attack Stats: min=1, avg=3.1, max=15
 - Winning Block Stats: min=0, avg=1.68, max=11
@@ -534,6 +564,11 @@
 
 - Win Rate: 48.4%
 - Draw Rate: 8.3%
+- First Pass Win Rate: 31.1%
+- Win With Fewer Cards: 6.5%
+- Win With Same Cards: 37.5%
+- Win With More Cards: 56.0%
+- Action Rates: set=27.2%, set_pass=48.0%, pass=24.7%
 - Turn Stats: min=1, avg=2.62, max=50
 - Winning Attack Stats: min=1, avg=3.42, max=12
 - Winning Block Stats: min=0, avg=2.66, max=14
@@ -598,6 +633,11 @@
 
 - Win Rate: 41.6%
 - Draw Rate: 7.0%
+- First Pass Win Rate: 29.1%
+- Win With Fewer Cards: 8.2%
+- Win With Same Cards: 55.6%
+- Win With More Cards: 36.1%
+- Action Rates: set=13.6%, set_pass=70.9%, pass=15.5%
 - Turn Stats: min=1, avg=2.26, max=50
 - Winning Attack Stats: min=1, avg=2.78, max=10
 - Winning Block Stats: min=0, avg=0.84, max=5
@@ -662,6 +702,11 @@
 
 - Win Rate: 45.6%
 - Draw Rate: 8.4%
+- First Pass Win Rate: 29.4%
+- Win With Fewer Cards: 5.8%
+- Win With Same Cards: 43.2%
+- Win With More Cards: 51.0%
+- Action Rates: set=22.2%, set_pass=51.2%, pass=26.6%
 - Turn Stats: min=1, avg=3.44, max=50
 - Winning Attack Stats: min=1, avg=2.13, max=6
 - Winning Block Stats: min=0, avg=3.54, max=13

@@ -202,6 +202,12 @@ def build_draft_summary(records: list[dict[str, Any]], cards: dict[str, Any], dr
             "rarity_common": [],
             "rarity_uncommon": [],
             "rarity_rare": [],
+            "action_counts": Counter(),
+            "first_pass_matches": 0,
+            "first_pass_wins": 0,
+            "wins_with_fewer_cards": 0,
+            "wins_with_same_cards": 0,
+            "wins_with_more_cards": 0,
             "match_links": [],
         }
 
@@ -225,6 +231,7 @@ def build_draft_summary(records: list[dict[str, Any]], cards: dict[str, Any], dr
             stats["matches"] += 1
             stats["turn_counts"].append(record["turn_count"])
             stats["picked_cards"].update(cards[card_id].name for card_id in record[f"{side}_deck_cards"])
+            stats["action_counts"].update(record["action_counts"][side])
             stats["battle_counts"].append(summary["battle_count"])
             stats["control_counts"].append(summary["control_count"])
             stats["role_red"].append(summary["role_counts"]["red"])
@@ -235,6 +242,10 @@ def build_draft_summary(records: list[dict[str, Any]], cards: dict[str, Any], dr
             stats["rarity_uncommon"].append(summary["rarity_counts"]["uncommon"])
             stats["rarity_rare"].append(summary["rarity_counts"]["rare"])
             stats["match_links"].append((record["match_id"], record["markdown_path"]))
+            if record["first_pass_player"] == side:
+                stats["first_pass_matches"] += 1
+                if record["winner_side"] == side:
+                    stats["first_pass_wins"] += 1
 
         if record["winner_side"] is None:
             pair["draws"] += 1
@@ -250,6 +261,9 @@ def build_draft_summary(records: list[dict[str, Any]], cards: dict[str, Any], dr
             drafter_stats[winner_name]["winning_picked_cards"].update(
                 cards[card_id].name for card_id in record[f"{winner_side}_deck_cards"]
             )
+            drafter_stats[winner_name]["wins_with_fewer_cards"] += int(record["won_with_fewer_cards"])
+            drafter_stats[winner_name]["wins_with_same_cards"] += int(record["won_with_same_cards"])
+            drafter_stats[winner_name]["wins_with_more_cards"] += int(record["won_with_more_cards"])
             pair["wins"][winner_name] += 1
 
         seen_in_match: set[str] = set()
@@ -278,6 +292,9 @@ def build_draft_summary(records: list[dict[str, Any]], cards: dict[str, Any], dr
 
 def finalize_drafter_stats(name: str, stats: dict[str, Any]) -> dict[str, Any]:
     matches = stats["matches"] or 1
+    wins = stats["wins"]
+    total_actions = sum(stats["action_counts"].values()) or 1
+    first_pass_matches = stats["first_pass_matches"]
     return {
         "drafter": name,
         "matches": stats["matches"],
@@ -296,6 +313,17 @@ def finalize_drafter_stats(name: str, stats: dict[str, Any]) -> dict[str, Any]:
         "rarity_common": summarize_numbers(stats["rarity_common"]),
         "rarity_uncommon": summarize_numbers(stats["rarity_uncommon"]),
         "rarity_rare": summarize_numbers(stats["rarity_rare"]),
+        "first_pass_matches": first_pass_matches,
+        "first_pass_win_rate": stats["first_pass_wins"] / first_pass_matches if first_pass_matches else None,
+        "fewer_card_win_rate": (stats["wins_with_fewer_cards"] / wins) if wins else None,
+        "same_card_win_rate": (stats["wins_with_same_cards"] / wins) if wins else None,
+        "more_card_win_rate": (stats["wins_with_more_cards"] / wins) if wins else None,
+        "action_counts": dict(stats["action_counts"]),
+        "action_rates": {
+            "set": stats["action_counts"].get("set", 0) / total_actions,
+            "set_pass": stats["action_counts"].get("set_pass", 0) / total_actions,
+            "pass": stats["action_counts"].get("pass", 0) / total_actions,
+        },
         "most_picked_cards": stats["picked_cards"].most_common(10),
         "winning_picked_cards": stats["winning_picked_cards"].most_common(10),
         "match_links": stats["match_links"],
@@ -331,12 +359,14 @@ def render_draft_report_markdown(summary: dict[str, Any]) -> str:
         "",
         "## Drafter Summary",
         "",
-        "| Drafter | Matches | Wins | Losses | Draws | Win Rate | Battle Avg | Control Avg | Red Avg | Blue Avg | Green Avg | White Avg | Common Avg | Uncommon Avg | Rare Avg |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+        "| Drafter | Matches | Wins | Losses | Draws | Win Rate | First Pass Win | Fewer Card Win | Set Rate | Set+Pass Rate | Pass Rate | Battle Avg | Control Avg | Red Avg | Blue Avg | Green Avg | White Avg | Common Avg | Uncommon Avg | Rare Avg |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for name, stats in sorted(summary["drafters"].items()):
         lines.append(
             f"| `{name}` | {stats['matches']} | {stats['wins']} | {stats['losses']} | {stats['draws']} | {format_rate(stats['win_rate'])} | "
+            f"{format_optional_rate(stats['first_pass_win_rate'])} | {format_optional_rate(stats['fewer_card_win_rate'])} | "
+            f"{format_rate(stats['action_rates']['set'])} | {format_rate(stats['action_rates']['set_pass'])} | {format_rate(stats['action_rates']['pass'])} | "
             f"{fmt(stats['battle_count']['avg'])} | {fmt(stats['control_count']['avg'])} | "
             f"{fmt(stats['role_red']['avg'])} | {fmt(stats['role_blue']['avg'])} | {fmt(stats['role_green']['avg'])} | {fmt(stats['role_white']['avg'])} | "
             f"{fmt(stats['rarity_common']['avg'])} | {fmt(stats['rarity_uncommon']['avg'])} | {fmt(stats['rarity_rare']['avg'])} |"
@@ -364,6 +394,11 @@ def render_draft_report_markdown(summary: dict[str, Any]) -> str:
                 "",
                 f"- Win Rate: {format_rate(stats['win_rate'])}",
                 f"- Draw Rate: {format_rate(stats['draw_rate'])}",
+                f"- First Pass Win Rate: {format_optional_rate(stats['first_pass_win_rate'])}",
+                f"- Win With Fewer Cards: {format_optional_rate(stats['fewer_card_win_rate'])}",
+                f"- Win With Same Cards: {format_optional_rate(stats['same_card_win_rate'])}",
+                f"- Win With More Cards: {format_optional_rate(stats['more_card_win_rate'])}",
+                f"- Action Rates: set={format_rate(stats['action_rates']['set'])}, set_pass={format_rate(stats['action_rates']['set_pass'])}, pass={format_rate(stats['action_rates']['pass'])}",
                 f"- Turns: min={fmt(stats['turns']['min'])}, avg={fmt(stats['turns']['avg'])}, max={fmt(stats['turns']['max'])}",
                 f"- Battle / Control: avg={fmt(stats['battle_count']['avg'])} / {fmt(stats['control_count']['avg'])}",
                 f"- Role Colors: red={fmt(stats['role_red']['avg'])}, blue={fmt(stats['role_blue']['avg'])}, green={fmt(stats['role_green']['avg'])}, white={fmt(stats['role_white']['avg'])}",
@@ -395,6 +430,10 @@ def render_rank_table(title: str, items: list[tuple[str, int]]) -> list[str]:
 
 def format_rate(value: float) -> str:
     return f"{value * 100:.1f}%"
+
+
+def format_optional_rate(value: float | None) -> str:
+    return "-" if value is None else format_rate(value)
 
 
 def fmt(value: float | int | None) -> str:

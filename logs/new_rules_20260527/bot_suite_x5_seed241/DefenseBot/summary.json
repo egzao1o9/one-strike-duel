@@ -28,6 +28,21 @@
         "avg": 2.25,
         "max": 6
       },
+      "first_pass_matches": 32,
+      "first_pass_win_rate": 0.125,
+      "fewer_card_win_rate": 0.0,
+      "same_card_win_rate": 0.75,
+      "more_card_win_rate": 0.25,
+      "action_counts": {
+        "set_pass": 76,
+        "set": 19,
+        "pass": 9
+      },
+      "action_rates": {
+        "set": 0.18269230769230768,
+        "set_pass": 0.7307692307692307,
+        "pass": 0.08653846153846154
+      },
       "most_used_cards": [
         [
           "押し込み",
@@ -325,6 +340,21 @@
         "avg": 1.79,
         "max": 5
       },
+      "first_pass_matches": 16,
+      "first_pass_win_rate": 0.1875,
+      "fewer_card_win_rate": 0.0,
+      "same_card_win_rate": 0.3684210526315789,
+      "more_card_win_rate": 0.631578947368421,
+      "action_counts": {
+        "set_pass": 102,
+        "set": 77,
+        "pass": 55
+      },
+      "action_rates": {
+        "set": 0.32905982905982906,
+        "set_pass": 0.4358974358974359,
+        "pass": 0.23504273504273504
+      },
       "most_used_cards": [
         [
           "押し込み",
@@ -621,6 +651,21 @@
         "min": -1,
         "avg": 0.97,
         "max": 4
+      },
+      "first_pass_matches": 5,
+      "first_pass_win_rate": 0.8,
+      "fewer_card_win_rate": 0.0,
+      "same_card_win_rate": 0.2777777777777778,
+      "more_card_win_rate": 0.7222222222222222,
+      "action_counts": {
+        "set": 123,
+        "pass": 42,
+        "set_pass": 128
+      },
+      "action_rates": {
+        "set": 0.4197952218430034,
+        "set_pass": 0.43686006825938567,
+        "pass": 0.14334470989761092
       },
       "most_used_cards": [
         [
@@ -922,6 +967,21 @@
         "min": -3,
         "avg": -0.04,
         "max": 3
+      },
+      "first_pass_matches": 19,
+      "first_pass_win_rate": 0.42105263157894735,
+      "fewer_card_win_rate": 0.0,
+      "same_card_win_rate": 0.44,
+      "more_card_win_rate": 0.56,
+      "action_counts": {
+        "set_pass": 127,
+        "set": 56,
+        "pass": 36
+      },
+      "action_rates": {
+        "set": 0.2557077625570776,
+        "set_pass": 0.5799086757990868,
+        "pass": 0.1643835616438356
       },
       "most_used_cards": [
         [
@@ -1227,6 +1287,21 @@
         "min": 3,
         "avg": 3.67,
         "max": 6
+      },
+      "first_pass_matches": 28,
+      "first_pass_win_rate": 0.07142857142857142,
+      "fewer_card_win_rate": 0.0,
+      "same_card_win_rate": 0.5,
+      "more_card_win_rate": 0.5,
+      "action_counts": {
+        "set_pass": 54,
+        "set": 36,
+        "pass": 51
+      },
+      "action_rates": {
+        "set": 0.2553191489361702,
+        "set_pass": 0.3829787234042553,
+        "pass": 0.3617021276595745
       },
       "most_used_cards": [
         [
