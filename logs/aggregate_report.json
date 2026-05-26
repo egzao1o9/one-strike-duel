@@ -1,0 +1,691 @@
+{
+  "inventory": [
+    {
+      "path": "bot_suite_x5_seed41/AttackBot/summary.json",
+      "type": "deck_tournament",
+      "title": "AttackBot"
+    },
+    {
+      "path": "bot_suite_x5_seed41/BurstBot/summary.json",
+      "type": "deck_tournament",
+      "title": "BurstBot"
+    },
+    {
+      "path": "bot_suite_x5_seed41/DefenseBot/summary.json",
+      "type": "deck_tournament",
+      "title": "DefenseBot"
+    },
+    {
+      "path": "bot_suite_x5_seed41/DisruptBot/summary.json",
+      "type": "deck_tournament",
+      "title": "DisruptBot"
+    },
+    {
+      "path": "bot_suite_x5_seed41/GreedyBot/summary.json",
+      "type": "deck_tournament",
+      "title": "GreedyBot"
+    },
+    {
+      "path": "bot_suite_x5_seed41/RandomBot/summary.json",
+      "type": "deck_tournament",
+      "title": "RandomBot"
+    },
+    {
+      "path": "bot_suite_x5_seed41/RiskBot/summary.json",
+      "type": "deck_tournament",
+      "title": "RiskBot"
+    },
+    {
+      "path": "bot_suite_x5_seed41/TempoBot/summary.json",
+      "type": "deck_tournament",
+      "title": "TempoBot"
+    },
+    {
+      "path": "bot_suite_x5_seed41/TurtleBot/summary.json",
+      "type": "deck_tournament",
+      "title": "TurtleBot"
+    },
+    {
+      "path": "deck_tournament_greedybot_x5_seed31/summary.json",
+      "type": "deck_tournament",
+      "title": "deck_tournament_greedybot_x5_seed31"
+    },
+    {
+      "path": "draft_report_rolebalancedraftbot_vs_randomdraftbot_greedybot_greedybot_r50_seed131/summary.json",
+      "type": "draft_report",
+      "title": "draft_report_rolebalancedraftbot_vs_randomdraftbot_greedybot_greedybot_r50_seed131"
+    },
+    {
+      "path": "random_bot_mix_200_seed101/summary.json",
+      "type": "random_bot_mix",
+      "title": "random_bot_mix_200_seed101"
+    },
+    {
+      "path": "random_bot_mix_5000_seed101/summary.json",
+      "type": "random_bot_mix",
+      "title": "random_bot_mix_5000_seed101"
+    }
+  ],
+  "random_mix": {
+    "reports": [
+      {
+        "path": "random_bot_mix_200_seed101/summary.json",
+        "matches": 200,
+        "seed": 101,
+        "top_bot": "RandomBot",
+        "top_win_rate": 0.6122448979591837,
+        "bottom_bot": "TempoBot",
+        "bottom_win_rate": 0.325
+      },
+      {
+        "path": "random_bot_mix_5000_seed101/summary.json",
+        "matches": 5000,
+        "seed": 101,
+        "top_bot": "DefenseBot",
+        "top_win_rate": 0.6047619047619047,
+        "bottom_bot": "GreedyBot",
+        "bottom_win_rate": 0.3881520778072502
+      }
+    ],
+    "canonical": {
+      "path": "random_bot_mix_5000_seed101/summary.json",
+      "matches": 5000,
+      "seed": 101,
+      "bot_rankings": [
+        {
+          "bot": "DefenseBot",
+          "matches": 1050,
+          "wins": 635,
+          "losses": 411,
+          "draws": 4,
+          "win_rate": 0.6047619047619047,
+          "turn_avg": 2.45
+        },
+        {
+          "bot": "AttackBot",
+          "matches": 1087,
+          "wins": 613,
+          "losses": 470,
+          "draws": 4,
+          "win_rate": 0.5639374425022999,
+          "turn_avg": 1.55
+        },
+        {
+          "bot": "RiskBot",
+          "matches": 1128,
+          "wins": 617,
+          "losses": 498,
+          "draws": 13,
+          "win_rate": 0.5469858156028369,
+          "turn_avg": 2.38
+        },
+        {
+          "bot": "DisruptBot",
+          "matches": 1136,
+          "wins": 588,
+          "losses": 527,
+          "draws": 21,
+          "win_rate": 0.5176056338028169,
+          "turn_avg": 2.57
+        },
+        {
+          "bot": "BurstBot",
+          "matches": 1135,
+          "wins": 561,
+          "losses": 568,
+          "draws": 6,
+          "win_rate": 0.49427312775330395,
+          "turn_avg": 1.6
+        },
+        {
+          "bot": "RandomBot",
+          "matches": 1128,
+          "wins": 527,
+          "losses": 580,
+          "draws": 21,
+          "win_rate": 0.4671985815602837,
+          "turn_avg": 2.66
+        },
+        {
+          "bot": "TurtleBot",
+          "matches": 1107,
+          "wins": 478,
+          "losses": 588,
+          "draws": 41,
+          "win_rate": 0.43179765130984643,
+          "turn_avg": 4.05
+        },
+        {
+          "bot": "TempoBot",
+          "matches": 1098,
+          "wins": 468,
+          "losses": 616,
+          "draws": 14,
+          "win_rate": 0.4262295081967213,
+          "turn_avg": 2.36
+        },
+        {
+          "bot": "GreedyBot",
+          "matches": 1131,
+          "wins": 439,
+          "losses": 668,
+          "draws": 24,
+          "win_rate": 0.3881520778072502,
+          "turn_avg": 2.61
+        }
+      ],
+      "most_used_cards": [
+        [
+          "返し刃",
+          3638
+        ],
+        [
+          "押し込み",
+          2938
+        ],
+        [
+          "受け流し",
+          2352
+        ],
+        [
+          "構え",
+          1632
+        ],
+        [
+          "鉄壁",
+          1530
+        ],
+        [
+          "踏ん張り",
+          1336
+        ],
+        [
+          "牽制",
+          1310
+        ],
+        [
+          "低姿勢",
+          1305
+        ],
+        [
+          "十字受け",
+          1202
+        ],
+        [
+          "加速",
+          1199
+        ]
+      ],
+      "most_effective_cards": [
+        [
+          "返し刃",
+          2378
+        ],
+        [
+          "押し込み",
+          1913
+        ],
+        [
+          "受け流し",
+          1329
+        ],
+        [
+          "構え",
+          996
+        ],
+        [
+          "鉄壁",
+          875
+        ],
+        [
+          "低姿勢",
+          795
+        ],
+        [
+          "踏み込み",
+          767
+        ],
+        [
+          "踏ん張り",
+          758
+        ],
+        [
+          "牽制",
+          718
+        ],
+        [
+          "崩し",
+          687
+        ]
+      ],
+      "most_lethal_cards": [
+        [
+          "返し刃",
+          1757
+        ],
+        [
+          "押し込み",
+          1592
+        ],
+        [
+          "踏み込み",
+          663
+        ],
+        [
+          "崩し",
+          607
+        ],
+        [
+          "貫き",
+          553
+        ],
+        [
+          "疾走",
+          477
+        ],
+        [
+          "低姿勢",
+          405
+        ],
+        [
+          "踏ん張り",
+          381
+        ],
+        [
+          "渾身",
+          356
+        ],
+        [
+          "受け流し",
+          354
+        ]
+      ]
+    },
+    "baseline": {
+      "path": "random_bot_mix_200_seed101/summary.json",
+      "matches": 200,
+      "seed": 101
+    },
+    "delta": [
+      {
+        "bot": "DefenseBot",
+        "baseline_win_rate": 0.609375,
+        "canonical_win_rate": 0.6047619047619047,
+        "delta_points": -0.5
+      },
+      {
+        "bot": "AttackBot",
+        "baseline_win_rate": 0.5869565217391305,
+        "canonical_win_rate": 0.5639374425022999,
+        "delta_points": -2.3
+      },
+      {
+        "bot": "RiskBot",
+        "baseline_win_rate": 0.4864864864864865,
+        "canonical_win_rate": 0.5469858156028369,
+        "delta_points": 6.0
+      },
+      {
+        "bot": "DisruptBot",
+        "baseline_win_rate": 0.4523809523809524,
+        "canonical_win_rate": 0.5176056338028169,
+        "delta_points": 6.5
+      },
+      {
+        "bot": "BurstBot",
+        "baseline_win_rate": 0.5128205128205128,
+        "canonical_win_rate": 0.49427312775330395,
+        "delta_points": -1.9
+      },
+      {
+        "bot": "RandomBot",
+        "baseline_win_rate": 0.6122448979591837,
+        "canonical_win_rate": 0.4671985815602837,
+        "delta_points": -14.5
+      },
+      {
+        "bot": "TurtleBot",
+        "baseline_win_rate": 0.35714285714285715,
+        "canonical_win_rate": 0.43179765130984643,
+        "delta_points": 7.5
+      },
+      {
+        "bot": "TempoBot",
+        "baseline_win_rate": 0.325,
+        "canonical_win_rate": 0.4262295081967213,
+        "delta_points": 10.1
+      },
+      {
+        "bot": "GreedyBot",
+        "baseline_win_rate": 0.3902439024390244,
+        "canonical_win_rate": 0.3881520778072502,
+        "delta_points": -0.2
+      }
+    ]
+  },
+  "deck_reports": {
+    "reports": [
+      {
+        "path": "bot_suite_x5_seed41/AttackBot/summary.json",
+        "bot": "AttackBot",
+        "total_matches": 100,
+        "best_deck": {
+          "deck_id": "starter_balanced",
+          "win_rate": 0.65,
+          "turn_avg": 1.23
+        },
+        "worst_deck": {
+          "deck_id": "starter_heavy",
+          "win_rate": 0.125,
+          "turn_avg": 1.07
+        }
+      },
+      {
+        "path": "bot_suite_x5_seed41/BurstBot/summary.json",
+        "bot": "BurstBot",
+        "total_matches": 100,
+        "best_deck": {
+          "deck_id": "starter_speed",
+          "win_rate": 0.825,
+          "turn_avg": 1.02
+        },
+        "worst_deck": {
+          "deck_id": "starter_heavy",
+          "win_rate": 0.05,
+          "turn_avg": 1.05
+        }
+      },
+      {
+        "path": "bot_suite_x5_seed41/DefenseBot/summary.json",
+        "bot": "DefenseBot",
+        "total_matches": 100,
+        "best_deck": {
+          "deck_id": "starter_defense",
+          "win_rate": 0.8,
+          "turn_avg": 3.58
+        },
+        "worst_deck": {
+          "deck_id": "starter_speed",
+          "win_rate": 0.2,
+          "turn_avg": 2.75
+        }
+      },
+      {
+        "path": "bot_suite_x5_seed41/DisruptBot/summary.json",
+        "bot": "DisruptBot",
+        "total_matches": 100,
+        "best_deck": {
+          "deck_id": "starter_attack",
+          "win_rate": 0.75,
+          "turn_avg": 1.2
+        },
+        "worst_deck": {
+          "deck_id": "starter_heavy",
+          "win_rate": 0.225,
+          "turn_avg": 1.45
+        }
+      },
+      {
+        "path": "bot_suite_x5_seed41/GreedyBot/summary.json",
+        "bot": "GreedyBot",
+        "total_matches": 100,
+        "best_deck": {
+          "deck_id": "starter_balanced",
+          "win_rate": 0.675,
+          "turn_avg": 3.9
+        },
+        "worst_deck": {
+          "deck_id": "starter_heavy",
+          "win_rate": 0.125,
+          "turn_avg": 2.55
+        }
+      },
+      {
+        "path": "bot_suite_x5_seed41/RandomBot/summary.json",
+        "bot": "RandomBot",
+        "total_matches": 100,
+        "best_deck": {
+          "deck_id": "starter_balanced",
+          "win_rate": 0.75,
+          "turn_avg": 2.15
+        },
+        "worst_deck": {
+          "deck_id": "starter_speed",
+          "win_rate": 0.175,
+          "turn_avg": 2.98
+        }
+      },
+      {
+        "path": "bot_suite_x5_seed41/RiskBot/summary.json",
+        "bot": "RiskBot",
+        "total_matches": 100,
+        "best_deck": {
+          "deck_id": "starter_defense",
+          "win_rate": 0.65,
+          "turn_avg": 2.38
+        },
+        "worst_deck": {
+          "deck_id": "starter_heavy",
+          "win_rate": 0.3,
+          "turn_avg": 2.95
+        }
+      },
+      {
+        "path": "bot_suite_x5_seed41/TempoBot/summary.json",
+        "bot": "TempoBot",
+        "total_matches": 100,
+        "best_deck": {
+          "deck_id": "starter_attack",
+          "win_rate": 0.75,
+          "turn_avg": 1.27
+        },
+        "worst_deck": {
+          "deck_id": "starter_heavy",
+          "win_rate": 0.3,
+          "turn_avg": 2.95
+        }
+      },
+      {
+        "path": "bot_suite_x5_seed41/TurtleBot/summary.json",
+        "bot": "TurtleBot",
+        "total_matches": 100,
+        "best_deck": {
+          "deck_id": "starter_defense",
+          "win_rate": 0.8,
+          "turn_avg": 6.03
+        },
+        "worst_deck": {
+          "deck_id": "starter_speed",
+          "win_rate": 0.2,
+          "turn_avg": 4.03
+        }
+      },
+      {
+        "path": "deck_tournament_greedybot_x5_seed31/summary.json",
+        "bot": "GreedyBot",
+        "total_matches": 100,
+        "best_deck": {
+          "deck_id": "starter_balanced",
+          "win_rate": 0.75,
+          "turn_avg": 4.05
+        },
+        "worst_deck": {
+          "deck_id": "starter_heavy",
+          "win_rate": 0.3,
+          "turn_avg": 5.05
+        }
+      }
+    ],
+    "average_by_deck": [
+      {
+        "deck": "starter_balanced",
+        "avg_win_rate": 0.6325,
+        "min_win_rate": 0.475,
+        "max_win_rate": 0.75,
+        "avg_turns": 3.15,
+        "best_bot": "RandomBot",
+        "worst_bot": "DisruptBot"
+      },
+      {
+        "deck": "starter_defense",
+        "avg_win_rate": 0.5525,
+        "min_win_rate": 0.325,
+        "max_win_rate": 0.8,
+        "avg_turns": 3.57,
+        "best_bot": "DefenseBot",
+        "worst_bot": "TempoBot"
+      },
+      {
+        "deck": "starter_attack",
+        "avg_win_rate": 0.535,
+        "min_win_rate": 0.275,
+        "max_win_rate": 0.75,
+        "avg_turns": 2.05,
+        "best_bot": "DisruptBot",
+        "worst_bot": "TurtleBot"
+      },
+      {
+        "deck": "starter_speed",
+        "avg_win_rate": 0.46749999999999997,
+        "min_win_rate": 0.175,
+        "max_win_rate": 0.825,
+        "avg_turns": 2.39,
+        "best_bot": "BurstBot",
+        "worst_bot": "RandomBot"
+      },
+      {
+        "deck": "starter_heavy",
+        "avg_win_rate": 0.255,
+        "min_win_rate": 0.05,
+        "max_win_rate": 0.4,
+        "avg_turns": 3.68,
+        "best_bot": "RandomBot",
+        "worst_bot": "BurstBot"
+      }
+    ],
+    "average_by_bot": [
+      {
+        "bot": "AttackBot",
+        "avg_deck_win_rate": 0.5,
+        "best_deck": "starter_balanced",
+        "best_deck_win_rate": 0.65,
+        "worst_deck": "starter_heavy",
+        "worst_deck_win_rate": 0.125
+      },
+      {
+        "bot": "BurstBot",
+        "avg_deck_win_rate": 0.5,
+        "best_deck": "starter_speed",
+        "best_deck_win_rate": 0.825,
+        "worst_deck": "starter_heavy",
+        "worst_deck_win_rate": 0.05
+      },
+      {
+        "bot": "DefenseBot",
+        "avg_deck_win_rate": 0.5,
+        "best_deck": "starter_defense",
+        "best_deck_win_rate": 0.8,
+        "worst_deck": "starter_speed",
+        "worst_deck_win_rate": 0.2
+      },
+      {
+        "bot": "DisruptBot",
+        "avg_deck_win_rate": 0.5,
+        "best_deck": "starter_attack",
+        "best_deck_win_rate": 0.75,
+        "worst_deck": "starter_heavy",
+        "worst_deck_win_rate": 0.225
+      },
+      {
+        "bot": "RandomBot",
+        "avg_deck_win_rate": 0.495,
+        "best_deck": "starter_balanced",
+        "best_deck_win_rate": 0.75,
+        "worst_deck": "starter_speed",
+        "worst_deck_win_rate": 0.175
+      },
+      {
+        "bot": "RiskBot",
+        "avg_deck_win_rate": 0.495,
+        "best_deck": "starter_defense",
+        "best_deck_win_rate": 0.65,
+        "worst_deck": "starter_heavy",
+        "worst_deck_win_rate": 0.3
+      },
+      {
+        "bot": "TempoBot",
+        "avg_deck_win_rate": 0.495,
+        "best_deck": "starter_attack",
+        "best_deck_win_rate": 0.75,
+        "worst_deck": "starter_heavy",
+        "worst_deck_win_rate": 0.3
+      },
+      {
+        "bot": "GreedyBot",
+        "avg_deck_win_rate": 0.4775,
+        "best_deck": "starter_balanced",
+        "best_deck_win_rate": 0.75,
+        "worst_deck": "starter_heavy",
+        "worst_deck_win_rate": 0.125
+      },
+      {
+        "bot": "TurtleBot",
+        "avg_deck_win_rate": 0.445,
+        "best_deck": "starter_defense",
+        "best_deck_win_rate": 0.8,
+        "worst_deck": "starter_speed",
+        "worst_deck_win_rate": 0.2
+      }
+    ]
+  },
+  "draft_reports": {
+    "reports": [
+      {
+        "path": "draft_report_rolebalancedraftbot_vs_randomdraftbot_greedybot_greedybot_r50_seed131/summary.json",
+        "rounds": 50,
+        "total_matches": 100,
+        "draft_bot1": "RoleBalanceDraftBot",
+        "draft_bot2": "RandomDraftBot",
+        "play_bot1": "GreedyBot",
+        "play_bot2": "GreedyBot",
+        "rankings": [
+          {
+            "drafter": "RoleBalanceDraftBot",
+            "win_rate": 0.51,
+            "battle_avg": 12.01,
+            "control_avg": 7.99,
+            "red_avg": 6.73,
+            "blue_avg": 2.97,
+            "green_avg": 2.31,
+            "white_avg": 7.99,
+            "common_avg": 0.29,
+            "uncommon_avg": 14.21,
+            "rare_avg": 5.5
+          },
+          {
+            "drafter": "RandomDraftBot",
+            "win_rate": 0.48,
+            "battle_avg": 10.8,
+            "control_avg": 9.2,
+            "red_avg": 6.13,
+            "blue_avg": 2.87,
+            "green_avg": 1.8,
+            "white_avg": 9.2,
+            "common_avg": 11.59,
+            "uncommon_avg": 7.91,
+            "rare_avg": 0.5
+          }
+        ]
+      }
+    ]
+  },
+  "analysis": [
+    "最大試行の Bot 混成では `DefenseBot` が 60.5% で首位、`GreedyBot` は 38.8% で、上下差は 21.7pt です。",
+    "上位 3 Bot は `DefenseBot`, `AttackBot`, `RiskBot` で、防御寄りと高打点寄りの方針が安定しています。",
+    "Bot 混成の試行数を 200 戦から 5000 戦へ増やすと、各 Bot の勝率差分は平均 5.5pt で、傾向はかなり安定しました。",
+    "固定デッキ群では平均勝率トップが `starter_balanced` 63.2%、最下位が `starter_heavy` 25.5% です。",
+    "勝率上位デッキは決着も比較的速く、テンポ優位がそのまま成績に出ています。",
+    "ドラフト比較では `RoleBalanceDraftBot` が 51.0% で僅差優位です。役割バランスを見た指名は有効ですが、現状の差は小さく、さらなる評価関数の改善余地があります。",
+    "`RoleBalanceDraftBot` は平均で battle 12.01 / control 7.99、`RandomDraftBot` は battle 10.8 / control 9.2 で、枚数配分の差がそのまま構築方針に出ています。"
+  ]
+}

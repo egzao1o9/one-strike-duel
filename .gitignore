@@ -1,2 +1,9 @@
 logs/**
+!logs/
+!logs/**/
 !logs/.gitkeep
+!logs/aggregate_report.md
+!logs/aggregate_report.json
+!logs/**/summary.md
+!logs/**/summary.json
+!logs/**/index.md
