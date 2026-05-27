@@ -3,7 +3,7 @@
   "name": "大振り",
   "type": "battle",
   "rarity": "rare",
-  "attack": 4,
+  "attack": 5,
   "block": 0,
   "speed": -2,
   "tags": [

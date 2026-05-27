@@ -5,6 +5,7 @@ from bots.burst_bot import BurstBot
 from bots.defense_bot import DefenseBot
 from bots.disrupt_bot import DisruptBot
 from bots.greedy_bot import GreedyBot
+from bots.public_info_bot import AggroBot, GuardBot, StandardBot
 from bots.random_bot import RandomBot
 from bots.risk_bot import RiskBot
 from bots.tempo_bot import TempoBot
@@ -17,10 +18,13 @@ BOT_REGISTRY = {
     "DefenseBot": DefenseBot,
     "DisruptBot": DisruptBot,
     "GreedyBot": GreedyBot,
+    "GuardBot": GuardBot,
     "RandomBot": RandomBot,
     "RiskBot": RiskBot,
+    "StandardBot": StandardBot,
     "TempoBot": TempoBot,
     "TurtleBot": TurtleBot,
+    "AggroBot": AggroBot,
 }
 
 

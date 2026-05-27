@@ -9,7 +9,7 @@ def test_bot_registry_can_build_all_bots() -> None:
 
 
 def test_new_bots_can_finish_matches() -> None:
-    bot_names = ["BurstBot", "DisruptBot", "TempoBot", "TurtleBot"]
+    bot_names = ["BurstBot", "DisruptBot", "TempoBot", "TurtleBot", "StandardBot", "AggroBot", "GuardBot"]
     for index, bot_name in enumerate(bot_names):
         runner = MatchRunner(
             build_bot(bot_name, 100 + index),

@@ -200,11 +200,11 @@ def test_both_players_passing_reveals_cards_and_resolves_battle() -> None:
 
 
 def test_simultaneous_attack_is_a_draw() -> None:
-    p1 = ScriptedBattleBot([BattleAction("set_pass", ("battle_step_in",))])
-    p2 = ScriptedBattleBot([BattleAction("set_pass", ("battle_break",))])
+    p1 = ScriptedBattleBot([BattleAction("set_pass", ("battle_break",))])
+    p2 = ScriptedBattleBot([BattleAction("set_pass", ("battle_pierce",))])
     runner = MatchRunner(p1, p2, "starter_attack", "starter_attack", shuffle_decks=False, seed=3, max_turns=1)
-    runner.state.players["p1"].hand = [runner.cards["battle_step_in"], runner.cards["control_focus"], runner.cards["control_reserve"], runner.cards["control_haste"]]
-    runner.state.players["p2"].hand = [runner.cards["battle_break"], runner.cards["control_focus"], runner.cards["control_reserve"], runner.cards["control_haste"]]
+    runner.state.players["p1"].hand = [runner.cards["battle_break"], runner.cards["control_focus"], runner.cards["control_reserve"], runner.cards["control_haste"]]
+    runner.state.players["p2"].hand = [runner.cards["battle_pierce"], runner.cards["control_focus"], runner.cards["control_reserve"], runner.cards["control_haste"]]
     runner.state.players["p1"].draw_pile = []
     runner.state.players["p2"].draw_pile = []
 

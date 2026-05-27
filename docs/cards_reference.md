@@ -2,8 +2,8 @@
 
 ## Summary
 
-- Total Cards: 28
-- Battle Cards: 17
+- Total Cards: 32
+- Battle Cards: 21
 - Control Cards: 11
 
 ## Card List
@@ -11,22 +11,26 @@
 | ID | Name | Type | Rarity | Attack | Block | Speed | Tags |
 |---|---|---|---|---:|---:|---:|---|
 | `battle_afterimage` | 残像 | `battle` | `rare` | -1 | 0 | 5 | speed |
-| `battle_all_in` | 渾身 | `battle` | `rare` | 4 | 0 | -1 | attack, finisher |
-| `battle_backstep` | 退き足 | `battle` | `uncommon` | -1 | 2 | 3 | speed, defense |
-| `battle_brace` | 踏ん張り | `battle` | `common` | 1 | 2 | 0 | balanced |
-| `battle_break` | 崩し | `battle` | `uncommon` | 2 | 0 | 2 | attack |
-| `battle_counter` | 返し刃 | `battle` | `common` | 2 | 2 | 1 | balanced |
-| `battle_cross_guard` | 十字受け | `battle` | `common` | 0 | 2 | 2 | defense, speed |
+| `battle_all_in` | 渾身 | `battle` | `rare` | 5 | -1 | -1 | attack, finisher |
+| `battle_attack` | 攻撃 | `battle` | `common` | 1 | 0 | 0 | attack |
+| `battle_backstep` | 退き足 | `battle` | `uncommon` | -1 | 1 | 2 | defense, speed |
+| `battle_brace` | 踏ん張り | `battle` | `uncommon` | 1 | 2 | -1 | balanced |
+| `battle_break` | 崩し | `battle` | `uncommon` | 2 | 0 | 1 | attack |
+| `battle_counter` | 返し刃 | `battle` | `uncommon` | 1 | 1 | 1 | balanced |
+| `battle_cross_guard` | 十字受け | `battle` | `uncommon` | 0 | 2 | 1 | defense, speed |
 | `battle_crush` | 粉砕 | `battle` | `uncommon` | 3 | -1 | 0 | attack, risk |
-| `battle_dash` | 疾走 | `battle` | `rare` | 1 | 0 | 5 | speed, risk |
-| `battle_feint` | フェイント | `battle` | `uncommon` | -1 | 0 | 4 | speed, trick |
-| `battle_guard` | 受け流し | `battle` | `common` | 0 | 3 | 1 | defense |
-| `battle_heavy_swing` | 大振り | `battle` | `rare` | 4 | 0 | -2 | attack, heavy |
-| `battle_low_stance` | 低姿勢 | `battle` | `uncommon` | 1 | 3 | -1 | defense |
-| `battle_pierce` | 貫き | `battle` | `uncommon` | 3 | 0 | 1 | attack |
-| `battle_press` | 押し込み | `battle` | `common` | 2 | 1 | 2 | balanced |
-| `battle_step_in` | 踏み込み | `battle` | `uncommon` | 3 | 0 | 2 | attack, risk |
-| `battle_wall` | 鉄壁 | `battle` | `rare` | -1 | 4 | -2 | defense, heavy |
+| `battle_dash` | 疾走 | `battle` | `rare` | 1 | 0 | 2 | risk, speed |
+| `battle_defend` | 防御 | `battle` | `common` | 0 | 1 | 0 | defense |
+| `battle_feint` | フェイント | `battle` | `uncommon` | -1 | 0 | 3 | speed, trick |
+| `battle_guard` | 受け流し | `battle` | `uncommon` | 0 | 1 | 1 | defense |
+| `battle_heavy_swing` | 大振り | `battle` | `rare` | 5 | 0 | -2 | attack, heavy |
+| `battle_low_stance` | 低姿勢 | `battle` | `uncommon` | 0 | 2 | -1 | defense |
+| `battle_pierce` | 貫き | `battle` | `uncommon` | 2 | 0 | 1 | attack |
+| `battle_power_attack` | 強撃 | `battle` | `uncommon` | 2 | 0 | 0 | attack |
+| `battle_press` | 押し込み | `battle` | `uncommon` | 1 | 1 | 0 | balanced |
+| `battle_step` | ステップ | `battle` | `common` | 0 | 0 | 1 | speed |
+| `battle_step_in` | 踏み込み | `battle` | `rare` | 4 | 0 | 2 | attack, risk |
+| `battle_wall` | 鉄壁 | `battle` | `rare` | -1 | 5 | -1 | defense, heavy |
 | `control_anchor` | 重心落とし | `control` | `uncommon` | 0 | 0 | 0 | debuff |
 | `control_cover` | 受け直し | `control` | `uncommon` | 0 | 0 | 0 | buff |
 | `control_disrupt` | 牽制 | `control` | `common` | 0 | 0 | 0 | debuff |
@@ -56,19 +60,29 @@
 - ID: `battle_all_in`
 - Type: `battle`
 - Rarity: `rare`
-- Stats: `A=4 / B=0 / S=-1`
+- Stats: `A=5 / B=-1 / S=-1`
 - Tags: attack, finisher
 - Notes: 高火力だが無防備で遅い。
 - Effects:
   - `battle` / `set_self_block_limit` / value=0
+
+### 攻撃
+
+- ID: `battle_attack`
+- Type: `battle`
+- Rarity: `common`
+- Stats: `A=1 / B=0 / S=0`
+- Tags: attack
+- Notes: 標準的な攻撃カード。
+- Effects: none
 
 ### 退き足
 
 - ID: `battle_backstep`
 - Type: `battle`
 - Rarity: `uncommon`
-- Stats: `A=-1 / B=2 / S=3`
-- Tags: speed, defense
+- Stats: `A=-1 / B=1 / S=2`
+- Tags: defense, speed
 - Notes: 攻めない代わりに位置取りを優先する。
 - Effects: none
 
@@ -76,8 +90,8 @@
 
 - ID: `battle_brace`
 - Type: `battle`
-- Rarity: `common`
-- Stats: `A=1 / B=2 / S=0`
+- Rarity: `uncommon`
+- Stats: `A=1 / B=2 / S=-1`
 - Tags: balanced
 - Notes: 大きな弱点のない中継ぎ。
 - Effects: none
@@ -87,7 +101,7 @@
 - ID: `battle_break`
 - Type: `battle`
 - Rarity: `uncommon`
-- Stats: `A=2 / B=0 / S=2`
+- Stats: `A=2 / B=0 / S=1`
 - Tags: attack
 - Notes: 相手の防御を崩す。
 - Effects:
@@ -97,8 +111,8 @@
 
 - ID: `battle_counter`
 - Type: `battle`
-- Rarity: `common`
-- Stats: `A=2 / B=2 / S=1`
+- Rarity: `uncommon`
+- Stats: `A=1 / B=1 / S=1`
 - Tags: balanced
 - Notes: 平均的なカウンター向けカード。
 - Effects: none
@@ -107,8 +121,8 @@
 
 - ID: `battle_cross_guard`
 - Type: `battle`
-- Rarity: `common`
-- Stats: `A=0 / B=2 / S=2`
+- Rarity: `uncommon`
+- Stats: `A=0 / B=2 / S=1`
 - Tags: defense, speed
 - Notes: 軽い受けでテンポを維持する。
 - Effects: none
@@ -128,9 +142,19 @@
 - ID: `battle_dash`
 - Type: `battle`
 - Rarity: `rare`
-- Stats: `A=1 / B=0 / S=5`
-- Tags: speed, risk
+- Stats: `A=1 / B=0 / S=2`
+- Tags: risk, speed
 - Notes: 最速クラスだが防御はない。
+- Effects: none
+
+### 防御
+
+- ID: `battle_defend`
+- Type: `battle`
+- Rarity: `common`
+- Stats: `A=0 / B=1 / S=0`
+- Tags: defense
+- Notes: 標準的な防御カード。
 - Effects: none
 
 ### フェイント
@@ -138,7 +162,7 @@
 - ID: `battle_feint`
 - Type: `battle`
 - Rarity: `uncommon`
-- Stats: `A=-1 / B=0 / S=4`
+- Stats: `A=-1 / B=0 / S=3`
 - Tags: speed, trick
 - Notes: 先制は取りやすいが決定打にはならない。
 - Effects: none
@@ -147,8 +171,8 @@
 
 - ID: `battle_guard`
 - Type: `battle`
-- Rarity: `common`
-- Stats: `A=0 / B=3 / S=1`
+- Rarity: `uncommon`
+- Stats: `A=0 / B=1 / S=1`
 - Tags: defense
 - Notes: 堅実な防御。
 - Effects: none
@@ -158,7 +182,7 @@
 - ID: `battle_heavy_swing`
 - Type: `battle`
 - Rarity: `rare`
-- Stats: `A=4 / B=0 / S=-2`
+- Stats: `A=5 / B=0 / S=-2`
 - Tags: attack, heavy
 - Notes: 威力は大きいがかなり遅い。
 - Effects: none
@@ -168,7 +192,7 @@
 - ID: `battle_low_stance`
 - Type: `battle`
 - Rarity: `uncommon`
-- Stats: `A=1 / B=3 / S=-1`
+- Stats: `A=0 / B=2 / S=-1`
 - Tags: defense
 - Notes: 守りやすいが主導権は取りづらい。
 - Effects: none
@@ -178,28 +202,48 @@
 - ID: `battle_pierce`
 - Type: `battle`
 - Rarity: `uncommon`
-- Stats: `A=3 / B=0 / S=1`
+- Stats: `A=2 / B=0 / S=1`
 - Tags: attack
 - Notes: 防御を削りながら通しにいく。
 - Effects:
   - `battle` / `modify_opponent_block` / value=1
 
+### 強撃
+
+- ID: `battle_power_attack`
+- Type: `battle`
+- Rarity: `uncommon`
+- Stats: `A=2 / B=0 / S=0`
+- Tags: attack
+- Notes: 少し強い攻撃カード。
+- Effects: none
+
 ### 押し込み
 
 - ID: `battle_press`
 - Type: `battle`
-- Rarity: `common`
-- Stats: `A=2 / B=1 / S=2`
+- Rarity: `uncommon`
+- Stats: `A=1 / B=1 / S=0`
 - Tags: balanced
 - Notes: 標準的な攻防一体カード。
+- Effects: none
+
+### ステップ
+
+- ID: `battle_step`
+- Type: `battle`
+- Rarity: `common`
+- Stats: `A=0 / B=0 / S=1`
+- Tags: speed
+- Notes: 標準的な素早さカード。
 - Effects: none
 
 ### 踏み込み
 
 - ID: `battle_step_in`
 - Type: `battle`
-- Rarity: `uncommon`
-- Stats: `A=3 / B=0 / S=2`
+- Rarity: `rare`
+- Stats: `A=4 / B=0 / S=2`
 - Tags: attack, risk
 - Notes: このターン、自分はブロック値を得られない。
 - Effects:
@@ -210,7 +254,7 @@
 - ID: `battle_wall`
 - Type: `battle`
 - Rarity: `rare`
-- Stats: `A=-1 / B=4 / S=-2`
+- Stats: `A=-1 / B=5 / S=-1`
 - Tags: defense, heavy
 - Notes: 非常に硬いが、攻撃できず動きも重い。
 - Effects: none

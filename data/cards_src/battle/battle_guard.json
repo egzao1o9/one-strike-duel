@@ -2,9 +2,9 @@
   "id": "battle_guard",
   "name": "受け流し",
   "type": "battle",
-  "rarity": "common",
+  "rarity": "uncommon",
   "attack": 0,
-  "block": 3,
+  "block": 1,
   "speed": 1,
   "tags": [
     "defense"

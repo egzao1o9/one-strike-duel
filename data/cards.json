@@ -18,8 +18,8 @@
     "name": "渾身",
     "type": "battle",
     "rarity": "rare",
-    "attack": 4,
-    "block": 0,
+    "attack": 5,
+    "block": -1,
     "speed": -1,
     "tags": [
       "attack",
@@ -35,16 +35,30 @@
     "notes": "高火力だが無防備で遅い。"
   },
   {
+    "id": "battle_attack",
+    "name": "攻撃",
+    "type": "battle",
+    "rarity": "common",
+    "attack": 1,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "attack"
+    ],
+    "effects": [],
+    "notes": "標準的な攻撃カード。"
+  },
+  {
     "id": "battle_backstep",
     "name": "退き足",
     "type": "battle",
     "rarity": "uncommon",
     "attack": -1,
-    "block": 2,
-    "speed": 3,
+    "block": 1,
+    "speed": 2,
     "tags": [
-      "speed",
-      "defense"
+      "defense",
+      "speed"
     ],
     "effects": [],
     "notes": "攻めない代わりに位置取りを優先する。"
@@ -53,10 +67,10 @@
     "id": "battle_brace",
     "name": "踏ん張り",
     "type": "battle",
-    "rarity": "common",
+    "rarity": "uncommon",
     "attack": 1,
     "block": 2,
-    "speed": 0,
+    "speed": -1,
     "tags": [
       "balanced"
     ],
@@ -70,7 +84,7 @@
     "rarity": "uncommon",
     "attack": 2,
     "block": 0,
-    "speed": 2,
+    "speed": 1,
     "tags": [
       "attack"
     ],
@@ -87,9 +101,9 @@
     "id": "battle_counter",
     "name": "返し刃",
     "type": "battle",
-    "rarity": "common",
-    "attack": 2,
-    "block": 2,
+    "rarity": "uncommon",
+    "attack": 1,
+    "block": 1,
     "speed": 1,
     "tags": [
       "balanced"
@@ -101,10 +115,10 @@
     "id": "battle_cross_guard",
     "name": "十字受け",
     "type": "battle",
-    "rarity": "common",
+    "rarity": "uncommon",
     "attack": 0,
     "block": 2,
-    "speed": 2,
+    "speed": 1,
     "tags": [
       "defense",
       "speed"
@@ -134,13 +148,27 @@
     "rarity": "rare",
     "attack": 1,
     "block": 0,
-    "speed": 5,
+    "speed": 2,
     "tags": [
-      "speed",
-      "risk"
+      "risk",
+      "speed"
     ],
     "effects": [],
     "notes": "最速クラスだが防御はない。"
+  },
+  {
+    "id": "battle_defend",
+    "name": "防御",
+    "type": "battle",
+    "rarity": "common",
+    "attack": 0,
+    "block": 1,
+    "speed": 0,
+    "tags": [
+      "defense"
+    ],
+    "effects": [],
+    "notes": "標準的な防御カード。"
   },
   {
     "id": "battle_feint",
@@ -149,7 +177,7 @@
     "rarity": "uncommon",
     "attack": -1,
     "block": 0,
-    "speed": 4,
+    "speed": 3,
     "tags": [
       "speed",
       "trick"
@@ -161,9 +189,9 @@
     "id": "battle_guard",
     "name": "受け流し",
     "type": "battle",
-    "rarity": "common",
+    "rarity": "uncommon",
     "attack": 0,
-    "block": 3,
+    "block": 1,
     "speed": 1,
     "tags": [
       "defense"
@@ -176,7 +204,7 @@
     "name": "大振り",
     "type": "battle",
     "rarity": "rare",
-    "attack": 4,
+    "attack": 5,
     "block": 0,
     "speed": -2,
     "tags": [
@@ -191,8 +219,8 @@
     "name": "低姿勢",
     "type": "battle",
     "rarity": "uncommon",
-    "attack": 1,
-    "block": 3,
+    "attack": 0,
+    "block": 2,
     "speed": -1,
     "tags": [
       "defense"
@@ -205,7 +233,7 @@
     "name": "貫き",
     "type": "battle",
     "rarity": "uncommon",
-    "attack": 3,
+    "attack": 2,
     "block": 0,
     "speed": 1,
     "tags": [
@@ -221,13 +249,27 @@
     "notes": "防御を削りながら通しにいく。"
   },
   {
+    "id": "battle_power_attack",
+    "name": "強撃",
+    "type": "battle",
+    "rarity": "uncommon",
+    "attack": 2,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "attack"
+    ],
+    "effects": [],
+    "notes": "少し強い攻撃カード。"
+  },
+  {
     "id": "battle_press",
     "name": "押し込み",
     "type": "battle",
-    "rarity": "common",
-    "attack": 2,
+    "rarity": "uncommon",
+    "attack": 1,
     "block": 1,
-    "speed": 2,
+    "speed": 0,
     "tags": [
       "balanced"
     ],
@@ -235,11 +277,25 @@
     "notes": "標準的な攻防一体カード。"
   },
   {
+    "id": "battle_step",
+    "name": "ステップ",
+    "type": "battle",
+    "rarity": "common",
+    "attack": 0,
+    "block": 0,
+    "speed": 1,
+    "tags": [
+      "speed"
+    ],
+    "effects": [],
+    "notes": "標準的な素早さカード。"
+  },
+  {
     "id": "battle_step_in",
     "name": "踏み込み",
     "type": "battle",
-    "rarity": "uncommon",
-    "attack": 3,
+    "rarity": "rare",
+    "attack": 4,
     "block": 0,
     "speed": 2,
     "tags": [
@@ -261,8 +317,8 @@
     "type": "battle",
     "rarity": "rare",
     "attack": -1,
-    "block": 4,
-    "speed": -2,
+    "block": 5,
+    "speed": -1,
     "tags": [
       "defense",
       "heavy"

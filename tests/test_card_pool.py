@@ -10,8 +10,8 @@ def test_card_pool_loads_with_expected_copy_rules() -> None:
     pool = load_card_pool("data/card_pool.json", cards)
     counts = {entry.card_id: entry.count for entry in pool.entries}
 
-    assert counts["battle_press"] == 3
-    assert counts["battle_step_in"] == 2
+    assert counts["battle_press"] == 2
+    assert counts["battle_step_in"] == 1
     assert counts["battle_all_in"] == 1
 
 

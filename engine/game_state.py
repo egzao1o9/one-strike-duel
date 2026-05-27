@@ -60,8 +60,10 @@ class PlayerView:
     hand: tuple[Card, ...]
     own_public_deck: tuple[str, ...]
     own_hidden_deck: tuple[str, ...]
+    own_set_cards: tuple[Card, ...]
     own_discard: tuple[Card, ...]
     own_used: tuple[Card, ...]
+    own_control_card: Card | None
     opponent_public_deck: tuple[str, ...]
     opponent_discard: tuple[Card, ...]
     opponent_used: tuple[Card, ...]
@@ -106,8 +108,10 @@ class GameState:
             hand=tuple(player.hand),
             own_public_deck=player.public_deck,
             own_hidden_deck=player.hidden_deck,
+            own_set_cards=tuple(player.set_cards),
             own_discard=tuple(player.discard_pile),
             own_used=tuple(player.used_cards),
+            own_control_card=player.current_control_card,
             opponent_public_deck=opponent.public_deck,
             opponent_discard=tuple(opponent.discard_pile),
             opponent_used=tuple(opponent.used_cards),

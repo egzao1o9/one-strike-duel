@@ -11,12 +11,16 @@
       "count": 1
     },
     {
+      "card_id": "battle_attack",
+      "count": 3
+    },
+    {
       "card_id": "battle_backstep",
       "count": 2
     },
     {
       "card_id": "battle_brace",
-      "count": 3
+      "count": 2
     },
     {
       "card_id": "battle_break",
@@ -24,11 +28,11 @@
     },
     {
       "card_id": "battle_counter",
-      "count": 3
+      "count": 2
     },
     {
       "card_id": "battle_cross_guard",
-      "count": 3
+      "count": 2
     },
     {
       "card_id": "battle_crush",
@@ -39,12 +43,16 @@
       "count": 1
     },
     {
+      "card_id": "battle_defend",
+      "count": 3
+    },
+    {
       "card_id": "battle_feint",
       "count": 2
     },
     {
       "card_id": "battle_guard",
-      "count": 3
+      "count": 2
     },
     {
       "card_id": "battle_heavy_swing",
@@ -59,12 +67,20 @@
       "count": 2
     },
     {
+      "card_id": "battle_power_attack",
+      "count": 2
+    },
+    {
       "card_id": "battle_press",
+      "count": 2
+    },
+    {
+      "card_id": "battle_step",
       "count": 3
     },
     {
       "card_id": "battle_step_in",
-      "count": 2
+      "count": 1
     },
     {
       "card_id": "battle_wall",

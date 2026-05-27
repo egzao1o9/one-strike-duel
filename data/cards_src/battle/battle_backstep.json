@@ -4,11 +4,11 @@
   "type": "battle",
   "rarity": "uncommon",
   "attack": -1,
-  "block": 2,
-  "speed": 3,
+  "block": 1,
+  "speed": 2,
   "tags": [
-    "speed",
-    "defense"
+    "defense",
+    "speed"
   ],
   "effects": [],
   "notes": "攻めない代わりに位置取りを優先する。"

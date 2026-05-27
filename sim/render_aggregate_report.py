@@ -160,6 +160,14 @@ def summarize_random_mix(
                     "loser_facedown_avg": stats.get("losing_facedown", {}).get("avg"),
                     "starting_player_win_rate": stats.get("starting_player_win_rate"),
                     "responding_player_win_rate": stats.get("responding_player_win_rate"),
+                    "final_attack_avg": stats.get("final_attack", {}).get("avg"),
+                    "final_block_avg": stats.get("final_block", {}).get("avg"),
+                    "final_speed_avg": stats.get("final_speed", {}).get("avg"),
+                    "losing_attack_avg": stats.get("losing_attack", {}).get("avg"),
+                    "losing_block_avg": stats.get("losing_block", {}).get("avg"),
+                    "losing_speed_avg": stats.get("losing_speed", {}).get("avg"),
+                    "speed_advantage_losses": stats.get("speed_advantage_losses"),
+                    "block_then_win_matches": stats.get("block_then_win_matches"),
                     "set_rate": stats.get("action_rates", {}).get("set"),
                     "set_pass_rate": stats.get("action_rates", {}).get("set_pass"),
                     "pass_rate": stats.get("action_rates", {}).get("pass"),
@@ -307,6 +315,14 @@ def summarize_draft_reports(reports: list[dict[str, Any]]) -> dict[str, Any]:
                     "loser_facedown_avg": stats.get("losing_facedown", {}).get("avg"),
                     "starting_player_win_rate": stats.get("starting_player_win_rate"),
                     "responding_player_win_rate": stats.get("responding_player_win_rate"),
+                    "final_attack_avg": stats.get("final_attack", {}).get("avg"),
+                    "final_block_avg": stats.get("final_block", {}).get("avg"),
+                    "final_speed_avg": stats.get("final_speed", {}).get("avg"),
+                    "losing_attack_avg": stats.get("losing_attack", {}).get("avg"),
+                    "losing_block_avg": stats.get("losing_block", {}).get("avg"),
+                    "losing_speed_avg": stats.get("losing_speed", {}).get("avg"),
+                    "speed_advantage_losses": stats.get("speed_advantage_losses"),
+                    "block_then_win_matches": stats.get("block_then_win_matches"),
                     "set_rate": stats.get("action_rates", {}).get("set"),
                     "set_pass_rate": stats.get("action_rates", {}).get("set_pass"),
                     "pass_rate": stats.get("action_rates", {}).get("pass"),
@@ -419,10 +435,13 @@ def render_aggregate_markdown(summary: dict[str, Any]) -> str:
 
     canonical = random_mix["canonical"]
     if canonical:
-        lines.extend(["", "### Canonical Bot Ranking", "", "| Rank | Bot | Matches | Wins | Losses | Draws | Win Rate | First Pass Win | Fewer Win | Same Win | More Win | Winner Set Avg | Loser Set Avg | Start Win | Second Win | Set Rate | Set+Pass Rate | Pass Rate | Turn Avg |", "|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|"])
+        lines.extend(["", "### Canonical Bot Ranking", "", "| Rank | Bot | Matches | Wins | Losses | Draws | Win Rate | Final A | Final B | Final S | Loss A | Loss B | Loss S | Speed Adv Loss | Block Counter Win | First Pass Win | Fewer Win | Same Win | More Win | Winner Set Avg | Loser Set Avg | Start Win | Second Win | Set Rate | Set+Pass Rate | Pass Rate | Turn Avg |", "|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|"])
         for index, item in enumerate(canonical["bot_rankings"], start=1):
             lines.append(
                 f"| {index} | `{item['bot']}` | {item['matches']} | {item['wins']} | {item['losses']} | {item['draws']} | {item['win_rate']*100:.1f}% | "
+                f"{fmt(item.get('final_attack_avg'))} | {fmt(item.get('final_block_avg'))} | {fmt(item.get('final_speed_avg'))} | "
+                f"{fmt(item.get('losing_attack_avg'))} | {fmt(item.get('losing_block_avg'))} | {fmt(item.get('losing_speed_avg'))} | "
+                f"{fmt(item.get('speed_advantage_losses'))} | {fmt(item.get('block_then_win_matches'))} | "
                 f"{format_optional_rate(item.get('first_pass_win_rate'))} | {format_optional_rate(item.get('fewer_card_win_rate'))} | "
                 f"{format_optional_rate(item.get('same_card_win_rate'))} | {format_optional_rate(item.get('more_card_win_rate'))} | "
                 f"{fmt(item.get('winner_facedown_avg'))} | {fmt(item.get('loser_facedown_avg'))} | "
@@ -461,13 +480,15 @@ def render_aggregate_markdown(summary: dict[str, Any]) -> str:
                 f"- Play Bots: `{report['play_bot1']}` / `{report['play_bot2']}`",
                 f"- Path: `{report['path']}`",
                 "",
-                "| Rank | Drafter | Win Rate | First Pass Win | Fewer Win | Same Win | More Win | Winner Set Avg | Loser Set Avg | Start Win | Second Win | Set Rate | Set+Pass Rate | Pass Rate | Battle Avg | Control Avg | Red Avg | Blue Avg | Green Avg | White Avg | Common Avg | Uncommon Avg | Rare Avg |",
-                "|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+                "| Rank | Drafter | Win Rate | Final A | Final B | Final S | Loss A | Loss B | Loss S | Speed Adv Loss | Block Counter Win | First Pass Win | Fewer Win | Same Win | More Win | Winner Set Avg | Loser Set Avg | Start Win | Second Win | Set Rate | Set+Pass Rate | Pass Rate | Battle Avg | Control Avg | Red Avg | Blue Avg | Green Avg | White Avg | Common Avg | Uncommon Avg | Rare Avg |",
+                "|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
             ]
         )
         for index, item in enumerate(report["rankings"], start=1):
             lines.append(
-                f"| {index} | `{item['drafter']}` | {item['win_rate']*100:.1f}% | {format_optional_rate(item.get('first_pass_win_rate'))} | {format_optional_rate(item.get('fewer_card_win_rate'))} | "
+                f"| {index} | `{item['drafter']}` | {item['win_rate']*100:.1f}% | {fmt(item.get('final_attack_avg'))} | {fmt(item.get('final_block_avg'))} | {fmt(item.get('final_speed_avg'))} | "
+                f"{fmt(item.get('losing_attack_avg'))} | {fmt(item.get('losing_block_avg'))} | {fmt(item.get('losing_speed_avg'))} | {fmt(item.get('speed_advantage_losses'))} | {fmt(item.get('block_then_win_matches'))} | "
+                f"{format_optional_rate(item.get('first_pass_win_rate'))} | {format_optional_rate(item.get('fewer_card_win_rate'))} | "
                 f"{format_optional_rate(item.get('same_card_win_rate'))} | {format_optional_rate(item.get('more_card_win_rate'))} | {fmt(item.get('winner_facedown_avg'))} | {fmt(item.get('loser_facedown_avg'))} | "
                 f"{format_optional_rate(item.get('starting_player_win_rate'))} | {format_optional_rate(item.get('responding_player_win_rate'))} | "
                 f"{format_optional_rate(item.get('set_rate'))} | {format_optional_rate(item.get('set_pass_rate'))} | {format_optional_rate(item.get('pass_rate'))} | {item['battle_avg']} | {item['control_avg']} | "

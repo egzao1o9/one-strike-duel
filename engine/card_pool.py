@@ -39,6 +39,11 @@ class DraftPick:
     number: int
     player_id: str
     card_id: str
+    visibility: str = "public"
+    phase: str = "single"
+    offer_card_ids: tuple[str, ...] = ()
+    pick_position: int = 1
+    round_number: int = 1
 
 
 @dataclass(frozen=True)

@@ -8,18 +8,18 @@ import random
 from bots.registry import BOT_REGISTRY, build_bot
 from draft.registry import DRAFT_BOT_REGISTRY, build_draft_bot
 from engine.card import Card, load_cards
-from engine.card_pool import DraftResult, draft_random_decks, load_card_pool
-from engine.drafting import summarize_deck
+from engine.card_pool import DraftResult, load_card_pool
+from engine.drafting import draft_with_bots, summarize_deck
 from engine.log_formatter import render_match_log_markdown
 from engine.phase_runner import MatchRunner
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run one shared-pool draft match.")
-    parser.add_argument("--draft-bot1", default="RandomDraftBot", choices=sorted(DRAFT_BOT_REGISTRY))
-    parser.add_argument("--draft-bot2", default="RandomDraftBot", choices=sorted(DRAFT_BOT_REGISTRY))
-    parser.add_argument("--bot1", default="RandomBot", choices=sorted(BOT_REGISTRY))
-    parser.add_argument("--bot2", default="RandomBot", choices=sorted(BOT_REGISTRY))
+    parser.add_argument("--draft-bot1", default="StandardDraftBot", choices=sorted(DRAFT_BOT_REGISTRY))
+    parser.add_argument("--draft-bot2", default="GuardDraftBot", choices=sorted(DRAFT_BOT_REGISTRY))
+    parser.add_argument("--bot1", default="StandardBot", choices=sorted(BOT_REGISTRY))
+    parser.add_argument("--bot2", default="StandardBot", choices=sorted(BOT_REGISTRY))
     parser.add_argument("--seed", type=int, default=71)
     parser.add_argument("--cards", default="data/cards.json")
     parser.add_argument("--pool", default="data/card_pool.json")
@@ -35,19 +35,14 @@ def main() -> None:
     rng = random.Random(args.seed)
     draft_bot1 = build_draft_bot(args.draft_bot1, args.seed)
     draft_bot2 = build_draft_bot(args.draft_bot2, args.seed + 1)
-    draft = draft_random_decks(pool, cards, rng, deck_size=20, all_public=True)
-    if args.draft_bot1 != "RandomDraftBot" or args.draft_bot2 != "RandomDraftBot":
-        from engine.drafting import draft_with_bots
-
-        draft = draft_with_bots(
-            pool,
-            cards,
-            rng,
-            draft_bot1,
-            draft_bot2,
-            deck_size=20,
-            all_public=True,
-        )
+    draft = draft_with_bots(
+        pool,
+        cards,
+        rng,
+        draft_bot1,
+        draft_bot2,
+        deck_size=20,
+    )
 
     runner = MatchRunner(
         build_bot(args.bot1, args.seed),
@@ -91,10 +86,20 @@ def build_draft_payload(
         "draft_bots": {"p1": draft_bot1, "p2": draft_bot2},
         "deck1": list(draft.deck1.all_cards),
         "deck2": list(draft.deck2.all_cards),
+        "deck1_public": list(draft.deck1.public_cards),
+        "deck1_hidden": list(draft.deck1.hidden_cards),
+        "deck2_public": list(draft.deck2.public_cards),
+        "deck2_hidden": list(draft.deck2.hidden_cards),
         "picks": [
             {
                 "number": pick.number,
+                "round": pick.round_number,
                 "player": pick.player_id,
+                "visibility": pick.visibility,
+                "phase": pick.phase,
+                "pick_position": pick.pick_position,
+                "offer_card_ids": list(pick.offer_card_ids),
+                "offer_card_names": [cards[card_id].name for card_id in pick.offer_card_ids],
                 "card_id": pick.card_id,
                 "card_name": cards[pick.card_id].name,
             }
@@ -114,6 +119,8 @@ def render_draft_match_markdown(draft: DraftResult, cards: dict[str, Card], matc
         f"- Pool: `{draft.pool.id}` ({draft.pool.name})",
         f"- First Pick: `{draft.first_player}`",
         f"- Deck Size: {len(draft.deck1.all_cards)}",
+        f"- P1 Public / Hidden: {len(draft.deck1.public_cards)} / {len(draft.deck1.hidden_cards)}",
+        f"- P2 Public / Hidden: {len(draft.deck2.public_cards)} / {len(draft.deck2.hidden_cards)}",
         "",
         "## Role Balance",
         "",
@@ -125,22 +132,28 @@ def render_draft_match_markdown(draft: DraftResult, cards: dict[str, Card], matc
         "## Drafted Decks",
         "",
     ]
-    lines.extend(render_deck_table("P1 Draft Deck", draft.deck1.all_cards, cards))
+    lines.extend(render_deck_table("P1 Public Deck", draft.deck1.public_cards, cards))
     lines.append("")
-    lines.extend(render_deck_table("P2 Draft Deck", draft.deck2.all_cards, cards))
+    lines.extend(render_deck_table("P1 Hidden Deck", draft.deck1.hidden_cards, cards))
+    lines.append("")
+    lines.extend(render_deck_table("P2 Public Deck", draft.deck2.public_cards, cards))
+    lines.append("")
+    lines.extend(render_deck_table("P2 Hidden Deck", draft.deck2.hidden_cards, cards))
     lines.append("")
     lines.extend(
         [
             "## Pick Order",
             "",
-            "| Pick | Player | Card | ID | Rarity |",
-            "|---:|---|---|---|---|",
+            "| Pick | Round | Player | Phase | Position | Card | ID | Rarity | Offer |",
+            "|---:|---:|---|---|---:|---|---|---|---|",
         ]
     )
     for pick in draft.picks:
         card = cards[pick.card_id]
         lines.append(
-            f"| {pick.number} | `{pick.player_id}` | {card.name} | `{card.id}` | `{card.rarity}` |"
+            f"| {pick.number} | {pick.round_number} | `{pick.player_id}` | `{pick.visibility}` | {pick.pick_position} | "
+            f"{card.name} | `{card.id}` | `{card.rarity}` | "
+            f"{', '.join(cards[card_id].name for card_id in pick.offer_card_ids)} |"
         )
     lines.extend(["", "## Match Log", "", render_match_log_markdown(match_log).rstrip(), ""])
     return "\n".join(lines).rstrip() + "\n"

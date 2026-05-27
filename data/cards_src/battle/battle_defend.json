@@ -1,0 +1,14 @@
+{
+  "id": "battle_defend",
+  "name": "防御",
+  "type": "battle",
+  "rarity": "common",
+  "attack": 0,
+  "block": 1,
+  "speed": 0,
+  "tags": [
+    "defense"
+  ],
+  "effects": [],
+  "notes": "標準的な防御カード。"
+}

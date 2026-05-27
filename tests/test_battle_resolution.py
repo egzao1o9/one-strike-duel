@@ -29,8 +29,8 @@ def test_faster_player_wins_before_counterattack() -> None:
 def test_equal_speed_can_draw() -> None:
     cards = load_cards("data/cards.json")
     state = make_state()
-    state.players["p1"].set_cards = [cards["battle_step_in"]]
-    state.players["p2"].set_cards = [cards["battle_break"]]
+    state.players["p1"].set_cards = [cards["battle_break"]]
+    state.players["p2"].set_cards = [cards["battle_pierce"]]
 
     resolution = resolve_battle(state)
 
@@ -59,7 +59,7 @@ def test_multiple_battle_cards_are_summed() -> None:
 
     assert resolution.finals["p1"].attack == 5
     assert resolution.finals["p1"].block == 0
-    assert resolution.finals["p1"].speed == 4
+    assert resolution.finals["p1"].speed == 2
     assert resolution.winner == "p1"
 
 

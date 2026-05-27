@@ -1,0 +1,14 @@
+{
+  "id": "battle_power_attack",
+  "name": "強撃",
+  "type": "battle",
+  "rarity": "uncommon",
+  "attack": 2,
+  "block": 0,
+  "speed": 0,
+  "tags": [
+    "attack"
+  ],
+  "effects": [],
+  "notes": "少し強い攻撃カード。"
+}

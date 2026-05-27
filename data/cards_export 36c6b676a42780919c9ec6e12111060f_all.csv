@@ -1,0 +1,33 @@
+﻿id,attack,block,effects_json,name,notes,rarity,speed,tags,type
+battle_afterimage,-1,0,[],残像,極端に速いが打点は持たない。,rare,5,speed,battle
+battle_all_in,5,-1,"[{""timing"": ""battle"", ""kind"": ""set_self_block_limit"", ""value"": 0}]",渾身,高火力だが無防備で遅い。,rare,-1,"attack, finisher",battle
+battle_backstep,-1,1,[],退き足,攻めない代わりに位置取りを優先する。,uncommon,2,"defense, speed",battle
+battle_brace,1,2,[],踏ん張り,大きな弱点のない中継ぎ。,uncommon,-1,balanced,battle
+battle_break,2,0,"[{""timing"": ""battle"", ""kind"": ""modify_opponent_block"", ""value"": 1}]",崩し,相手の防御を崩す。,uncommon,1,attack,battle
+battle_counter,1,1,[],返し刃,平均的なカウンター向けカード。,uncommon,1,balanced,battle
+battle_cross_guard,0,2,[],十字受け,軽い受けでテンポを維持する。,uncommon,1,"defense, speed",battle
+battle_crush,3,-1,[],粉砕,前のめりで防御に穴が空く。,uncommon,0,"attack, risk",battle
+battle_feint,-1,0,[],フェイント,先制は取りやすいが決定打にはならない。,uncommon,3,"speed, trick",battle
+battle_dash,1,0,[],疾走,最速クラスだが防御はない。,rare,2,"risk, speed",battle
+battle_guard,0,1,[],受け流し,堅実な防御。,uncommon,1,defense,battle
+battle_heavy_swing,5,0,[],大振り,威力は大きいがかなり遅い。,rare,-2,"attack, heavy",battle
+battle_low_stance,0,2,[],低姿勢,守りやすいが主導権は取りづらい。,uncommon,-1,defense,battle
+battle_pierce,2,0,"[{""timing"": ""battle"", ""kind"": ""modify_opponent_block"", ""value"": 1}]",貫き,防御を削りながら通しにいく。,uncommon,1,attack,battle
+battle_press,1,1,[],押し込み,標準的な攻防一体カード。,uncommon,0,balanced,battle
+battle_step_in,4,0,"[{""timing"": ""battle"", ""kind"": ""set_self_block_limit"", ""value"": 0}]",踏み込み,このターン、自分はブロック値を得られない。,rare,2,"attack, risk",battle
+battle_wall,-1,5,[],鉄壁,非常に硬いが、攻撃できず動きも重い。,rare,-1,"defense, heavy",battle
+control_anchor,0,0,"[{""timing"": ""battle"", ""kind"": ""modify_opponent_speed"", ""value"": 2}]",重心落とし,このターン、相手の素早さ-2。,uncommon,0,debuff,control
+control_disrupt,0,0,"[{""timing"": ""battle"", ""kind"": ""modify_opponent_attack"", ""value"": 1}]",牽制,このターン、相手の攻撃-1。,common,0,debuff,control
+control_cover,0,0,"[{""timing"": ""battle"", ""kind"": ""modify_self_block"", ""value"": 1}, {""timing"": ""battle"", ""kind"": ""modify_self_speed"", ""value"": 1}]",受け直し,このターン、ブロック+1、素早さ+1。,uncommon,0,buff,control
+control_focus,0,0,"[{""timing"": ""next_turn"", ""kind"": ""modify_self_attack"", ""value"": 1}]",集中,次ターン、自分の攻撃+1。,common,0,"buff, next_turn",control
+control_fortify,0,0,"[{""timing"": ""battle"", ""kind"": ""modify_self_block"", ""value"": 2}]",補強,このターン、自分のブロック+2。,uncommon,0,buff,control
+control_haste,0,0,"[{""timing"": ""battle"", ""kind"": ""modify_self_speed"", ""value"": 2}]",加速,このターン、自分の素早さ+2。,uncommon,0,buff,control
+control_guard,0,0,"[{""timing"": ""battle"", ""kind"": ""modify_self_block"", ""value"": 1}]",構え,このターン、自分のブロック+1。,common,0,buff,control
+control_momentum,0,0,"[{""timing"": ""next_turn"", ""kind"": ""modify_self_speed"", ""value"": 2}]",勢い溜め,次ターン、自分の素早さ+2。,uncommon,0,next_turn,control
+control_overclock,0,0,"[{""timing"": ""battle"", ""kind"": ""modify_self_attack"", ""value"": 1}, {""timing"": ""battle"", ""kind"": ""modify_self_speed"", ""value"": 1}]",前のめり,このターン、攻撃+1、素早さ+1。,uncommon,0,"buff, risk",control
+control_reserve,0,0,"[{""timing"": ""next_turn"", ""kind"": ""draw_cards"", ""value"": 1}]",蓄え,次ターン開始時、追加で1枚引く。,rare,0,next_turn,control
+control_pressure,0,0,"[{""timing"": ""battle"", ""kind"": ""modify_opponent_block"", ""value"": 1}]",圧迫,このターン、相手のブロック-1。,common,0,debuff,control
+battle_attack,1,0,[],攻撃,標準的な攻撃カード。,common,0,attack,battle
+battle_defend,0,1,[],防御,標準的な防御カード。,common,0,defense,battle
+battle_step,0,0,[],ステップ,標準的な素早さカード。,common,1,speed,battle
+battle_power_attack,2,0,[],強撃,少し強い攻撃カード。,uncommon,0,attack,battle

@@ -30,6 +30,18 @@ Validate sources only:
 python -m sim.validate_cards
 ```
 
+Export to CSV for Notion:
+
+```bash
+python -m sim.export_cards_csv
+```
+
+Import edited CSV back into `cards_src` and rebuild `data/cards.json`:
+
+```bash
+python -m sim.import_cards_csv --input data/cards_export.csv
+```
+
 Build the bundled card file:
 
 ```bash
@@ -63,3 +75,6 @@ python -m pytest -q
 - Runtime code still reads `data/cards.json`, so existing systems do not need to change.
 - `data/card_pool.json` should be regenerated after rarity changes.
 - `docs/cards_reference.md` should be regenerated after card text or stat changes.
+- Notion integration is intended as a CSV workflow, not a direct API sync.
+- Recommended Notion columns are the same as the CSV header:
+  `id`, `name`, `type`, `rarity`, `attack`, `block`, `speed`, `tags`, `effects_json`, `notes`.

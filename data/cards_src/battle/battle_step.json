@@ -1,0 +1,14 @@
+{
+  "id": "battle_step",
+  "name": "ステップ",
+  "type": "battle",
+  "rarity": "common",
+  "attack": 0,
+  "block": 0,
+  "speed": 1,
+  "tags": [
+    "speed"
+  ],
+  "effects": [],
+  "notes": "標準的な素早さカード。"
+}

@@ -127,9 +127,15 @@ def build_random_mix_summary(
             "losses": 0,
             "draws": 0,
             "turn_counts": [],
+            "final_attack": [],
+            "final_block": [],
+            "final_speed": [],
             "winning_attack": [],
             "winning_block": [],
             "winning_speed": [],
+            "losing_attack": [],
+            "losing_block": [],
+            "losing_speed": [],
             "deck_usage": Counter(),
             "used_cards": Counter(),
             "winning_used_cards": Counter(),
@@ -144,6 +150,8 @@ def build_random_mix_summary(
             "wins_with_fewer_cards": 0,
             "wins_with_same_cards": 0,
             "wins_with_more_cards": 0,
+            "speed_advantage_losses": 0,
+            "block_then_win_matches": 0,
             "winning_facedown_counts": [],
             "losing_facedown_counts": [],
             "match_links": [],
@@ -159,6 +167,10 @@ def build_random_mix_summary(
             bot["deck_usage"][deck_id] += 1
             bot["used_cards"].update(record["side_usage"][side])
             bot["action_counts"].update(record["action_counts"][side])
+            if record[f"{side}_final_stats"] is not None:
+                bot["final_attack"].append(record[f"{side}_final_stats"]["attack"])
+                bot["final_block"].append(record[f"{side}_final_stats"]["block"])
+                bot["final_speed"].append(record[f"{side}_final_stats"]["speed"])
             bot["match_links"].append((record["match_id"], record["markdown_path"]))
             deck_stats[deck_id]["matches"] += 1
             if record["first_pass_player"] == side:
@@ -173,6 +185,8 @@ def build_random_mix_summary(
                 bot["responding_player_matches"] += 1
                 if record["winner_side"] == side:
                     bot["responding_player_wins"] += 1
+            bot["speed_advantage_losses"] += int(record[f"{side}_lost_with_speed_advantage"])
+            bot["block_then_win_matches"] += int(record[f"{side}_block_then_win"])
 
         if record["winner_side"] is None:
             bot_stats[record["p1_bot"]]["draws"] += 1
@@ -199,6 +213,14 @@ def build_random_mix_summary(
                 winner_bot["winning_facedown_counts"].append(record["winner_facedown_count"])
             if record["loser_facedown_count"] is not None:
                 loser_bot["losing_facedown_counts"].append(record["loser_facedown_count"])
+            if record["p1_final_stats"] is not None and winner_side == "p2":
+                bot_stats[record["p1_bot"]]["losing_attack"].append(record["p1_final_stats"]["attack"])
+                bot_stats[record["p1_bot"]]["losing_block"].append(record["p1_final_stats"]["block"])
+                bot_stats[record["p1_bot"]]["losing_speed"].append(record["p1_final_stats"]["speed"])
+            if record["p2_final_stats"] is not None and winner_side == "p1":
+                bot_stats[record["p2_bot"]]["losing_attack"].append(record["p2_final_stats"]["attack"])
+                bot_stats[record["p2_bot"]]["losing_block"].append(record["p2_final_stats"]["block"])
+                bot_stats[record["p2_bot"]]["losing_speed"].append(record["p2_final_stats"]["speed"])
             deck_stats[record[f"{winner_side}_deck"]]["wins"] += 1
 
         pair_key = " vs ".join(sorted((record["p1_bot"], record["p2_bot"])))
@@ -259,9 +281,15 @@ def finalize_bot_stats(bot_name: str, stats: dict[str, Any]) -> dict[str, Any]:
         "win_rate": stats["wins"] / matches,
         "draw_rate": stats["draws"] / matches,
         "turns": summarize_numbers(stats["turn_counts"]),
+        "final_attack": summarize_numbers(stats["final_attack"]),
+        "final_block": summarize_numbers(stats["final_block"]),
+        "final_speed": summarize_numbers(stats["final_speed"]),
         "winning_attack": summarize_numbers(stats["winning_attack"]),
         "winning_block": summarize_numbers(stats["winning_block"]),
         "winning_speed": summarize_numbers(stats["winning_speed"]),
+        "losing_attack": summarize_numbers(stats["losing_attack"]),
+        "losing_block": summarize_numbers(stats["losing_block"]),
+        "losing_speed": summarize_numbers(stats["losing_speed"]),
         "winning_facedown": summarize_numbers(stats["winning_facedown_counts"]),
         "losing_facedown": summarize_numbers(stats["losing_facedown_counts"]),
         "first_pass_matches": first_pass_matches,
@@ -273,6 +301,10 @@ def finalize_bot_stats(bot_name: str, stats: dict[str, Any]) -> dict[str, Any]:
         "fewer_card_win_rate": (stats["wins_with_fewer_cards"] / wins) if wins else None,
         "same_card_win_rate": (stats["wins_with_same_cards"] / wins) if wins else None,
         "more_card_win_rate": (stats["wins_with_more_cards"] / wins) if wins else None,
+        "speed_advantage_losses": stats["speed_advantage_losses"],
+        "speed_advantage_loss_rate": stats["speed_advantage_losses"] / matches,
+        "block_then_win_matches": stats["block_then_win_matches"],
+        "block_then_win_rate": (stats["block_then_win_matches"] / wins) if wins else None,
         "action_counts": dict(stats["action_counts"]),
         "action_rates": {
             "set": stats["action_counts"].get("set", 0) / total_actions,
@@ -356,6 +388,23 @@ def render_random_mix_markdown(summary: dict[str, Any]) -> str:
             f"| `{deck_id}` | {stats['matches']} | {stats['wins']} | {stats['draws']} | {format_rate(stats['win_rate'])} |"
         )
 
+    lines.extend(
+        [
+            "",
+            "## Bot Pattern Metrics",
+            "",
+            "| Bot | Final A Avg | Final B Avg | Final S Avg | Loss A Avg | Loss B Avg | Loss S Avg | Speed Adv Losses | Block Counter Wins |",
+            "|---|---:|---:|---:|---:|---:|---:|---:|---:|",
+        ]
+    )
+    for bot_name, stats in sorted(summary["bots"].items()):
+        lines.append(
+            f"| `{bot_name}` | {fmt(stats['final_attack']['avg'])} | {fmt(stats['final_block']['avg'])} | {fmt(stats['final_speed']['avg'])} | "
+            f"{fmt(stats['losing_attack']['avg'])} | {fmt(stats['losing_block']['avg'])} | {fmt(stats['losing_speed']['avg'])} | "
+            f"{stats['speed_advantage_losses']} ({format_rate(stats['speed_advantage_loss_rate'])}) | "
+            f"{stats['block_then_win_matches']} ({format_optional_rate(stats['block_then_win_rate'])}) |"
+        )
+
     lines.extend(["", "## Card Highlights", ""])
     lines.extend(render_rank_table("Most Used Cards", summary["cards"]["most_used"]))
     lines.append("")
@@ -381,6 +430,10 @@ def render_random_mix_markdown(summary: dict[str, Any]) -> str:
                 f"- Loser Facedown Avg: {fmt(stats['losing_facedown']['avg'])}",
                 f"- Starting Player Win Rate: {format_optional_rate(stats['starting_player_win_rate'])}",
                 f"- Responding Player Win Rate: {format_optional_rate(stats['responding_player_win_rate'])}",
+                f"- Final Stats Avg: A={fmt(stats['final_attack']['avg'])}, B={fmt(stats['final_block']['avg'])}, S={fmt(stats['final_speed']['avg'])}",
+                f"- Losing Final Stats Avg: A={fmt(stats['losing_attack']['avg'])}, B={fmt(stats['losing_block']['avg'])}, S={fmt(stats['losing_speed']['avg'])}",
+                f"- Lost With Speed Advantage: {stats['speed_advantage_losses']} ({format_rate(stats['speed_advantage_loss_rate'])})",
+                f"- Won After Blocking Faster Attack: {stats['block_then_win_matches']} ({format_optional_rate(stats['block_then_win_rate'])})",
                 f"- Action Rates: set={format_rate(stats['action_rates']['set'])}, set_pass={format_rate(stats['action_rates']['set_pass'])}, pass={format_rate(stats['action_rates']['pass'])}",
                 f"- Turn Stats: min={fmt(stats['turns']['min'])}, avg={fmt(stats['turns']['avg'])}, max={fmt(stats['turns']['max'])}",
                 f"- Winning Attack Stats: min={fmt(stats['winning_attack']['min'])}, avg={fmt(stats['winning_attack']['avg'])}, max={fmt(stats['winning_attack']['max'])}",

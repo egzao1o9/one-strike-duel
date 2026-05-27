@@ -5,10 +5,10 @@
   "rarity": "rare",
   "attack": 1,
   "block": 0,
-  "speed": 5,
+  "speed": 2,
   "tags": [
-    "speed",
-    "risk"
+    "risk",
+    "speed"
   ],
   "effects": [],
   "notes": "最速クラスだが防御はない。"

@@ -20,6 +20,10 @@ def test_random_bot_mix_generates_reports() -> None:
         assert "losing_facedown" in first_bot
         assert "starting_player_win_rate" in first_bot
         assert "responding_player_win_rate" in first_bot
+        assert "final_attack" in first_bot
+        assert "losing_attack" in first_bot
+        assert "speed_advantage_losses" in first_bot
+        assert "block_then_win_matches" in first_bot
         matches_dir = Path(tmpdir) / "matches"
         assert matches_dir.exists()
         remaining = list(matches_dir.iterdir())

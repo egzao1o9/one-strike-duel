@@ -29,6 +29,12 @@ def test_draft_report_generates_outputs() -> None:
         assert "losing_facedown" in first_drafter
         assert "starting_player_win_rate" in first_drafter
         assert "responding_player_win_rate" in first_drafter
+        assert "final_attack" in first_drafter
+        assert "losing_attack" in first_drafter
+        assert "speed_advantage_losses" in first_drafter
+        assert "block_then_win_matches" in first_drafter
+        assert "picked_card_stats" in first_drafter
+        assert "rarity_play_stats" in first_drafter
         matches_dir = Path(tmpdir) / "matches"
         assert matches_dir.exists()
         remaining = list(matches_dir.iterdir())

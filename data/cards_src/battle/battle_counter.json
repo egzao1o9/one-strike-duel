@@ -2,9 +2,9 @@
   "id": "battle_counter",
   "name": "返し刃",
   "type": "battle",
-  "rarity": "common",
-  "attack": 2,
-  "block": 2,
+  "rarity": "uncommon",
+  "attack": 1,
+  "block": 1,
   "speed": 1,
   "tags": [
     "balanced"

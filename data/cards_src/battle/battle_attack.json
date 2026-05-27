@@ -1,0 +1,14 @@
+{
+  "id": "battle_attack",
+  "name": "攻撃",
+  "type": "battle",
+  "rarity": "common",
+  "attack": 1,
+  "block": 0,
+  "speed": 0,
+  "tags": [
+    "attack"
+  ],
+  "effects": [],
+  "notes": "標準的な攻撃カード。"
+}
