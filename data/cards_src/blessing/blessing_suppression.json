@@ -1,0 +1,37 @@
+{
+  "id": "blessing_suppression",
+  "name": "抑制の加護",
+  "card_type": "blessing",
+  "rarity": "rare",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": [
+    "blessing",
+    "debuff",
+    "control"
+  ],
+  "public_text": "相手の攻撃力が5以上のカードを対象に使用できる。そのカードの攻撃-3。使用後、この加護を裏向きにする。",
+  "enabled": true,
+  "play_zone": "blessing_zone",
+  "after_play_zone": "blessing_zone",
+  "slot_type": "blessing",
+  "effects": [
+    {
+      "id": "blessing_suppression_01",
+      "seq": 1,
+      "enabled": true,
+      "trigger": "on_reveal",
+      "priority": 100,
+      "effect_type": "modify_card_stat",
+      "target": "opponent_card",
+      "stat": "attack",
+      "value": -3,
+      "duration": "while_in_zone",
+      "active_zone": "blessing_zone",
+      "keyword": "flip_after_use",
+      "display_text": "相手の攻撃力が5以上のカードを対象に使用できる。そのカードの攻撃-3。使用後、この加護を裏向きにする。"
+    }
+  ],
+  "notes": "Reveal-time attack suppression blessing."
+}

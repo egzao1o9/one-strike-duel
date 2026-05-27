@@ -23,6 +23,7 @@ def parse_args() -> argparse.Namespace:
 def render_cards_markdown(cards: dict[str, Card]) -> str:
     battle_cards = [card for card in cards.values() if card.type == "battle"]
     control_cards = [card for card in cards.values() if card.type == "control"]
+    blessing_cards = [card for card in cards.values() if card.type == "blessing"]
 
     lines = [
         "# Cards Reference",
@@ -32,17 +33,18 @@ def render_cards_markdown(cards: dict[str, Card]) -> str:
         f"- Total Cards: {len(cards)}",
         f"- Battle Cards: {len(battle_cards)}",
         f"- Control Cards: {len(control_cards)}",
+        f"- Blessing Cards: {len(blessing_cards)}",
         "",
         "## Card List",
         "",
-        "| ID | Name | Type | Rarity | Attack | Block | Speed | Tags |",
-        "|---|---|---|---|---:|---:|---:|---|",
+        "| ID | Name | Type | Rarity | Attack | Block | Speed | Tags | Text |",
+        "|---|---|---|---|---:|---:|---:|---|---|",
     ]
 
     for card in sorted(cards.values(), key=lambda item: (item.type, item.id)):
         tags = ", ".join(card.tags) if card.tags else "-"
         lines.append(
-            f"| `{card.id}` | {card.name} | `{card.type}` | `{card.rarity}` | {card.attack} | {card.block} | {card.speed} | {tags} |"
+            f"| `{card.id}` | {card.name} | `{card.type}` | `{card.rarity}` | {card.attack} | {card.block} | {card.speed} | {tags} | {card.public_text or '-'} |"
         )
 
     lines.extend(["", "## Details", ""])
@@ -64,12 +66,19 @@ def _render_card_detail(card: Card) -> list[str]:
         f"- Rarity: `{card.rarity}`",
         f"- Stats: `A={card.attack} / B={card.block} / S={card.speed}`",
         f"- Tags: {tags}",
+        f"- Text: {card.public_text or '-'}",
+        f"- Zones: `play={card.play_zone} / after={card.after_play_zone} / slot={card.slot_type or '-'} `",
         f"- Notes: {card.notes or '-'}",
     ]
     if card.effects:
         lines.append("- Effects:")
         for effect in card.effects:
-            lines.append(f"  - `{effect.timing}` / `{effect.kind}` / value={effect.value}")
+            if effect.effect_type:
+                lines.append(
+                    f"  - `{effect.trigger}` / `{effect.effect_type}` / target=`{effect.target}` / stat=`{effect.stat}` / value={effect.value} / duration=`{effect.duration or '-'} ` / active_zone=`{effect.active_zone or '-'} `"
+                )
+            else:
+                lines.append(f"  - `{effect.timing}` / `{effect.kind}` / value={effect.value}")
     else:
         lines.append("- Effects: none")
     return lines
@@ -81,15 +90,16 @@ def render_decks_markdown(decks: dict[str, DeckDefinition], cards: dict[str, Car
         "",
         "## Summary",
         "",
-        "| ID | Name | Total | Public | Hidden | Battle | Control |",
-        "|---|---|---:|---:|---:|---:|---:|",
+        "| ID | Name | Total | Public | Hidden | Battle | Control | Blessing |",
+        "|---|---|---:|---:|---:|---:|---:|---:|",
     ]
 
     for deck in sorted(decks.values(), key=lambda item: item.id):
         battle_count = sum(1 for card_id in deck.all_cards if cards[card_id].type == "battle")
         control_count = sum(1 for card_id in deck.all_cards if cards[card_id].type == "control")
+        blessing_count = sum(1 for card_id in deck.all_cards if cards[card_id].type == "blessing")
         lines.append(
-            f"| `{deck.id}` | {deck.name} | {len(deck.all_cards)} | {len(deck.public_cards)} | {len(deck.hidden_cards)} | {battle_count} | {control_count} |"
+            f"| `{deck.id}` | {deck.name} | {len(deck.all_cards)} | {len(deck.public_cards)} | {len(deck.hidden_cards)} | {battle_count} | {control_count} | {blessing_count} |"
         )
 
     lines.extend(["", "## Details", ""])
@@ -128,6 +138,7 @@ def _render_deck_detail(deck: DeckDefinition, cards: dict[str, Card]) -> list[st
     hidden_counter = Counter(deck.hidden_cards)
     battle_count = sum(1 for card_id in deck.all_cards if cards[card_id].type == "battle")
     control_count = sum(1 for card_id in deck.all_cards if cards[card_id].type == "control")
+    blessing_count = sum(1 for card_id in deck.all_cards if cards[card_id].type == "blessing")
 
     lines = [
         f"### {deck.name}",
@@ -136,7 +147,7 @@ def _render_deck_detail(deck: DeckDefinition, cards: dict[str, Card]) -> list[st
         f"- Total Cards: {len(deck.all_cards)}",
         f"- Public Cards: {len(deck.public_cards)}",
         f"- Hidden Cards: {len(deck.hidden_cards)}",
-        f"- Battle / Control: {battle_count} / {control_count}",
+        f"- Battle / Control / Blessing: {battle_count} / {control_count} / {blessing_count}",
         "",
         "#### Public Cards",
         "",

@@ -45,6 +45,7 @@ class MatchLogger:
         card_sources: dict[str, str | None] | None = None,
         hand_counts: dict[str, int] | None = None,
         debug: dict[str, object] | None = None,
+        blessing_changes: dict[str, object] | None = None,
     ) -> None:
         assert self._current_turn is not None
         self._current_turn["control"] = {
@@ -55,6 +56,7 @@ class MatchLogger:
             "sources": card_sources or {},
             "hand_counts": hand_counts or {},
             "debug": debug or {},
+            "blessing_changes": blessing_changes or {},
         }
 
     def record_phase3(self, discarded: dict[str, list[str]], hand_counts: dict[str, int] | None = None) -> None:
@@ -77,6 +79,8 @@ class MatchLogger:
                 "reshuffle_count": player.reshuffle_count,
                 "reshuffle_turns": list(player.reshuffle_turns),
                 "draw_shortfall_turns": list(player.draw_shortfall_turns),
+                "active_blessing": None if player.blessing_zone is None else player.blessing_zone.id,
+                "blessing_face_up": player.blessing_face_up,
             }
             for player_id, player in state.players.items()
         }

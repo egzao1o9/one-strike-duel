@@ -81,7 +81,7 @@ def test_negative_speed_is_kept_and_compared_as_is() -> None:
     slow_card = Card(
         id="slow",
         name="Slow Strike",
-        type="battle",
+        card_type="battle",
         rarity="common",
         attack=2,
         block=0,
@@ -90,7 +90,7 @@ def test_negative_speed_is_kept_and_compared_as_is() -> None:
     fast_card = Card(
         id="fast",
         name="Quick Strike",
-        type="battle",
+        card_type="battle",
         rarity="common",
         attack=1,
         block=0,
@@ -104,3 +104,29 @@ def test_negative_speed_is_kept_and_compared_as_is() -> None:
     assert resolution.finals["p1"].speed == -1
     assert resolution.finals["p2"].speed == 0
     assert resolution.winner == "p2"
+
+
+def test_blessing_attack_bonus_is_applied_during_battle() -> None:
+    cards = load_cards("data/cards.json")
+    state = make_state()
+    state.players["p1"].blessing_zone = cards["blessing_attack"]
+    state.players["p1"].set_cards = [cards["battle_attack"]]
+    state.players["p2"].set_cards = [cards["battle_defend"]]
+
+    resolution = resolve_battle(state)
+
+    assert resolution.finals["p1"].attack == 2
+    assert any("blessing_zone:modify_total_stat:self_total:attack:1" in item for item in resolution.finals["p1"].applied_effects)
+
+
+def test_one_shot_blessing_is_not_used_when_outcome_does_not_change() -> None:
+    cards = load_cards("data/cards.json")
+    state = make_state()
+    state.players["p1"].blessing_zone = cards["blessing_barrier"]
+    state.players["p1"].set_cards = [cards["battle_defend"]]
+    state.players["p2"].set_cards = [cards["battle_attack"]]
+
+    resolution = resolve_battle(state)
+
+    assert state.players["p1"].blessing_face_up is True
+    assert resolution.blessing_events == []

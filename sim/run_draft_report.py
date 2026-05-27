@@ -282,6 +282,7 @@ def summary_to_dict(summary) -> dict[str, Any]:
         "total": summary.total,
         "battle_count": summary.battle_count,
         "control_count": summary.control_count,
+        "blessing_count": summary.blessing_count,
         "role_counts": summary.role_counts,
         "rarity_counts": summary.rarity_counts,
     }
@@ -290,6 +291,10 @@ def summary_to_dict(summary) -> dict[str, Any]:
 def build_draft_summary(records: list[dict[str, Any]], cards: dict[str, Any], drafter_names: list[str]) -> dict[str, Any]:
     drafter_stats: dict[str, dict[str, Any]] = {}
     pair_stats: dict[str, dict[str, Any]] = {}
+    blessing_card_ids = sorted(card.id for card in cards.values() if card.type == "blessing")
+    overall_blessing_stats: dict[str, dict[str, Any]] = {
+        blessing_id: init_blessing_stat(cards[blessing_id]) for blessing_id in blessing_card_ids
+    }
     card_stats: dict[str, dict[str, Any]] = {
         card.name: {
             "id": card.id,
@@ -341,6 +346,7 @@ def build_draft_summary(records: list[dict[str, Any]], cards: dict[str, Any], dr
             },
             "battle_counts": [],
             "control_counts": [],
+            "blessing_counts": [],
             "role_red": [],
             "role_blue": [],
             "role_green": [],
@@ -363,6 +369,9 @@ def build_draft_summary(records: list[dict[str, Any]], cards: dict[str, Any], dr
             "block_then_win_matches": 0,
             "winning_facedown_counts": [],
             "losing_facedown_counts": [],
+            "blessing_card_stats": {
+                blessing_id: init_blessing_stat(cards[blessing_id]) for blessing_id in blessing_card_ids
+            },
             "match_links": [],
         }
 
@@ -394,6 +403,7 @@ def build_draft_summary(records: list[dict[str, Any]], cards: dict[str, Any], dr
             stats["set_pass_candidate_total"] += int(record.get("set_pass_candidate_count", 0))
             stats["battle_counts"].append(summary["battle_count"])
             stats["control_counts"].append(summary["control_count"])
+            stats["blessing_counts"].append(summary["blessing_count"])
             stats["role_red"].append(summary["role_counts"]["red"])
             stats["role_blue"].append(summary["role_counts"]["blue"])
             stats["role_green"].append(summary["role_counts"]["green"])
@@ -407,6 +417,34 @@ def build_draft_summary(records: list[dict[str, Any]], cards: dict[str, Any], dr
                 card = cards[card_id]
                 stats["picked_card_stats"][card.name]["picked_count"] += count
                 stats["rarity_play_stats"][card.rarity]["picked_count"] += count
+                if card.type == "blessing":
+                    blessing_row = stats["blessing_card_stats"][card_id]
+                    blessing_row["deck_copy_count"] += count
+                    blessing_row["deck_match_count"] += 1
+                    overall_row = overall_blessing_stats[card_id]
+                    overall_row["deck_copy_count"] += count
+                    overall_row["deck_match_count"] += 1
+                    if record["winner_side"] == side:
+                        blessing_row["wins_with_card"] += 1
+                        overall_row["wins_with_card"] += 1
+            blessing_info = record.get("blessing_analysis", {}).get(side, {})
+            active_blessing_id = blessing_info.get("active_blessing_id")
+            for blessing_id in blessing_info.get("played_blessing_ids", []):
+                if blessing_id not in stats["blessing_card_stats"]:
+                    continue
+                stats["blessing_card_stats"][blessing_id]["played_match_count"] += 1
+                overall_blessing_stats[blessing_id]["played_match_count"] += 1
+            if active_blessing_id in stats["blessing_card_stats"]:
+                stats["blessing_card_stats"][active_blessing_id]["active_match_count"] += 1
+                stats["blessing_card_stats"][active_blessing_id]["event_count"] += blessing_info.get("event_count", 0)
+                stats["blessing_card_stats"][active_blessing_id]["decisive_count"] += blessing_info.get("decisive_count", 0)
+                stats["blessing_card_stats"][active_blessing_id]["pre_reveal_count"] += blessing_info.get("pre_reveal_count", 0)
+                stats["blessing_card_stats"][active_blessing_id]["passive_decisive_count"] += blessing_info.get("passive_decisive_count", 0)
+                overall_blessing_stats[active_blessing_id]["active_match_count"] += 1
+                overall_blessing_stats[active_blessing_id]["event_count"] += blessing_info.get("event_count", 0)
+                overall_blessing_stats[active_blessing_id]["decisive_count"] += blessing_info.get("decisive_count", 0)
+                overall_blessing_stats[active_blessing_id]["pre_reveal_count"] += blessing_info.get("pre_reveal_count", 0)
+                overall_blessing_stats[active_blessing_id]["passive_decisive_count"] += blessing_info.get("passive_decisive_count", 0)
             for card_name in record["side_usage"][side]:
                 card = cards[name_to_id(card_name, cards)]
                 stats["picked_card_stats"][card.name]["used_count"] += 1
@@ -486,6 +524,7 @@ def build_draft_summary(records: list[dict[str, Any]], cards: dict[str, Any], dr
         "drafters": {name: finalize_drafter_stats(name, stats) for name, stats in drafter_stats.items()},
         "pairs": {key: finalize_pair_stats(key, stats) for key, stats in pair_stats.items()},
         "cards": finalize_card_stats(card_stats),
+        "blessings": finalize_blessing_card_stats(overall_blessing_stats),
     }
 
 
@@ -513,6 +552,7 @@ def finalize_drafter_stats(name: str, stats: dict[str, Any]) -> dict[str, Any]:
         "losing_speed": summarize_numbers(stats["losing_speed"]),
         "battle_count": summarize_numbers(stats["battle_counts"]),
         "control_count": summarize_numbers(stats["control_counts"]),
+        "blessing_count": summarize_numbers(stats["blessing_counts"]),
         "role_red": summarize_numbers(stats["role_red"]),
         "role_blue": summarize_numbers(stats["role_blue"]),
         "role_green": summarize_numbers(stats["role_green"]),
@@ -552,6 +592,7 @@ def finalize_drafter_stats(name: str, stats: dict[str, Any]) -> dict[str, Any]:
         "most_picked_cards": stats["picked_cards"].most_common(10),
         "winning_picked_cards": stats["winning_picked_cards"].most_common(10),
         "picked_card_stats": finalize_picked_card_stats(stats["picked_card_stats"]),
+        "blessing_card_stats": finalize_blessing_card_stats(stats["blessing_card_stats"]),
         "rarity_play_stats": finalize_rarity_play_stats(stats["rarity_play_stats"]),
         "match_links": stats["match_links"],
     }
@@ -591,8 +632,8 @@ def render_draft_report_markdown(summary: dict[str, Any]) -> str:
         "",
         "## Drafter Summary",
         "",
-        "| Drafter | Matches | Wins | Losses | Draws | Win Rate | First Pass Win | Fewer Win | Same Win | More Win | Winner Set Avg | Loser Set Avg | Start Win | Second Win | Set Rate | Set+Pass Rate | Pass Rate | Battle Avg | Control Avg | Red Avg | Blue Avg | Green Avg | White Avg | Common Avg | Uncommon Avg | Rare Avg |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+        "| Drafter | Matches | Wins | Losses | Draws | Win Rate | First Pass Win | Fewer Win | Same Win | More Win | Winner Set Avg | Loser Set Avg | Start Win | Second Win | Set Rate | Set+Pass Rate | Pass Rate | Battle Avg | Control Avg | Blessing Avg | Red Avg | Blue Avg | Green Avg | White Avg | Common Avg | Uncommon Avg | Rare Avg |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for name, stats in sorted(summary["drafters"].items()):
         lines.append(
@@ -602,7 +643,7 @@ def render_draft_report_markdown(summary: dict[str, Any]) -> str:
             f"{fmt(stats['winning_facedown']['avg'])} | {fmt(stats['losing_facedown']['avg'])} | "
             f"{format_optional_rate(stats['starting_player_win_rate'])} | {format_optional_rate(stats['responding_player_win_rate'])} | "
             f"{format_rate(stats['action_rates']['set'])} | {format_rate(stats['action_rates']['set_pass'])} | {format_rate(stats['action_rates']['pass'])} | "
-            f"{fmt(stats['battle_count']['avg'])} | {fmt(stats['control_count']['avg'])} | "
+            f"{fmt(stats['battle_count']['avg'])} | {fmt(stats['control_count']['avg'])} | {fmt(stats['blessing_count']['avg'])} | "
             f"{fmt(stats['role_red']['avg'])} | {fmt(stats['role_blue']['avg'])} | {fmt(stats['role_green']['avg'])} | {fmt(stats['role_white']['avg'])} | "
             f"{fmt(stats['rarity_common']['avg'])} | {fmt(stats['rarity_uncommon']['avg'])} | {fmt(stats['rarity_rare']['avg'])} |"
         )
@@ -618,6 +659,8 @@ def render_draft_report_markdown(summary: dict[str, Any]) -> str:
     lines.extend(render_rank_table("Most Effective Cards", summary["cards"]["most_effective"]))
     lines.append("")
     lines.extend(render_rank_table("Most Lethal Cards", summary["cards"]["most_lethal"]))
+    lines.append("")
+    lines.extend(render_blessing_table("Blessing Involvement Overall", summary["blessings"]))
     lines.append("")
     lines.extend(
         [
@@ -660,7 +703,7 @@ def render_draft_report_markdown(summary: dict[str, Any]) -> str:
                 f"- Action Rates: set={format_rate(stats['action_rates']['set'])}, set_pass={format_rate(stats['action_rates']['set_pass'])}, pass={format_rate(stats['action_rates']['pass'])}",
                 f"- set_pass Candidate Avg / Match: {fmt(stats['set_pass_candidate_avg_per_match'])}",
                 f"- Turns: min={fmt(stats['turns']['min'])}, avg={fmt(stats['turns']['avg'])}, max={fmt(stats['turns']['max'])}",
-                f"- Battle / Control: avg={fmt(stats['battle_count']['avg'])} / {fmt(stats['control_count']['avg'])}",
+                f"- Battle / Control / Blessing: avg={fmt(stats['battle_count']['avg'])} / {fmt(stats['control_count']['avg'])} / {fmt(stats['blessing_count']['avg'])}",
                 f"- Role Colors: red={fmt(stats['role_red']['avg'])}, blue={fmt(stats['role_blue']['avg'])}, green={fmt(stats['role_green']['avg'])}, white={fmt(stats['role_white']['avg'])}",
                 f"- Rarities: common={fmt(stats['rarity_common']['avg'])}, uncommon={fmt(stats['rarity_uncommon']['avg'])}, rare={fmt(stats['rarity_rare']['avg'])}",
                 "",
@@ -671,6 +714,8 @@ def render_draft_report_markdown(summary: dict[str, Any]) -> str:
         lines.extend(render_rank_table("Winning Deck Usage", stats["winning_picked_cards"]))
         lines.append("")
         lines.extend(render_draft_card_stat_table("Draft Card Stats", stats["picked_card_stats"]))
+        lines.append("")
+        lines.extend(render_blessing_table("Blessing Involvement", stats["blessing_card_stats"]))
         lines.append("")
         lines.extend(render_rarity_play_table("Rarity Play Stats", stats["rarity_play_stats"]))
         lines.append("")
@@ -725,6 +770,26 @@ def render_rarity_play_table(title: str, items: list[dict[str, Any]]) -> list[st
     return lines
 
 
+def render_blessing_table(title: str, items: list[dict[str, Any]]) -> list[str]:
+    lines = [
+        f"### {title}",
+        "",
+        "| Blessing | ID | In Deck Matches | Deck Win Rate | Deck Copies | Played | Active | Events | Decisive | Passive Decisive | Pre-Reveal |",
+        "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+    ]
+    for item in items:
+        if item["deck_match_count"] == 0 and item["played_match_count"] == 0 and item["decisive_count"] == 0:
+            continue
+        lines.append(
+            f"| {item['name']} | `{item['id']}` | {item['deck_match_count']} | {format_optional_rate(item['win_rate_when_in_deck'])} | "
+            f"{item['deck_copy_count']} | {item['played_match_count']} | {item['active_match_count']} | {item['event_count']} | "
+            f"{item['decisive_count']} | {item['passive_decisive_count']} | {item['pre_reveal_count']} |"
+        )
+    if len(lines) == 4:
+        lines.append("| - | - | 0 | - | 0 | 0 | 0 | 0 | 0 | 0 | 0 |")
+    return lines
+
+
 def finalize_picked_card_stats(card_stats: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
     rows = []
     for name, stats in sorted(
@@ -756,6 +821,44 @@ def finalize_rarity_play_stats(rarity_stats: dict[str, dict[str, int]]) -> list[
                 "winner_usage_count": stats["winner_usage_count"],
                 "winner_contribution_rate": (stats["winner_usage_count"] / used_count) if used_count else None,
                 "lethal_count": stats["lethal_count"],
+            }
+        )
+    return rows
+
+
+def init_blessing_stat(card) -> dict[str, Any]:
+    return {
+        "id": card.id,
+        "name": card.name,
+        "rarity": card.rarity,
+        "deck_copy_count": 0,
+        "deck_match_count": 0,
+        "wins_with_card": 0,
+        "played_match_count": 0,
+        "active_match_count": 0,
+        "event_count": 0,
+        "decisive_count": 0,
+        "pre_reveal_count": 0,
+        "passive_decisive_count": 0,
+    }
+
+
+def finalize_blessing_card_stats(blessing_stats: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+    rows = []
+    for blessing_id, stats in sorted(
+        blessing_stats.items(),
+        key=lambda item: (
+            -item[1]["deck_match_count"],
+            -item[1]["wins_with_card"],
+            -item[1]["decisive_count"],
+            item[0],
+        ),
+    ):
+        deck_match_count = stats["deck_match_count"]
+        rows.append(
+            {
+                **stats,
+                "win_rate_when_in_deck": (stats["wins_with_card"] / deck_match_count) if deck_match_count else None,
             }
         )
     return rows

@@ -2,13 +2,13 @@
 
 ## Summary
 
-| ID | Name | Total | Public | Hidden | Battle | Control |
-|---|---|---:|---:|---:|---:|---:|
-| `starter_attack` | 攻撃型スターター | 20 | 10 | 10 | 13 | 7 |
-| `starter_balanced` | 均衡型スターター | 20 | 10 | 10 | 11 | 9 |
-| `starter_defense` | 防御型スターター | 20 | 10 | 10 | 12 | 8 |
-| `starter_heavy` | 重量型スターター | 20 | 10 | 10 | 11 | 9 |
-| `starter_speed` | 速度型スターター | 20 | 10 | 10 | 11 | 9 |
+| ID | Name | Total | Public | Hidden | Battle | Control | Blessing |
+|---|---|---:|---:|---:|---:|---:|---:|
+| `starter_attack` | 攻撃型スターター | 20 | 10 | 10 | 13 | 7 | 0 |
+| `starter_balanced` | 均衡型スターター | 20 | 10 | 10 | 11 | 9 | 0 |
+| `starter_defense` | 防御型スターター | 20 | 10 | 10 | 12 | 8 | 0 |
+| `starter_heavy` | 重量型スターター | 20 | 10 | 10 | 11 | 9 | 0 |
+| `starter_speed` | 速度型スターター | 20 | 10 | 10 | 11 | 9 | 0 |
 
 ## Details
 
@@ -18,7 +18,7 @@
 - Total Cards: 20
 - Public Cards: 10
 - Hidden Cards: 10
-- Battle / Control: 13 / 7
+- Battle / Control / Blessing: 13 / 7 / 0
 
 #### Public Cards
 
@@ -72,7 +72,7 @@
 - Total Cards: 20
 - Public Cards: 10
 - Hidden Cards: 10
-- Battle / Control: 11 / 9
+- Battle / Control / Blessing: 11 / 9 / 0
 
 #### Public Cards
 
@@ -133,7 +133,7 @@
 - Total Cards: 20
 - Public Cards: 10
 - Hidden Cards: 10
-- Battle / Control: 12 / 8
+- Battle / Control / Blessing: 12 / 8 / 0
 
 #### Public Cards
 
@@ -186,7 +186,7 @@
 - Total Cards: 20
 - Public Cards: 10
 - Hidden Cards: 10
-- Battle / Control: 11 / 9
+- Battle / Control / Blessing: 11 / 9 / 0
 
 #### Public Cards
 
@@ -244,7 +244,7 @@
 - Total Cards: 20
 - Public Cards: 10
 - Hidden Cards: 10
-- Battle / Control: 11 / 9
+- Battle / Control / Blessing: 11 / 9 / 0
 
 #### Public Cards
 

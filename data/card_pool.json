@@ -99,6 +99,46 @@
       "count": 2
     },
     {
+      "card_id": "blessing_attack",
+      "count": 2
+    },
+    {
+      "card_id": "blessing_barrier",
+      "count": 2
+    },
+    {
+      "card_id": "blessing_draw",
+      "count": 2
+    },
+    {
+      "card_id": "blessing_guard",
+      "count": 2
+    },
+    {
+      "card_id": "blessing_insight",
+      "count": 2
+    },
+    {
+      "card_id": "blessing_offense",
+      "count": 2
+    },
+    {
+      "card_id": "blessing_slow",
+      "count": 2
+    },
+    {
+      "card_id": "blessing_speed",
+      "count": 2
+    },
+    {
+      "card_id": "blessing_suppression",
+      "count": 2
+    },
+    {
+      "card_id": "blessing_trap_web",
+      "count": 2
+    },
+    {
       "card_id": "control_anchor",
       "count": 2
     },

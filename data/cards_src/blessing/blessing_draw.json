@@ -1,0 +1,35 @@
+{
+  "id": "blessing_draw",
+  "name": "知恵の加護",
+  "card_type": "blessing",
+  "rarity": "rare",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": [
+    "blessing",
+    "draw"
+  ],
+  "public_text": "場にある限り、通常ドロー+1。",
+  "enabled": true,
+  "play_zone": "blessing_zone",
+  "after_play_zone": "blessing_zone",
+  "slot_type": "blessing",
+  "effects": [
+    {
+      "id": "blessing_draw_01",
+      "seq": 1,
+      "enabled": true,
+      "trigger": "passive",
+      "priority": 100,
+      "effect_type": "modify_rule_value",
+      "target": "self_player",
+      "stat": "draw_per_turn",
+      "value": 1,
+      "duration": "while_in_zone",
+      "active_zone": "blessing_zone",
+      "display_text": "場にある限り、通常ドロー+1。"
+    }
+  ],
+  "notes": "Basic blessing that adds one draw at the turn draw step."
+}

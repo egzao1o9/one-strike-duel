@@ -26,16 +26,21 @@ class ScriptedBattleBot(BaseBot):
         actions: list[BattleAction] | None = None,
         overflow_discards: list[str] | None = None,
         mulligan: list[str] | None = None,
+        control_card_id: str | None = None,
     ) -> None:
         self.actions = list(actions or [])
         self.overflow_discards = list(overflow_discards or [])
         self.mulligan = list(mulligan or [])
+        self.control_card_id = control_card_id
 
     def choose_mulligan(self, view):
         return list(self.mulligan)
 
     def choose_overflow_discards(self, view, overflow_count: int):
         return list(self.overflow_discards[:overflow_count])
+
+    def choose_control_card(self, view):
+        return self.control_card_id
 
     def choose_battle_action(self, view):
         if self.actions:
@@ -277,3 +282,38 @@ def test_dynamic_draft_decks_can_run() -> None:
     assert result.state.finished is True
     assert len(draft_runner.state.players["p1"].public_deck) == 20
     assert len(draft_runner.state.players["p2"].public_deck) == 20
+
+
+def test_blessing_card_moves_to_blessing_zone() -> None:
+    bot = ScriptedBattleBot(control_card_id="blessing_guard")
+    runner = MatchRunner(bot, RandomBot(seed=2), "starter_attack", "starter_defense", shuffle_decks=False, seed=3, max_turns=1)
+    runner.state.players["p1"].hand = [runner.cards["blessing_guard"], runner.cards["battle_attack"], runner.cards["battle_defend"], runner.cards["control_focus"]]
+    runner.state.players["p2"].hand = [runner.cards["battle_guard"], runner.cards["battle_counter"], runner.cards["control_focus"], runner.cards["control_haste"]]
+    runner.state.players["p1"].draw_pile = []
+    runner.state.players["p2"].draw_pile = []
+
+    _, _, _, _, _, _, blessing_changes = runner._run_control_phase()
+
+    assert runner.state.players["p1"].blessing_zone is not None
+    assert runner.state.players["p1"].blessing_zone.id == "blessing_guard"
+    assert runner.state.players["p1"].current_control_card is None
+    assert blessing_changes["p1"]["played"] == "blessing_guard"
+
+
+def test_blessing_draw_bonus_applies_at_turn_start() -> None:
+    runner = MatchRunner(RandomBot(seed=1), RandomBot(seed=2), "starter_attack", "starter_defense", shuffle_decks=False, seed=3)
+    runner.state.turn = 2
+    runner.state.players["p1"].blessing_zone = runner.cards["blessing_draw"]
+    runner.state.players["p1"].hand = [runner.cards["battle_press"]]
+    runner.state.players["p1"].draw_pile = [
+        runner.cards["battle_break"],
+        runner.cards["battle_guard"],
+        runner.cards["battle_counter"],
+        runner.cards["control_haste"],
+        runner.cards["battle_feint"],
+    ]
+
+    payload = runner._start_turn()
+
+    assert payload["p1"]["draw_count"] == 5
+    assert payload["p1"]["active_blessing"] == "blessing_draw"

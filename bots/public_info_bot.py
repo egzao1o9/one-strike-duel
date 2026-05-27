@@ -71,7 +71,11 @@ class PublicInfoBot(BaseBot):
         return [card_id for card_id, _ in scored[-overflow_count:]]
 
     def choose_control_card(self, view: PlayerView) -> str | None:
-        controls = [card for card in view.hand if card.type == "control"]
+        controls = [
+            card
+            for card in view.hand
+            if card.type == "control" or (card.type == "blessing" and view.own_blessing_zone is None)
+        ]
         if not controls:
             return None
         opponent_profile = public_view_profile(view, self.cards_by_id, owner="opponent")
@@ -165,33 +169,50 @@ class PublicInfoBot(BaseBot):
     def _score_control_card(self, view: PlayerView, card: Card, hand_profile: HandProfile, opponent_profile) -> float:
         score = self.style.control_weight * 0.35
         score += self._effect_score(card.effects)
+        if card.type == "blessing":
+            score += 0.8
+            if view.own_blessing_zone is None:
+                score += 0.25
+            else:
+                score -= 0.15
         single_card_threat = self._estimate_opponent_threat_line(view, opponent_profile, 1)
         double_card_threat = self._estimate_opponent_threat_line(view, opponent_profile, 2)
         for effect in card.effects:
-            if effect.kind == "draw_cards":
+            effect_key = effect.kind or effect.effect_type
+            if effect_key == "draw_cards":
                 score += 1.1
-            elif effect.kind == "reveal_opponent_hand_random":
+            elif effect_key == "reveal_opponent_hand_random":
                 score += self.style.reveal_weight
-            elif effect.kind == "modify_opponent_block":
+            elif effect_key == "modify_opponent_block" or (
+                effect.effect_type == "modify_total_stat" and effect.target == "opponent_total" and effect.stat == "block"
+            ):
                 score += max(hand_profile.best_attack.attack - opponent_profile.average_block, 0) * 0.45
-            elif effect.kind == "modify_self_speed":
+            elif effect_key == "modify_self_speed" or (
+                effect.effect_type == "modify_total_stat" and effect.target == "self_total" and effect.stat == "speed"
+            ):
                 score += max(hand_profile.best_speed.speed - opponent_profile.average_speed, 0) * 0.3
-            elif effect.kind == "modify_self_block":
+            elif effect_key == "modify_self_block" or (
+                effect.effect_type == "modify_total_stat" and effect.target == "self_total" and effect.stat == "block"
+            ):
                 score += max(opponent_profile.average_attack - hand_profile.best_block.block, 0) * 0.35
-            elif effect.kind == "modify_opponent_attack":
+            elif effect_key == "modify_opponent_attack" or (
+                effect.effect_type == "modify_total_stat" and effect.target == "opponent_total" and effect.stat == "attack"
+            ):
                 block_shortfall = max(single_card_threat.attack - hand_profile.best_block.block, 0)
                 score += block_shortfall * 0.9
                 score += max(double_card_threat.attack - hand_profile.best_block.block, 0) * 0.25
-            elif effect.kind == "negate_opponent_first_card":
+            elif effect_key == "negate_opponent_first_card" or effect.effect_type == "negate_card":
                 score += max(single_card_threat.attack, 0) * 0.5
                 score += max(single_card_threat.block, 0) * 0.18
                 score += max(single_card_threat.speed, 0) * 0.3
                 if hand_profile.best_attack.attack > opponent_profile.average_block:
                     score += 0.45
+            elif effect.effect_type == "modify_rule_value" and effect.stat == "draw_per_turn":
+                score += 1.2 * max(effect.value, 0)
         return round(score, 4)
 
     def _legal_actions(self, view: PlayerView) -> list[BattleAction]:
-        battles = [card for card in view.hand if card.type == "battle"]
+        battles = [card for card in view.hand if card.type in {"battle", "control"}]
         legal_slots = max(0, view.opponent_facedown_count + 1 - view.own_facedown_count)
         actions = [BattleAction("pass")]
         if legal_slots <= 0 or not battles:
@@ -229,7 +250,7 @@ class PublicInfoBot(BaseBot):
         remaining = [
             card
             for card in view.hand
-            if card.type == "battle" and card.id not in action.card_ids
+            if card.type in {"battle", "control"} and card.id not in action.card_ids
         ]
         future = build_hand_profile(remaining)
 
@@ -828,16 +849,30 @@ class PublicInfoBot(BaseBot):
     def _effect_score(self, effects: tuple[Effect, ...]) -> float:
         score = 0.0
         for effect in effects:
-            if effect.kind in {"modify_self_attack", "modify_opponent_block"}:
+            if effect.kind in {"modify_self_attack", "modify_opponent_block"} or (
+                effect.effect_type == "modify_total_stat" and (
+                    (effect.target == "self_total" and effect.stat == "attack")
+                    or (effect.target == "opponent_total" and effect.stat == "block")
+                )
+            ):
                 score += abs(effect.value) * 0.45
-            elif effect.kind in {"modify_self_block", "modify_opponent_attack"}:
+            elif effect.kind in {"modify_self_block", "modify_opponent_attack"} or (
+                effect.effect_type == "modify_total_stat" and (
+                    (effect.target == "self_total" and effect.stat == "block")
+                    or (effect.target == "opponent_total" and effect.stat == "attack")
+                )
+            ):
                 score += abs(effect.value) * 0.45
-            elif effect.kind in {"modify_self_speed", "modify_opponent_speed"}:
+            elif effect.kind in {"modify_self_speed", "modify_opponent_speed"} or (
+                effect.effect_type == "modify_total_stat" and effect.stat == "speed"
+            ):
                 score += abs(effect.value) * 0.3
-            elif effect.kind == "negate_opponent_first_card":
+            elif effect.kind == "negate_opponent_first_card" or effect.effect_type == "negate_card":
                 score += 1.1
-            elif effect.kind == "draw_cards":
+            elif effect.kind == "draw_cards" or effect.effect_type == "draw_cards":
                 score += 0.9
+            elif effect.effect_type == "modify_rule_value" and effect.stat == "draw_per_turn":
+                score += abs(effect.value) * 1.0
             elif effect.kind == "reveal_opponent_hand_random":
                 score += self.style.reveal_weight
         return score

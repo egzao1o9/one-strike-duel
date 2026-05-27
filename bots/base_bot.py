@@ -41,7 +41,7 @@ class BaseBot:
         return [selected]
 
     def choose_battle_card(self, view: PlayerView) -> str | None:
-        return next((card.id for card in view.hand if card.type == "battle"), None)
+        return next((card.id for card in view.hand if card.type in {"battle", "control"}), None)
 
     def consume_debug_info(self) -> dict[str, Any] | None:
         return None

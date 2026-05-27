@@ -86,8 +86,8 @@ class MatchRunner:
         self.logger.record_turn_start(turn_start_payload)
         phase1 = self._run_mulligan_phase("phase1_mulligan", limit=None)
         self.logger.record_phase1(phase1["discarded"], phase1["hand_counts"])
-        control_cards, control_ids, control_sources, reveals, control_hand_counts, control_debug = self._run_control_phase()
-        self.logger.record_control(control_cards, reveals, control_ids, control_sources, control_hand_counts, control_debug)
+        control_cards, control_ids, control_sources, reveals, control_hand_counts, control_debug, blessing_changes = self._run_control_phase()
+        self.logger.record_control(control_cards, reveals, control_ids, control_sources, control_hand_counts, control_debug, blessing_changes)
         phase3 = self._run_mulligan_phase("phase3_mulligan", limit=2)
         self.logger.record_phase3(phase3["discarded"], phase3["hand_counts"])
         battle_context = self._run_battle_select_phase()
@@ -123,6 +123,7 @@ class MatchRunner:
                 "reshuffled": draw_result["reshuffled"],
                 "draw_shortfall": draw_result["draw_shortfall"],
                 "hand_count": len(player.hand),
+                "active_blessing": player.blessing_zone.id if player.blessing_zone else None,
             }
         return payload
 
@@ -192,7 +193,7 @@ class MatchRunner:
             "p2": discarded_cards["p2"],
         }
 
-    def _run_control_phase(self) -> tuple[dict[str, str | None], dict[str, str | None], dict[str, str | None], dict[str, list[str]], dict[str, int], dict[str, object]]:
+    def _run_control_phase(self) -> tuple[dict[str, str | None], dict[str, str | None], dict[str, str | None], dict[str, list[str]], dict[str, int], dict[str, object], dict[str, object]]:
         self.state.phase = "control"
         chosen: dict[str, str | None] = {"p1": None, "p2": None}
         chosen_ids: dict[str, str | None] = {"p1": None, "p2": None}
@@ -200,6 +201,7 @@ class MatchRunner:
         reveals: dict[str, list[str]] = {"p1": [], "p2": []}
         hand_counts: dict[str, int] = {}
         debug_payload: dict[str, object] = {}
+        blessing_payload: dict[str, object] = {"p1": {}, "p2": {}}
         for player_id, bot in self.bot_map.items():
             player = self.state.players[player_id]
             view = self.state.build_view(player_id)
@@ -210,24 +212,37 @@ class MatchRunner:
             if not selected_id:
                 hand_counts[player_id] = len(player.hand)
                 continue
-            if not any(card.id == selected_id and card.type == "control" for card in player.hand):
+            if not any(card.id == selected_id and card.type in {"control", "blessing"} for card in player.hand):
                 hand_counts[player_id] = len(player.hand)
                 continue
             card = player.remove_from_hand(selected_id)
-            player.current_control_card = card
             player.used_cards.append(card)
-            reveals[player_id] = resolve_information_effects(
-                player,
-                self.state.players[self.state.opponent_of(player_id)],
-                card,
-            )
+            if card.type == "blessing":
+                if player.blessing_zone is not None:
+                    player.hand.append(card)
+                    hand_counts[player_id] = len(player.hand)
+                    continue
+                player.blessing_face_up = True
+                player.blessing_zone = card
+                blessing_payload[player_id] = {
+                    "played": card.id,
+                    "replaced": None,
+                    "source": card.instance_source or "unknown",
+                }
+            else:
+                player.current_control_card = card
+                reveals[player_id] = resolve_information_effects(
+                    player,
+                    self.state.players[self.state.opponent_of(player_id)],
+                    card,
+                )
             chosen[player_id] = card.name
             chosen_ids[player_id] = card.id
             chosen_sources[player_id] = card.instance_source or "unknown"
             hand_counts[player_id] = len(player.hand)
         for player_id in ("p1", "p2"):
             hand_counts.setdefault(player_id, len(self.state.players[player_id].hand))
-        return chosen, chosen_ids, chosen_sources, reveals, hand_counts, debug_payload
+        return chosen, chosen_ids, chosen_sources, reveals, hand_counts, debug_payload, blessing_payload
 
     def _run_battle_select_phase(self) -> dict[str, object]:
         self.state.phase = "battle_select"
@@ -277,7 +292,7 @@ class MatchRunner:
         chosen_cards: list[Card] = []
         action_type = requested.action_type
 
-        if action_type == "pass" or legal_slots == 0 or not player.has_type_in_hand("battle"):
+        if action_type == "pass" or legal_slots == 0 or not any(card.type in {"battle", "control"} for card in player.hand):
             player.battle_passed = True
             action_type = "pass"
         else:
@@ -290,7 +305,7 @@ class MatchRunner:
                 fallback_ids = [
                     card.id
                     for card in player.hand
-                    if card.type == "battle"
+                    if card.type in {"battle", "control"}
                 ][: max_cards - len(chosen_cards)]
                 chosen_cards.extend(self._remove_battle_cards_from_hand(player, fallback_ids))
             chosen_cards = chosen_cards[:max_cards]
@@ -352,16 +367,26 @@ class MatchRunner:
             "won_with_fewer_cards": fewer_cards_win,
             "won_with_same_cards": same_cards_win,
             "won_with_more_cards": more_cards_win,
+            "p1_active_blessing": None if self.state.players["p1"].blessing_zone is None else self.state.players["p1"].blessing_zone.id,
+            "p2_active_blessing": None if self.state.players["p2"].blessing_zone is None else self.state.players["p2"].blessing_zone.id,
+            "p1_blessing_face_up": self.state.players["p1"].blessing_face_up,
+            "p2_blessing_face_up": self.state.players["p2"].blessing_face_up,
+            "control_zone_p1": None if self.state.players["p1"].current_control_card is None else self.state.players["p1"].current_control_card.id,
+            "control_zone_p2": None if self.state.players["p2"].current_control_card is None else self.state.players["p2"].current_control_card.id,
             "p1_final": {
                 "attack": resolution.finals["p1"].attack,
                 "block": resolution.finals["p1"].block,
                 "speed": resolution.finals["p1"].speed,
+                "modifiers": list(resolution.finals["p1"].applied_effects),
             },
             "p2_final": {
                 "attack": resolution.finals["p2"].attack,
                 "block": resolution.finals["p2"].block,
                 "speed": resolution.finals["p2"].speed,
+                "modifiers": list(resolution.finals["p2"].applied_effects),
             },
+            "reveal_steps": list(resolution.reveal_steps),
+            "blessing_events": list(resolution.blessing_events),
             "result": resolution.result,
             "draw_reason": resolution.end_reason,
         }
@@ -371,6 +396,10 @@ class MatchRunner:
         for player in self.state.players.values():
             player.last_battle_cards = list(player.set_cards)
             player.used_cards.extend(player.set_cards)
+            player.discard_pile.extend(player.set_cards)
+            if player.current_control_card is not None:
+                player.discard_pile.append(player.current_control_card)
+                player.current_control_card = None
         if resolution.winner:
             self.state.finished = True
             self.state.winner = resolution.winner
@@ -401,7 +430,7 @@ class MatchRunner:
                 card = player.remove_from_hand(card_id)
             except ValueError:
                 continue
-            if card.type != "battle":
+            if card.type not in {"battle", "control"}:
                 player.hand.append(card)
                 continue
             selected.append(card)

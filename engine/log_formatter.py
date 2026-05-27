@@ -127,6 +127,9 @@ def _render_turn(turn: dict[str, Any]) -> list[str]:
         f"- Battle: P1 {_render_battle_side(battle, 'p1')} vs P2 {_render_battle_side(battle, 'p2')}"
     )
     lines.append(
+        f"- Blessing: P1 {_render_blessing_state(battle, 'p1')} / P2 {_render_blessing_state(battle, 'p2')}"
+    )
+    lines.append(
         f"- Battle IDs: P1 {_render_card_list(battle.get('p1_card_ids', []))} [{_render_card_list(battle.get('p1_card_sources', []))}] "
         f"/ P2 {_render_card_list(battle.get('p2_card_ids', []))} [{_render_card_list(battle.get('p2_card_sources', []))}]"
     )
@@ -141,6 +144,10 @@ def _render_turn(turn: dict[str, Any]) -> list[str]:
             )
             if action.get("debug"):
                 lines.append(f"- Debug: {action.get('debug')}")
+    if battle.get("reveal_steps"):
+        lines.append(f"- Reveal Steps: {battle.get('reveal_steps')}")
+    if battle.get("blessing_events"):
+        lines.append(f"- Blessing Events: {battle.get('blessing_events')}")
     return lines
 
 
@@ -163,6 +170,7 @@ def _render_turn_markdown(turn: dict[str, Any]) -> list[str]:
         f"| Control Sources | {_render_card_name(control.get('sources', {}).get('p1'))} | {_render_card_name(control.get('sources', {}).get('p2'))} |",
         f"| Mulligan2 | {_render_card_list(phase3.get('p1_discarded', []))} | {_render_card_list(phase3.get('p2_discarded', []))} |",
         f"| Battle Cards | {_render_played_cards(battle, 'p1')} | {_render_played_cards(battle, 'p2')} |",
+        f"| Blessing | {_render_blessing_state(battle, 'p1')} | {_render_blessing_state(battle, 'p2')} |",
         f"| Battle Card IDs | {_render_card_list(battle.get('p1_card_ids', []))} | {_render_card_list(battle.get('p2_card_ids', []))} |",
         f"| Battle Card Sources | {_render_card_list(battle.get('p1_card_sources', []))} | {_render_card_list(battle.get('p2_card_sources', []))} |",
         f"| Final Stats | {_render_battle_stats(battle, 'p1')} | {_render_battle_stats(battle, 'p2')} |",
@@ -195,6 +203,10 @@ def _render_turn_markdown(turn: dict[str, Any]) -> list[str]:
             )
             if action.get("debug"):
                 lines.append(f"| Debug | `{str(action.get('debug'))}` | - | - | - | - | - |")
+    if battle.get("reveal_steps"):
+        lines.append(f"- Reveal Steps: `{battle.get('reveal_steps')}`")
+    if battle.get("blessing_events"):
+        lines.append(f"- Blessing Events: `{battle.get('blessing_events')}`")
 
     return lines
 
@@ -255,3 +267,10 @@ def _render_played_cards(battle: dict[str, Any], player_id: str) -> str:
         return _render_card_list(cards)
     legacy_card = battle.get(f"{player_id}_card")
     return _render_card_name(legacy_card)
+
+
+def _render_blessing_state(battle: dict[str, Any], player_id: str) -> str:
+    blessing_id = battle.get(f"{player_id}_active_blessing")
+    if not blessing_id:
+        return "-"
+    return f"{blessing_id} ({'up' if battle.get(f'{player_id}_blessing_face_up') else 'down'})"

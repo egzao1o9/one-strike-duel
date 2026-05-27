@@ -127,6 +127,7 @@ def build_match_record(payload: dict[str, Any], markdown_path: str) -> dict[str,
         "p1": collect_action_counts(payload, "p1"),
         "p2": collect_action_counts(payload, "p2"),
     }
+    blessing_analysis = collect_blessing_analysis(payload)
     final_stats = {
         "p1": battle.get("p1_final"),
         "p2": battle.get("p2_final"),
@@ -157,6 +158,7 @@ def build_match_record(payload: dict[str, Any], markdown_path: str) -> dict[str,
         "decisive_cards": decisive_cards,
         "decisive_card_details": decisive_card_details,
         "action_counts": action_counts,
+        "blessing_analysis": blessing_analysis,
         "set_pass_candidate_count": collect_set_pass_candidate_count(payload),
         "hand_count_trace": collect_hand_count_trace(payload),
         "p1_final_stats": final_stats["p1"],
@@ -189,6 +191,110 @@ def build_match_record(payload: dict[str, Any], markdown_path: str) -> dict[str,
         record["winner_used_cards"] = []
         record["winner_used_card_details"] = []
     return record
+
+
+def collect_blessing_analysis(payload: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    analysis = {
+        side: {
+            "active_blessing_id": payload.get("players", {}).get(side, {}).get("active_blessing"),
+            "played_blessing_ids": [],
+            "event_count": 0,
+            "event_types": Counter(),
+            "decisive_count": 0,
+            "passive_decisive_count": 0,
+            "pre_reveal_count": 0,
+        }
+        for side in ("p1", "p2")
+    }
+    for turn in payload.get("turns", []):
+        control = turn.get("control", {})
+        blessing_changes = control.get("blessing_changes", {})
+        for side in ("p1", "p2"):
+            played = blessing_changes.get(side, {}).get("played")
+            if played:
+                analysis[side]["played_blessing_ids"].append(played)
+        battle = turn.get("battle", {})
+        blessing_events = battle.get("blessing_events", [])
+        for event in blessing_events:
+            side = event.get("player_id")
+            if side not in analysis:
+                continue
+            analysis[side]["event_count"] += 1
+            event_type = str(event.get("event", "unknown"))
+            analysis[side]["event_types"][event_type] += 1
+            if event_type == "pre_reveal":
+                analysis[side]["pre_reveal_count"] += 1
+            else:
+                analysis[side]["decisive_count"] += 1
+        for side in ("p1", "p2"):
+            blessing_id = battle.get(f"{side}_active_blessing")
+            if not blessing_id:
+                continue
+            if _passive_blessing_changed_outcome(battle, side, blessing_id):
+                analysis[side]["decisive_count"] += 1
+                analysis[side]["passive_decisive_count"] += 1
+    for side in ("p1", "p2"):
+        analysis[side]["event_types"] = dict(analysis[side]["event_types"])
+    return analysis
+
+
+def _passive_blessing_changed_outcome(battle: dict[str, Any], side: str, blessing_id: str) -> bool:
+    if blessing_id not in {"blessing_attack", "blessing_guard", "blessing_speed"}:
+        return False
+    own_final = battle.get(f"{side}_final")
+    opponent_side = "p2" if side == "p1" else "p1"
+    opponent_final = battle.get(f"{opponent_side}_final")
+    if not own_final or not opponent_final:
+        return False
+    own_effects = own_final.get("applied_effects", [])
+    if blessing_id == "blessing_attack" and "blessing_zone:modify_total_stat:self_total:attack:1" not in own_effects:
+        return False
+    if blessing_id == "blessing_guard" and "blessing_zone:modify_total_stat:self_total:block:1" not in own_effects:
+        return False
+    if blessing_id == "blessing_speed" and "blessing_zone:modify_total_stat:self_total:speed:1" not in own_effects:
+        return False
+
+    original = _side_outcome_score(side, own_final, opponent_final)
+    adjusted_own = dict(own_final)
+    if blessing_id == "blessing_attack":
+        adjusted_own["attack"] = adjusted_own.get("attack", 0) - 1
+    elif blessing_id == "blessing_guard":
+        adjusted_own["block"] = adjusted_own.get("block", 0) - 1
+    elif blessing_id == "blessing_speed":
+        adjusted_own["speed"] = adjusted_own.get("speed", 0) - 1
+    adjusted = _side_outcome_score(side, adjusted_own, opponent_final)
+    return adjusted < original
+
+
+def _side_outcome_score(side: str, own_final: dict[str, Any], opponent_final: dict[str, Any]) -> int:
+    own_attack = int(own_final.get("attack", 0))
+    own_block = int(own_final.get("block", 0))
+    own_speed = int(own_final.get("speed", 0))
+    opponent_attack = int(opponent_final.get("attack", 0))
+    opponent_block = int(opponent_final.get("block", 0))
+    opponent_speed = int(opponent_final.get("speed", 0))
+
+    if own_speed == opponent_speed:
+        own_success = own_attack > 0 and own_attack > opponent_block
+        opponent_success = opponent_attack > 0 and opponent_attack > own_block
+        if own_success and not opponent_success:
+            return 2
+        if opponent_success and not own_success:
+            return 0
+        return 1
+
+    if own_speed > opponent_speed:
+        if own_attack > 0 and own_attack > opponent_block:
+            return 2
+        if opponent_attack > 0 and opponent_attack > own_block:
+            return 0
+        return 1
+
+    if opponent_attack > 0 and opponent_attack > own_block:
+        return 0
+    if own_attack > 0 and own_attack > opponent_block:
+        return 2
+    return 1
 
 
 def lost_with_speed_advantage(

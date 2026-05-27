@@ -1,80 +1,88 @@
-# Card Editing Workflow
+# カード編集フロー
 
-## Canonical Source
+## 基本方針
 
-- Manual editing should be done in `data/cards_src/`.
-- Each file contains exactly one card object.
-- Generated bundle output remains `data/cards.json`.
+- 手動編集の基点は `data/cards_src/`
+- 1ファイル1カード
+- ランタイムは `data/cards.json` を読む
+- Notion とのやり取りは `Cards` / `CardEffects` の2CSVで行う
 
-## Directory Layout
+## ディレクトリ構成
 
 - `data/cards_src/battle/*.json`
 - `data/cards_src/control/*.json`
+- `data/cards_src/blessing/*.json`
 
-File names should usually match card ids.
+通常はファイル名をカードIDに合わせます。
 
-## Recommended Flow
+## 推奨フロー
 
-1. Add or edit a card file under `data/cards_src/`.
-2. Run validation.
-3. Rebuild `data/cards.json`.
-4. Regenerate the default card pool.
-5. Regenerate the reference markdown files.
-6. Run tests.
+1. `data/cards_src/` のカードJSONを追加・修正する
+2. 検証する
+3. `data/cards.json` を再生成する
+4. `data/card_pool.json` を再生成する
+5. 参照Markdownを再生成する
+6. テストを回す
 
-## Commands
-
-Validate sources only:
+## コマンド
+### 検証
 
 ```bash
 python -m sim.validate_cards
 ```
 
-Export to CSV for Notion:
-
-```bash
-python -m sim.export_cards_csv
-```
-
-Import edited CSV back into `cards_src` and rebuild `data/cards.json`:
-
-```bash
-python -m sim.import_cards_csv --input data/cards_export.csv
-```
-
-Build the bundled card file:
+### ランタイムJSON再生成
 
 ```bash
 python -m sim.build_cards
 ```
 
-Refresh cards, card pool, and reference docs in one pass:
+### まとめて更新
 
 ```bash
 python -m sim.refresh_cards
 ```
 
-Run tests:
+### Notion向けCSV書き出し
+
+```bash
+python -m sim.export_cards_csv
+```
+
+出力されるファイル:
+
+- `data/cards_export.csv`
+- `data/card_effects_export.csv`
+
+### 編集済みCSVの取り込み
+
+```bash
+python -m sim.import_cards_csv --cards-input data/cards_export.csv --effects-input data/card_effects_export.csv
+```
+
+### テスト
 
 ```bash
 python -m pytest -q
 ```
 
-## Validation Rules
+## バリデーションの主な内容
 
-- Card ids must be unique.
-- `type` must be `battle` or `control`.
-- `rarity` must be `common`, `uncommon`, or `rare`.
-- `attack`, `block`, and `speed` must be integers.
-- `tags` must be a list of strings.
-- `effects` must use supported `timing` and `kind` values.
-- Unknown top-level keys are rejected to catch typos early.
+- カードIDの重複がないこと
+- `card_type` が `battle / control / blessing` のいずれかであること
+- `rarity` が `common / uncommon / rare` のいずれかであること
+- `attack / block / speed` が整数であること
+- `tags` が文字列配列であること
+- `CardEffects` が有効な `trigger / effect_type / target` を持つこと
+- `duration = while_in_zone` のとき `active_zone` があること
+- `blessing` のとき
+  - `play_zone = blessing_zone`
+  - `after_play_zone = blessing_zone`
+  - `slot_type = blessing`
 
-## Notes
+## メモ
 
-- Runtime code still reads `data/cards.json`, so existing systems do not need to change.
-- `data/card_pool.json` should be regenerated after rarity changes.
-- `docs/cards_reference.md` should be regenerated after card text or stat changes.
-- Notion integration is intended as a CSV workflow, not a direct API sync.
-- Recommended Notion columns are the same as the CSV header:
-  `id`, `name`, `type`, `rarity`, `attack`, `block`, `speed`, `tags`, `effects_json`, `notes`.
+- `tags` はCSVではカンマ区切りです
+- 新方式の効果定義は `CardEffects` 側が基準です
+- 旧 `timing / kind / value` も互換のためまだ読めます
+- 詳しいコマンドは [command_reference.md](/h:/Github/one-strike-duel/docs/command_reference.md) を参照してください

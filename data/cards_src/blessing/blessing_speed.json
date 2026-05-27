@@ -1,0 +1,35 @@
+{
+  "id": "blessing_speed",
+  "name": "速の加護",
+  "card_type": "blessing",
+  "rarity": "rare",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": [
+    "blessing",
+    "speed"
+  ],
+  "public_text": "バトル計算時、自分の素早さ+1。",
+  "enabled": true,
+  "play_zone": "blessing_zone",
+  "after_play_zone": "blessing_zone",
+  "slot_type": "blessing",
+  "effects": [
+    {
+      "id": "blessing_speed_01",
+      "seq": 1,
+      "enabled": true,
+      "trigger": "on_battle_calculate",
+      "priority": 100,
+      "effect_type": "modify_total_stat",
+      "target": "self_total",
+      "stat": "speed",
+      "value": 1,
+      "duration": "while_in_zone",
+      "active_zone": "blessing_zone",
+      "display_text": "バトル計算時、自分の素早さ+1。"
+    }
+  ],
+  "notes": "Passive speed blessing."
+}

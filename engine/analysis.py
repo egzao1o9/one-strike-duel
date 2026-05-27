@@ -55,6 +55,10 @@ def control_cards(cards: list[Card] | tuple[Card, ...]) -> list[Card]:
     return [card for card in cards if card.type == "control"]
 
 
+def battle_settable_cards(cards: list[Card] | tuple[Card, ...]) -> list[Card]:
+    return [card for card in cards if card.type in {"battle", "control"}]
+
+
 def card_line(card: Card) -> StatLine:
     return StatLine(card.attack, card.block, card.speed)
 
@@ -90,8 +94,10 @@ def combined_battle_line(
     opponent_control: Card | None = None,
 ) -> tuple[StatLine, StatLine]:
     own = sum_lines([card_line(card) for card in cards])
-    own = own.add(effect_line(tuple(effect for card in cards for effect in card.effects), perspective="self"))
-    opp_delta = effect_line(tuple(effect for card in cards for effect in card.effects), perspective="opponent")
+    has_battle = any(card.type == "battle" for card in cards)
+    own_effects = tuple(effect for card in cards for effect in card.effects) if has_battle else tuple()
+    own = own.add(effect_line(own_effects, perspective="self"))
+    opp_delta = effect_line(own_effects, perspective="opponent")
     if own_control is not None:
         own = own.add(effect_line(own_control.effects, perspective="self"))
         opp_delta = opp_delta.add(effect_line(own_control.effects, perspective="opponent"))
@@ -102,10 +108,12 @@ def combined_battle_line(
 
 
 def enumerate_battle_combos(cards: list[Card] | tuple[Card, ...], *, max_cards: int = 2) -> list[tuple[tuple[Card, ...], StatLine]]:
-    battles = battle_cards(cards)
+    eligible = battle_settable_cards(cards)
     combos: list[tuple[tuple[Card, ...], StatLine]] = []
-    for count in range(1, min(max_cards, len(battles)) + 1):
-        for combo in combinations(battles, count):
+    for count in range(1, min(max_cards, len(eligible)) + 1):
+        for combo in combinations(eligible, count):
+            if not any(card.type == "battle" for card in combo):
+                continue
             combos.append((combo, sum_lines([card_line(card) for card in combo])))
     return combos
 
@@ -208,4 +216,3 @@ def public_view_profile(view: PlayerView, cards_by_id: dict[str, Card], *, owner
         current_control=view.opponent_control_card,
     )
     return profile_cards(remaining)
-

@@ -33,6 +33,7 @@ TARGET_ROLE_COUNTS = {
 TARGET_TYPE_COUNTS = {
     "battle": 13,
     "control": 7,
+    "blessing": 2,
 }
 
 NORMAL_PUBLIC_PACKS = 3
@@ -49,6 +50,7 @@ class DraftDeckSummary:
     total: int
     battle_count: int
     control_count: int
+    blessing_count: int
     role_counts: dict[str, int]
     rarity_counts: dict[str, int]
 
@@ -422,6 +424,8 @@ class RoleBalanceDraftBot(BaseDraftBot):
             score += max(card.speed, 0) * 0.22
         else:
             score += 0.45 + len(card.effects) * 0.35
+            if card.type == "blessing":
+                score += 0.25
         if visibility == "hidden" and card.attack >= 4:
             score += 0.45
         if visibility == "public" and card.speed <= 0 and card.attack >= 4:
@@ -714,7 +718,7 @@ class PublicInfoDraftBot(BaseDraftBot):
 
     def _public_value(self, card: Card, pick_position: int) -> float:
         score = 0.0
-        if card.type == "control":
+        if card.type in {"control", "blessing"}:
             score += self.style.control_weight * 0.35
         if card.attack >= 4 and card.block <= 0:
             score -= self.style.reveal_penalty
@@ -1020,18 +1024,22 @@ def summarize_deck(card_ids: list[str] | tuple[str, ...], cards: dict[str, Card]
     rarity_counts = Counter()
     battle_count = 0
     control_count = 0
+    blessing_count = 0
     for card_id in card_ids:
         card = cards[card_id]
         role_counts[infer_role_color(card)] += 1
         rarity_counts[card.rarity] += 1
         if card.type == "battle":
             battle_count += 1
+        elif card.type == "blessing":
+            blessing_count += 1
         else:
             control_count += 1
     return DraftDeckSummary(
         total=len(card_ids),
         battle_count=battle_count,
         control_count=control_count,
+        blessing_count=blessing_count,
         role_counts={role: role_counts[role] for role in ROLE_LABELS},
         rarity_counts={rarity: rarity_counts[rarity] for rarity in ("common", "uncommon", "rare")},
     )
@@ -1040,6 +1048,14 @@ def summarize_deck(card_ids: list[str] | tuple[str, ...], cards: dict[str, Card]
 def infer_role_color(card: Card) -> str:
     if card.type == "control":
         return "white"
+    if card.type == "blessing":
+        if "speed" in card.tags or "trick" in card.tags or card.speed >= 4:
+            return "blue"
+        if "defense" in card.tags or card.block >= 3:
+            return "green"
+        if "draw" in card.tags or "support" in card.tags:
+            return "white"
+        return "red"
     if "speed" in card.tags or "trick" in card.tags or card.speed >= 4:
         return "blue"
     if "defense" in card.tags or card.block >= 3:

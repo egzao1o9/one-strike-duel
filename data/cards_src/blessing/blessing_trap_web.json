@@ -1,0 +1,38 @@
+{
+  "id": "blessing_trap_web",
+  "name": "罠糸の加護",
+  "card_type": "blessing",
+  "rarity": "rare",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": [
+    "blessing",
+    "debuff",
+    "defense"
+  ],
+  "public_text": "相手が3枚目以上のバトルカードがある場合にバトル計算時に使用できる。そのバトルで相手の攻撃-3。使用後、この加護を裏向きにする。",
+  "enabled": true,
+  "play_zone": "blessing_zone",
+  "after_play_zone": "blessing_zone",
+  "slot_type": "blessing",
+  "effects": [
+    {
+      "id": "blessing_trap_web_01",
+      "seq": 1,
+      "enabled": true,
+      "trigger": "on_battle_calculate",
+      "priority": 100,
+      "effect_type": "modify_total_stat",
+      "target": "opponent_total",
+      "stat": "attack",
+      "value": -3,
+      "duration": "while_in_zone",
+      "active_zone": "blessing_zone",
+      "condition": "opponent_battle_cards>=3",
+      "keyword": "flip_after_use",
+      "display_text": "相手が3枚目以上のバトルカードがある場合にバトル計算時に使用できる。そのバトルで相手の攻撃-3。使用後、この加護を裏向きにする。"
+    }
+  ],
+  "notes": "Conditional defensive blessing against wide boards."
+}

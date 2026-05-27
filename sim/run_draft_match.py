@@ -147,8 +147,8 @@ def render_draft_match_markdown(draft: DraftResult, cards: dict[str, Card], matc
         "",
         "## Role Balance",
         "",
-        "| Deck | Battle | Control | Red | Blue | Green | White | Common | Uncommon | Rare |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+        "| Deck | Battle | Control | Blessing | Red | Blue | Green | White | Common | Uncommon | Rare |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
         _render_summary_row("P1", deck1_summary),
         _render_summary_row("P2", deck2_summary),
         "",
@@ -216,7 +216,7 @@ def render_deck_table(title: str, card_ids: tuple[str, ...], cards: dict[str, Ca
 
 def _render_summary_row(label: str, summary) -> str:
     return (
-        f"| {label} | {summary.battle_count} | {summary.control_count} | "
+        f"| {label} | {summary.battle_count} | {summary.control_count} | {summary.blessing_count} | "
         f"{summary.role_counts['red']} | {summary.role_counts['blue']} | "
         f"{summary.role_counts['green']} | {summary.role_counts['white']} | "
         f"{summary.rarity_counts['common']} | {summary.rarity_counts['uncommon']} | {summary.rarity_counts['rare']} |"

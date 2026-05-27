@@ -4,7 +4,7 @@
 
 - Pool ID: `base_pool`
 - Pool Name: Base Card Pool
-- Total Copies: 95
+- Total Copies: 115
 
 | Card | ID | Rarity | Copies | Type | A | B | S |
 |---|---|---|---:|---|---:|---:|---:|
@@ -22,6 +22,16 @@
 | 踏み込み | `battle_step_in` | `rare` | 2 | `battle` | 4 | 0 | 2 |
 | Tripwire | `battle_tripwire` | `rare` | 2 | `battle` | 0 | -1 | 0 |
 | 鉄壁 | `battle_wall` | `rare` | 2 | `battle` | -1 | 5 | -1 |
+| 攻の加護 | `blessing_attack` | `rare` | 2 | `blessing` | 0 | 0 | 0 |
+| 防壁の加護 | `blessing_barrier` | `rare` | 2 | `blessing` | 0 | 0 | 0 |
+| 知恵の加護 | `blessing_draw` | `rare` | 2 | `blessing` | 0 | 0 | 0 |
+| 防の加護 | `blessing_guard` | `rare` | 2 | `blessing` | 0 | 0 | 0 |
+| 見切りの加護 | `blessing_insight` | `rare` | 2 | `blessing` | 0 | 0 | 0 |
+| 攻勢の加護 | `blessing_offense` | `rare` | 2 | `blessing` | 0 | 0 | 0 |
+| 鈍足の加護 | `blessing_slow` | `rare` | 2 | `blessing` | 0 | 0 | 0 |
+| 速の加護 | `blessing_speed` | `rare` | 2 | `blessing` | 0 | 0 | 0 |
+| 抑制の加護 | `blessing_suppression` | `rare` | 2 | `blessing` | 0 | 0 | 0 |
+| 罠糸の加護 | `blessing_trap_web` | `rare` | 2 | `blessing` | 0 | 0 | 0 |
 | Crush Spirit | `control_crush_spirit` | `rare` | 2 | `control` | 0 | 0 | 0 |
 | 蓄え | `control_reserve` | `rare` | 2 | `control` | 0 | 0 | 0 |
 | 退き足 | `battle_backstep` | `uncommon` | 2 | `battle` | -1 | 1 | 2 |

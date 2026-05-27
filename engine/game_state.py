@@ -22,6 +22,8 @@ class PlayerState:
     queued_next_turn_effects: list[Effect] = field(default_factory=list)
     active_turn_effects: list[Effect] = field(default_factory=list)
     current_control_card: Card | None = None
+    blessing_zone: Card | None = None
+    blessing_face_up: bool = True
     set_cards: list[Card] = field(default_factory=list)
     battle_passed: bool = False
     current_reveals: list[str] = field(default_factory=list)
@@ -66,6 +68,8 @@ class PlayerView:
     own_discard: tuple[Card, ...]
     own_used: tuple[Card, ...]
     own_control_card: Card | None
+    own_blessing_zone: Card | None
+    own_blessing_face_up: bool
     opponent_public_deck: tuple[str, ...]
     opponent_deck_metadata: dict[str, object]
     opponent_discard: tuple[Card, ...]
@@ -74,6 +78,8 @@ class PlayerView:
     opponent_deck_count: int
     opponent_last_battle_cards: tuple[Card, ...]
     opponent_control_card: Card | None
+    opponent_blessing_zone: Card | None
+    opponent_blessing_face_up: bool
     own_facedown_count: int
     opponent_facedown_count: int
     own_battle_passed: bool
@@ -116,6 +122,8 @@ class GameState:
             own_discard=tuple(player.discard_pile),
             own_used=tuple(player.used_cards),
             own_control_card=player.current_control_card,
+            own_blessing_zone=player.blessing_zone,
+            own_blessing_face_up=player.blessing_face_up,
             opponent_public_deck=opponent.public_deck,
             opponent_deck_metadata=dict(opponent.deck_metadata),
             opponent_discard=tuple(opponent.discard_pile),
@@ -124,6 +132,8 @@ class GameState:
             opponent_deck_count=len(opponent.draw_pile),
             opponent_last_battle_cards=opponent.visible_last_battle_cards(),
             opponent_control_card=opponent.current_control_card,
+            opponent_blessing_zone=opponent.blessing_zone,
+            opponent_blessing_face_up=opponent.blessing_face_up,
             own_facedown_count=len(player.set_cards),
             opponent_facedown_count=len(opponent.set_cards),
             own_battle_passed=player.battle_passed,

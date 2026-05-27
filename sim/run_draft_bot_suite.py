@@ -14,6 +14,8 @@ from engine.card import load_cards
 from sim.log_retention import prune_match_logs
 from sim.run_draft_report import (
     build_draft_summary,
+    init_blessing_stat,
+    finalize_blessing_card_stats,
     render_draft_report_markdown,
     run_draft_report_chunk,
 )
@@ -196,6 +198,8 @@ def run_suite(
 
 
 def init_bot_aggregate(label_to_meta: dict[str, dict[str, str]]) -> dict[str, dict[str, Any]]:
+    cards = load_cards("data/cards.json")
+    blessing_card_ids = sorted(card.id for card in cards.values() if card.type == "blessing")
     aggregate: dict[str, dict[str, Any]] = {}
     for label, meta in label_to_meta.items():
         aggregate[label] = {
@@ -235,6 +239,9 @@ def init_bot_aggregate(label_to_meta: dict[str, dict[str, str]]) -> dict[str, di
                     "lethal_count": 0,
                 }
                 for rarity in ("common", "uncommon", "rare")
+            },
+            "blessing_card_stats": {
+                blessing_id: init_blessing_stat(cards[blessing_id]) for blessing_id in blessing_card_ids
             },
             "matchups": defaultdict(lambda: {"matches": 0, "wins": 0, "losses": 0, "draws": 0}),
             "priority": init_priority_aggregate(),
@@ -406,6 +413,17 @@ def fold_summary_into_bot_aggregate(
             aggregate["rarity_play_stats"][rarity]["used_count"] += rarity_row["used_count"]
             aggregate["rarity_play_stats"][rarity]["winner_usage_count"] += rarity_row["winner_usage_count"]
             aggregate["rarity_play_stats"][rarity]["lethal_count"] += rarity_row["lethal_count"]
+        for item in stats.get("blessing_card_stats", []):
+            blessing = aggregate["blessing_card_stats"][item["id"]]
+            blessing["deck_copy_count"] += item["deck_copy_count"]
+            blessing["deck_match_count"] += item["deck_match_count"]
+            blessing["wins_with_card"] += item["wins_with_card"]
+            blessing["played_match_count"] += item["played_match_count"]
+            blessing["active_match_count"] += item["active_match_count"]
+            blessing["event_count"] += item["event_count"]
+            blessing["decisive_count"] += item["decisive_count"]
+            blessing["pre_reveal_count"] += item["pre_reveal_count"]
+            blessing["passive_decisive_count"] += item["passive_decisive_count"]
 
     if config["draft_bot1"] == config["draft_bot2"]:
         label = draft_to_label[config["draft_bot1"]]
@@ -573,6 +591,7 @@ def finalize_bot_row(label: str, stats: dict[str, Any]) -> dict[str, Any]:
             for opponent, row in sorted(stats["matchups"].items())
         },
         "picked_card_stats": card_rows,
+        "blessing_card_stats": finalize_blessing_card_stats(stats["blessing_card_stats"]),
         "rarity_play_stats": rarity_rows,
         "priority": finalize_priority_section(stats["priority"], min_offered=20),
     }
@@ -704,6 +723,8 @@ def render_suite_markdown(summary: dict[str, Any]) -> str:
             lines.append("")
         lines.extend(render_priority_table("Top Picked Cards", stats["picked_card_stats"], card_stats=True))
         lines.append("")
+        lines.extend(render_blessing_priority_table("Blessing Involvement", stats["blessing_card_stats"]))
+        lines.append("")
     return "\n".join(lines).rstrip() + "\n"
 
 
@@ -737,6 +758,26 @@ def render_priority_table(
         )
     if len(lines) == 4:
         lines.append("| 1 | - | 0 | 0 | - |")
+    return lines
+
+
+def render_blessing_priority_table(title: str, rows: list[dict[str, Any]]) -> list[str]:
+    lines = [
+        f"#### {title}",
+        "",
+        "| Blessing | ID | In Deck Matches | Deck Win Rate | Deck Copies | Played | Active | Events | Decisive | Passive Decisive | Pre-Reveal |",
+        "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+    ]
+    for row in rows:
+        if row["deck_match_count"] == 0 and row["played_match_count"] == 0 and row["decisive_count"] == 0:
+            continue
+        lines.append(
+            f"| {row['name']} | `{row['id']}` | {row['deck_match_count']} | {format_optional_rate(row['win_rate_when_in_deck'])} | "
+            f"{row['deck_copy_count']} | {row['played_match_count']} | {row['active_match_count']} | {row['event_count']} | "
+            f"{row['decisive_count']} | {row['passive_decisive_count']} | {row['pre_reveal_count']} |"
+        )
+    if len(lines) == 4:
+        lines.append("| - | - | 0 | - | 0 | 0 | 0 | 0 | 0 | 0 | 0 |")
     return lines
 
 
