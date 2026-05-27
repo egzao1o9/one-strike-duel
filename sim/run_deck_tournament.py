@@ -194,15 +194,22 @@ def build_match_record(payload: dict[str, Any], markdown_path: str) -> dict[str,
 
 
 def collect_blessing_analysis(payload: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    player_payloads = payload.get("players", {})
     analysis = {
         side: {
-            "active_blessing_id": payload.get("players", {}).get(side, {}).get("active_blessing"),
+            "active_blessing_id": player_payloads.get(side, {}).get("active_blessing"),
             "played_blessing_ids": [],
             "event_count": 0,
             "event_types": Counter(),
             "decisive_count": 0,
             "passive_decisive_count": 0,
             "pre_reveal_count": 0,
+            "placed_turns": list(player_payloads.get(side, {}).get("blessing_placed_turns", [])),
+            "used_turns": list(player_payloads.get(side, {}).get("blessing_used_turns", [])),
+            "facedown_turns": list(player_payloads.get(side, {}).get("blessing_facedown_turns", [])),
+            "pressure_pass_actions": int(player_payloads.get(side, {}).get("blessing_pressure_pass_actions", 0)),
+            "ended_facedown": bool(player_payloads.get(side, {}).get("active_blessing")) and not bool(player_payloads.get(side, {}).get("blessing_face_up", True)),
+            "placed_but_unused": bool(player_payloads.get(side, {}).get("blessing_placed_turns")) and not bool(player_payloads.get(side, {}).get("blessing_used_turns")),
         }
         for side in ("p1", "p2")
     }

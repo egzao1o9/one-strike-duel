@@ -369,6 +369,11 @@ def build_draft_summary(records: list[dict[str, Any]], cards: dict[str, Any], dr
             "block_then_win_matches": 0,
             "winning_facedown_counts": [],
             "losing_facedown_counts": [],
+            "blessing_end_facedown_matches": 0,
+            "blessing_placed_unused_matches": 0,
+            "blessing_pressure_pass_actions": 0,
+            "caused_opponent_blessing_use_matches": 0,
+            "caused_opponent_blessing_use_wins": 0,
             "blessing_card_stats": {
                 blessing_id: init_blessing_stat(cards[blessing_id]) for blessing_id in blessing_card_ids
             },
@@ -429,6 +434,15 @@ def build_draft_summary(records: list[dict[str, Any]], cards: dict[str, Any], dr
                         overall_row["wins_with_card"] += 1
             blessing_info = record.get("blessing_analysis", {}).get(side, {})
             active_blessing_id = blessing_info.get("active_blessing_id")
+            stats["blessing_end_facedown_matches"] += int(blessing_info.get("ended_facedown", False))
+            stats["blessing_placed_unused_matches"] += int(blessing_info.get("placed_but_unused", False))
+            stats["blessing_pressure_pass_actions"] += int(blessing_info.get("pressure_pass_actions", 0))
+            opponent_side = "p2" if side == "p1" else "p1"
+            opponent_blessing_info = record.get("blessing_analysis", {}).get(opponent_side, {})
+            if opponent_blessing_info.get("used_turns"):
+                stats["caused_opponent_blessing_use_matches"] += 1
+                if record["winner_side"] == side:
+                    stats["caused_opponent_blessing_use_wins"] += 1
             for blessing_id in blessing_info.get("played_blessing_ids", []):
                 if blessing_id not in stats["blessing_card_stats"]:
                     continue
@@ -581,6 +595,15 @@ def finalize_drafter_stats(name: str, stats: dict[str, Any]) -> dict[str, Any]:
         "speed_advantage_loss_rate": stats["speed_advantage_losses"] / matches,
         "block_then_win_matches": stats["block_then_win_matches"],
         "block_then_win_rate": (stats["block_then_win_matches"] / wins) if wins else None,
+        "blessing_end_facedown_matches": stats["blessing_end_facedown_matches"],
+        "blessing_placed_unused_matches": stats["blessing_placed_unused_matches"],
+        "blessing_pressure_pass_actions": stats["blessing_pressure_pass_actions"],
+        "caused_opponent_blessing_use_matches": stats["caused_opponent_blessing_use_matches"],
+        "caused_opponent_blessing_use_win_rate": (
+            stats["caused_opponent_blessing_use_wins"] / stats["caused_opponent_blessing_use_matches"]
+            if stats["caused_opponent_blessing_use_matches"]
+            else None
+        ),
         "action_counts": dict(stats["action_counts"]),
         "set_pass_candidate_total": stats["set_pass_candidate_total"],
         "set_pass_candidate_avg_per_match": round(stats["set_pass_candidate_total"] / matches, 2),
@@ -700,6 +723,10 @@ def render_draft_report_markdown(summary: dict[str, Any]) -> str:
                 f"- Losing Final Stats Avg: A={fmt(stats['losing_attack']['avg'])}, B={fmt(stats['losing_block']['avg'])}, S={fmt(stats['losing_speed']['avg'])}",
                 f"- Lost With Speed Advantage: {stats['speed_advantage_losses']} ({format_rate(stats['speed_advantage_loss_rate'])})",
                 f"- Won After Blocking Faster Attack: {stats['block_then_win_matches']} ({format_optional_rate(stats['block_then_win_rate'])})",
+                f"- Blessing Ended Facedown: {stats['blessing_end_facedown_matches']}",
+                f"- Blessing Placed But Unused: {stats['blessing_placed_unused_matches']}",
+                f"- Opponent Pass / Set+Pass Into Face-Up Blessing: {stats['blessing_pressure_pass_actions']}",
+                f"- Win Rate When Forcing Opponent Blessing Use: {format_optional_rate(stats['caused_opponent_blessing_use_win_rate'])}",
                 f"- Action Rates: set={format_rate(stats['action_rates']['set'])}, set_pass={format_rate(stats['action_rates']['set_pass'])}, pass={format_rate(stats['action_rates']['pass'])}",
                 f"- set_pass Candidate Avg / Match: {fmt(stats['set_pass_candidate_avg_per_match'])}",
                 f"- Turns: min={fmt(stats['turns']['min'])}, avg={fmt(stats['turns']['avg'])}, max={fmt(stats['turns']['max'])}",

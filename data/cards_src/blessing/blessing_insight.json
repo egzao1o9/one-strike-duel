@@ -11,7 +11,7 @@
     "trick",
     "reveal"
   ],
-  "public_text": "公開前に使用できる。相手の伏せカード1枚をランダムに公開する。使用後、この加護を裏向きにする。",
+  "public_text": "相手がカードをセットした時に使用できる。相手の伏せカード1枚を選び表向きにする。使用後、この加護を裏向きにする。",
   "enabled": true,
   "play_zone": "blessing_zone",
   "after_play_zone": "blessing_zone",
@@ -21,16 +21,12 @@
       "id": "blessing_insight_01",
       "seq": 1,
       "enabled": true,
-      "trigger": "on_battle_start",
+      "trigger": "on_play",
       "priority": 100,
-      "effect_type": "reveal_cards",
-      "target": "opponent_set_cards",
-      "count": 1,
-      "duration": "while_in_zone",
-      "active_zone": "blessing_zone",
-      "keyword": "flip_after_use",
-      "display_text": "公開前に使用できる。相手の伏せカード1枚をランダムに公開する。使用後、この加護を裏向きにする。"
+      "effect_type": "custom",
+      "keyword": "reveal_on_set",
+      "display_text": "相手がカードをセットした時、相手の伏せカード1枚を表向きにする。"
     }
   ],
-  "notes": "Pre-reveal blessing."
+  "notes": "Reveal one opponent set card when they set cards."
 }

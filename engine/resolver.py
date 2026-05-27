@@ -157,40 +157,7 @@ def _apply_pre_reveal_blessings(
     blessing_events: list[dict[str, Any]],
     revealed_steps: list[dict[str, Any]],
 ) -> None:
-    for player_id, player in state.players.items():
-        blessing = player.blessing_zone
-        if blessing is None or not player.blessing_face_up:
-            continue
-        if blessing.id != "blessing_insight":
-            continue
-        opponent_id = state.opponent_of(player_id)
-        if not set_cards[opponent_id]:
-            continue
-        target_index = state.rng.randrange(len(set_cards[opponent_id]))
-        target = set_cards[opponent_id][target_index]
-        player.blessing_face_up = False
-        blessing_events.append(
-            {
-                "player_id": player_id,
-                "blessing_id": blessing.id,
-                "event": "pre_reveal",
-                "target_player_id": opponent_id,
-                "target_card_id": target.id,
-                "target_index": target_index,
-            }
-        )
-        revealed_steps.append(
-            {
-                "step": len(revealed_steps) + 1,
-                "player_id": opponent_id,
-                "card_id": target.id,
-                "card_name": target.name,
-                "card_type": target.type,
-                "index": target_index,
-                "source": target.instance_source or "unknown",
-                "pre_revealed_by": blessing.id,
-            }
-        )
+    return
 
 
 def _apply_on_reveal_effects(
@@ -228,7 +195,7 @@ def _apply_blessing_battle_effects(
 ) -> None:
     player = state.players[player_id]
     blessing = player.blessing_zone
-    if blessing is None or not player.blessing_face_up:
+    if blessing is None or not player.blessing_face_up or player.blessing_locked_this_turn:
         return
     opponent_id = state.opponent_of(player_id)
     own_side = sides[player_id]
@@ -246,6 +213,75 @@ def _apply_blessing_battle_effects(
         own_side.speed += 1
         own_side.applied_effects.append("blessing_zone:modify_total_stat:self_total:speed:1")
         return
+    if blessing.id == "blessing_shortblade":
+        before = _resolve_current_outcome(player_id, own_side, opponent_side)
+        boosted_own = _copy_side(own_side)
+        boosted_own.attack += 1
+        after = _resolve_current_outcome(player_id, boosted_own, opponent_side)
+        if before != "win" and after == "win":
+            own_side.attack += 1
+            _consume_blessing(state, player_id)
+            own_side.applied_effects.append("blessing_zone:modify_total_stat:self_total:attack:1")
+            blessing_events.append({"player_id": player_id, "blessing_id": blessing.id, "event": "battle_calculate", "value": 1})
+        return
+    if blessing.id == "blessing_buckler":
+        before = _resolve_current_outcome(player_id, own_side, opponent_side)
+        boosted_own = _copy_side(own_side)
+        boosted_own.block += 1
+        after = _resolve_current_outcome(player_id, boosted_own, opponent_side)
+        if before == "lose" and after != "lose":
+            own_side.block += 1
+            _consume_blessing(state, player_id)
+            own_side.applied_effects.append("blessing_zone:modify_total_stat:self_total:block:1")
+            blessing_events.append({"player_id": player_id, "blessing_id": blessing.id, "event": "battle_calculate", "value": 1})
+        return
+    if blessing.id == "blessing_tailwind":
+        before = _resolve_current_outcome(player_id, own_side, opponent_side)
+        boosted_own = _copy_side(own_side)
+        boosted_own.speed += 1
+        after = _resolve_current_outcome(player_id, boosted_own, opponent_side)
+        if before != "win" and after == "win":
+            own_side.speed += 1
+            _consume_blessing(state, player_id)
+            own_side.applied_effects.append("blessing_zone:modify_total_stat:self_total:speed:1")
+            blessing_events.append({"player_id": player_id, "blessing_id": blessing.id, "event": "battle_calculate", "value": 1})
+        return
+    if blessing.id == "blessing_dullness":
+        before = _resolve_current_outcome(player_id, own_side, opponent_side)
+        slowed_opponent = _copy_side(opponent_side)
+        slowed_opponent.speed -= 1
+        after = _resolve_current_outcome(player_id, own_side, slowed_opponent)
+        if before != "win" and after == "win":
+            opponent_side.speed -= 1
+            _consume_blessing(state, player_id)
+            own_side.applied_effects.append("blessing_zone:modify_total_stat:opponent_total:speed:-1")
+            blessing_events.append({"player_id": player_id, "blessing_id": blessing.id, "event": "battle_calculate", "value": -1})
+        return
+    if blessing.id == "blessing_parry":
+        if opponent_side.attack == own_side.block + 1:
+            before = _resolve_current_outcome(player_id, own_side, opponent_side)
+            boosted_own = _copy_side(own_side)
+            boosted_own.block += 1
+            after = _resolve_current_outcome(player_id, boosted_own, opponent_side)
+            if before == "lose" and after != "lose":
+                own_side.block += 1
+                _consume_blessing(state, player_id)
+                own_side.applied_effects.append("blessing_zone:modify_total_stat:self_total:block:1")
+                blessing_events.append({"player_id": player_id, "blessing_id": blessing.id, "event": "battle_calculate", "value": 1})
+        return
+    if blessing.id == "blessing_laststand":
+        own_battle_count = sum(1 for item in revealed_card_states[player_id] if item.card.type == "battle")
+        if own_battle_count <= 2:
+            before = _resolve_current_outcome(player_id, own_side, opponent_side)
+            boosted_own = _copy_side(own_side)
+            boosted_own.block += 2
+            after = _resolve_current_outcome(player_id, boosted_own, opponent_side)
+            if before == "lose" and after != "lose":
+                own_side.block += 2
+                _consume_blessing(state, player_id)
+                own_side.applied_effects.append("blessing_zone:modify_total_stat:self_total:block:2")
+                blessing_events.append({"player_id": player_id, "blessing_id": blessing.id, "event": "battle_calculate", "value": 2})
+        return
 
     if blessing.id == "blessing_offense":
         before = _resolve_current_outcome(player_id, own_side, opponent_side)
@@ -254,7 +290,7 @@ def _apply_blessing_battle_effects(
         after = _resolve_current_outcome(player_id, boosted_own, opponent_side)
         if before != "win" and after == "win":
             own_side.attack += 2
-            player.blessing_face_up = False
+            _consume_blessing(state, player_id)
             own_side.applied_effects.append("blessing_zone:modify_total_stat:self_total:attack:2")
             blessing_events.append({"player_id": player_id, "blessing_id": blessing.id, "event": "battle_calculate", "value": 2})
         return
@@ -265,7 +301,7 @@ def _apply_blessing_battle_effects(
         after = _resolve_current_outcome(player_id, boosted_own, opponent_side)
         if before == "lose" and after != "lose":
             own_side.block += 2
-            player.blessing_face_up = False
+            _consume_blessing(state, player_id)
             own_side.applied_effects.append("blessing_zone:modify_total_stat:self_total:block:2")
             blessing_events.append({"player_id": player_id, "blessing_id": blessing.id, "event": "battle_calculate", "value": 2})
         return
@@ -276,7 +312,7 @@ def _apply_blessing_battle_effects(
         after = _resolve_current_outcome(player_id, own_side, slowed_opponent)
         if before != "win" and after == "win":
             opponent_side.speed -= 2
-            player.blessing_face_up = False
+            _consume_blessing(state, player_id)
             own_side.applied_effects.append("blessing_zone:modify_total_stat:opponent_total:speed:-2")
             blessing_events.append({"player_id": player_id, "blessing_id": blessing.id, "event": "battle_calculate", "value": -2})
         return
@@ -290,7 +326,7 @@ def _apply_blessing_battle_effects(
         after = _resolve_current_outcome(player_id, own_side, weakened_opponent)
         if before == "lose" and after != "lose":
             opponent_side.attack -= 3
-            player.blessing_face_up = False
+            _consume_blessing(state, player_id)
             own_side.applied_effects.append("blessing_zone:modify_total_stat:opponent_total:attack:-3")
             blessing_events.append({"player_id": player_id, "blessing_id": blessing.id, "event": "battle_calculate", "value": -3})
         return
@@ -307,7 +343,7 @@ def _apply_blessing_battle_effects(
         after = _resolve_current_outcome(player_id, own_side, weakened_opponent)
         if before == "lose" and after != "lose":
             opponent_side.attack -= 3
-            player.blessing_face_up = False
+            _consume_blessing(state, player_id)
             own_side.applied_effects.append("blessing_zone:modify_total_stat:opponent_total:attack:-3")
             blessing_events.append(
                 {
@@ -331,6 +367,15 @@ def _find_revealed_card(cards: list[RevealedCardState], predicate) -> RevealedCa
 def _should_skip_reveal_only_effect(effect: Effect) -> bool:
     effect_key = effect.kind or effect.effect_type
     return effect_key in {"negate_opponent_first_card", "modify_card_stat"}
+
+
+def _consume_blessing(state: GameState, player_id: str) -> None:
+    player = state.players[player_id]
+    if not player.blessing_face_up:
+        return
+    player.blessing_face_up = False
+    player.blessing_used_turns.append(state.turn)
+    player.blessing_facedown_turns.append(state.turn)
 
 
 def _copy_side(side: BattleSide) -> BattleSide:

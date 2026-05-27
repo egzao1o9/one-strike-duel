@@ -1,0 +1,19 @@
+{
+  "id": "control_blessing_break",
+  "name": "破祈",
+  "type": "control",
+  "rarity": "rare",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": ["blessing", "removal"],
+  "public_text": "場の加護カードを捨てる。",
+  "effects": [
+    {
+      "trigger": "on_play",
+      "effect_type": "custom",
+      "keyword": "discard_blessing"
+    }
+  ],
+  "notes": "Discard a blessing from the field."
+}

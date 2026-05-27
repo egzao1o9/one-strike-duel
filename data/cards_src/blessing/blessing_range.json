@@ -1,0 +1,17 @@
+{
+  "id": "blessing_range",
+  "name": "間合いの加護",
+  "card_type": "blessing",
+  "rarity": "uncommon",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": ["blessing", "speed", "counter"],
+  "public_text": "相手がこのバトルで4枚目のカードを伏せた時に使用できる。そのバトルで相手の素早さ-2。使用後、この加護を裏向きにする。",
+  "enabled": true,
+  "play_zone": "blessing_zone",
+  "after_play_zone": "blessing_zone",
+  "slot_type": "blessing",
+  "effects": [{"id": "blessing_range_01", "seq": 1, "enabled": true, "trigger": "on_play", "priority": 100, "effect_type": "custom", "keyword": "opponent_fourth_set_speed_down", "display_text": "相手が4枚目を伏せた時、そのバトルで相手の素早さ-2"}],
+  "notes": "Triggers when opponent sets a fourth card."
+}

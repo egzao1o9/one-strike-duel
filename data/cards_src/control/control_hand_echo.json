@@ -1,0 +1,19 @@
+{
+  "id": "control_hand_echo",
+  "name": "迷い手",
+  "type": "control",
+  "rarity": "uncommon",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": ["hand", "disrupt"],
+  "public_text": "相手は手札を1枚捨てる。自分は相手の捨て札から1枚カードを選び、それを相手の手札に加える。",
+  "effects": [
+    {
+      "trigger": "on_play",
+      "effect_type": "custom",
+      "keyword": "discard_and_return_opponent"
+    }
+  ],
+  "notes": "Opponent discards, then gets one discard back."
+}

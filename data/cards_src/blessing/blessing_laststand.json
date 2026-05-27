@@ -1,0 +1,17 @@
+{
+  "id": "blessing_laststand",
+  "name": "踏み止まりの加護",
+  "card_type": "blessing",
+  "rarity": "uncommon",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": ["blessing", "defense"],
+  "public_text": "自分がこのバトルに2枚以下しか伏せていない場合に使用できる。自分の防御+2。使用後、この加護を裏向きにする。",
+  "enabled": true,
+  "play_zone": "blessing_zone",
+  "after_play_zone": "blessing_zone",
+  "slot_type": "blessing",
+  "effects": [{"id": "blessing_laststand_01", "seq": 1, "enabled": true, "trigger": "on_battle_calculate", "priority": 100, "effect_type": "modify_total_stat", "target": "self_total", "stat": "block", "value": 2, "duration": "while_in_zone", "active_zone": "blessing_zone", "keyword": "flip_after_use", "display_text": "2枚以下なら自分の防御+2"}],
+  "notes": "Defense boost when using 2 or fewer set cards."
+}

@@ -1,0 +1,21 @@
+{
+  "id": "control_peek_own_top",
+  "name": "見定め",
+  "type": "control",
+  "rarity": "common",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": ["reveal", "deck"],
+  "public_text": "自分の山札のトップを見る。",
+  "effects": [
+    {
+      "trigger": "on_play",
+      "effect_type": "reveal_cards",
+      "target": "self_deck",
+      "count": 1,
+      "duration": "instant"
+    }
+  ],
+  "notes": "Peek your top deck."
+}

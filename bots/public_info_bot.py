@@ -209,7 +209,51 @@ class PublicInfoBot(BaseBot):
                     score += 0.45
             elif effect.effect_type == "modify_rule_value" and effect.stat == "draw_per_turn":
                 score += 1.2 * max(effect.value, 0)
+        score += self._custom_control_score(view, card, hand_profile, opponent_profile)
         return round(score, 4)
+
+    def _custom_control_score(self, view: PlayerView, card: Card, hand_profile: HandProfile, opponent_profile) -> float:
+        score = 0.0
+        if card.id == "control_blessing_flip":
+            if view.opponent_blessing_zone is not None and view.opponent_blessing_face_up:
+                score += 1.4
+            elif view.own_blessing_zone is not None and not view.own_blessing_face_up:
+                score += 1.1
+        elif card.id == "control_blessing_break":
+            if view.opponent_blessing_zone is not None:
+                score += 1.6
+            elif view.own_blessing_zone is not None and not view.own_blessing_face_up:
+                score += 0.8
+        elif card.id == "control_topdeck_hand":
+            score += 1.4 if len(view.hand) <= 3 else 0.7
+        elif card.id == "control_redraw_hand":
+            weak_cards = sum(
+                1
+                for hand_card in view.hand
+                if hand_card.type != "control"
+                and (hand_card.attack + hand_card.block + hand_card.speed) <= 1
+            )
+            score += weak_cards * 0.35
+        elif card.id == "control_discard_facedown_blessing":
+            if view.own_blessing_zone is not None and not view.own_blessing_face_up:
+                score += 1.5
+        elif card.id == "control_defile":
+            if view.opponent_blessing_zone is not None and view.opponent_blessing_face_up:
+                score += 1.7
+        elif card.id == "control_blessing_lock":
+            if view.opponent_blessing_zone is not None and view.opponent_blessing_face_up:
+                score += 1.8
+        elif card.id == "control_opening_read":
+            score += 0.8
+        elif card.id == "control_hand_echo":
+            score += 0.9 if view.opponent_hand_count > 0 else 0.0
+        elif card.id == "control_all_in_focus":
+            score += 1.2 if hand_profile.best_attack.attack > opponent_profile.average_block else 0.4
+        elif card.id == "control_opening_expose":
+            score += 0.7
+        elif card.id in {"control_peek_opponent_top", "control_peek_own_top", "control_peek_hand"}:
+            score += self.style.reveal_weight * 0.8
+        return score
 
     def _legal_actions(self, view: PlayerView) -> list[BattleAction]:
         battles = [card for card in view.hand if card.type in {"battle", "control"}]
@@ -875,6 +919,8 @@ class PublicInfoBot(BaseBot):
                 score += abs(effect.value) * 1.0
             elif effect.kind == "reveal_opponent_hand_random":
                 score += self.style.reveal_weight
+            elif effect.effect_type == "reveal_cards":
+                score += self.style.reveal_weight * 0.8
         return score
 
 

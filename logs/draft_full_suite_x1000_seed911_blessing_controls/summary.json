@@ -1,0 +1,3064 @@
+{
+  "config": {
+    "matches_per_matchup": 1000,
+    "seed": 911,
+    "archetypes": [
+      {
+        "label": "Standard",
+        "draft_bot": "StandardDraftBot",
+        "play_bot": "StandardBot"
+      },
+      {
+        "label": "Aggro",
+        "draft_bot": "AggroDraftBot",
+        "play_bot": "AggroBot"
+      },
+      {
+        "label": "Guard",
+        "draft_bot": "GuardDraftBot",
+        "play_bot": "GuardBot"
+      }
+    ],
+    "fast_report": true,
+    "draft_mode": "full",
+    "lean_draft_logging": true,
+    "save_battle_logs": true,
+    "workers": 61
+  },
+  "matchups": [
+    {
+      "slug": "aggro_vs_aggro",
+      "draft_bot1": "AggroDraftBot",
+      "draft_bot2": "AggroDraftBot",
+      "play_bot1": "AggroBot",
+      "play_bot2": "AggroBot",
+      "total_matches": 1000,
+      "rounds": 500,
+      "draws": 68,
+      "rankings": [
+        {
+          "label": "Aggro",
+          "draft_bot": "AggroDraftBot",
+          "play_bot": "AggroBot",
+          "matches": 2000,
+          "wins": 932,
+          "losses": 932,
+          "draws": 136,
+          "win_rate": 0.466
+        }
+      ],
+      "summary_path": "./aggro_vs_aggro/summary.md",
+      "records_path": "./aggro_vs_aggro/match_records.jsonl"
+    },
+    {
+      "slug": "aggro_vs_guard",
+      "draft_bot1": "AggroDraftBot",
+      "draft_bot2": "GuardDraftBot",
+      "play_bot1": "AggroBot",
+      "play_bot2": "GuardBot",
+      "total_matches": 1000,
+      "rounds": 500,
+      "draws": 59,
+      "rankings": [
+        {
+          "label": "Aggro",
+          "draft_bot": "AggroDraftBot",
+          "play_bot": "AggroBot",
+          "matches": 1000,
+          "wins": 494,
+          "losses": 447,
+          "draws": 59,
+          "win_rate": 0.494
+        },
+        {
+          "label": "Guard",
+          "draft_bot": "GuardDraftBot",
+          "play_bot": "GuardBot",
+          "matches": 1000,
+          "wins": 447,
+          "losses": 494,
+          "draws": 59,
+          "win_rate": 0.447
+        }
+      ],
+      "summary_path": "./aggro_vs_guard/summary.md",
+      "records_path": "./aggro_vs_guard/match_records.jsonl"
+    },
+    {
+      "slug": "guard_vs_guard",
+      "draft_bot1": "GuardDraftBot",
+      "draft_bot2": "GuardDraftBot",
+      "play_bot1": "GuardBot",
+      "play_bot2": "GuardBot",
+      "total_matches": 1000,
+      "rounds": 500,
+      "draws": 52,
+      "rankings": [
+        {
+          "label": "Guard",
+          "draft_bot": "GuardDraftBot",
+          "play_bot": "GuardBot",
+          "matches": 2000,
+          "wins": 948,
+          "losses": 948,
+          "draws": 104,
+          "win_rate": 0.474
+        }
+      ],
+      "summary_path": "./guard_vs_guard/summary.md",
+      "records_path": "./guard_vs_guard/match_records.jsonl"
+    },
+    {
+      "slug": "standard_vs_aggro",
+      "draft_bot1": "StandardDraftBot",
+      "draft_bot2": "AggroDraftBot",
+      "play_bot1": "StandardBot",
+      "play_bot2": "AggroBot",
+      "total_matches": 1000,
+      "rounds": 500,
+      "draws": 52,
+      "rankings": [
+        {
+          "label": "Aggro",
+          "draft_bot": "AggroDraftBot",
+          "play_bot": "AggroBot",
+          "matches": 1000,
+          "wins": 475,
+          "losses": 473,
+          "draws": 52,
+          "win_rate": 0.475
+        },
+        {
+          "label": "Standard",
+          "draft_bot": "StandardDraftBot",
+          "play_bot": "StandardBot",
+          "matches": 1000,
+          "wins": 473,
+          "losses": 475,
+          "draws": 52,
+          "win_rate": 0.473
+        }
+      ],
+      "summary_path": "./standard_vs_aggro/summary.md",
+      "records_path": "./standard_vs_aggro/match_records.jsonl"
+    },
+    {
+      "slug": "standard_vs_guard",
+      "draft_bot1": "StandardDraftBot",
+      "draft_bot2": "GuardDraftBot",
+      "play_bot1": "StandardBot",
+      "play_bot2": "GuardBot",
+      "total_matches": 1000,
+      "rounds": 500,
+      "draws": 57,
+      "rankings": [
+        {
+          "label": "Guard",
+          "draft_bot": "GuardDraftBot",
+          "play_bot": "GuardBot",
+          "matches": 1000,
+          "wins": 479,
+          "losses": 464,
+          "draws": 57,
+          "win_rate": 0.479
+        },
+        {
+          "label": "Standard",
+          "draft_bot": "StandardDraftBot",
+          "play_bot": "StandardBot",
+          "matches": 1000,
+          "wins": 464,
+          "losses": 479,
+          "draws": 57,
+          "win_rate": 0.464
+        }
+      ],
+      "summary_path": "./standard_vs_guard/summary.md",
+      "records_path": "./standard_vs_guard/match_records.jsonl"
+    },
+    {
+      "slug": "standard_vs_standard",
+      "draft_bot1": "StandardDraftBot",
+      "draft_bot2": "StandardDraftBot",
+      "play_bot1": "StandardBot",
+      "play_bot2": "StandardBot",
+      "total_matches": 1000,
+      "rounds": 500,
+      "draws": 48,
+      "rankings": [
+        {
+          "label": "Standard",
+          "draft_bot": "StandardDraftBot",
+          "play_bot": "StandardBot",
+          "matches": 2000,
+          "wins": 952,
+          "losses": 952,
+          "draws": 96,
+          "win_rate": 0.476
+        }
+      ],
+      "summary_path": "./standard_vs_standard/summary.md",
+      "records_path": "./standard_vs_standard/match_records.jsonl"
+    }
+  ],
+  "bots": {
+    "Aggro": {
+      "label": "Aggro",
+      "draft_bot": "AggroDraftBot",
+      "play_bot": "AggroBot",
+      "matches": 4000,
+      "wins": 1901,
+      "losses": 1852,
+      "draws": 247,
+      "win_rate": 0.4753,
+      "first_pass_win_rate": 0.4912,
+      "starting_player_win_rate": 0.4755,
+      "responding_player_win_rate": 0.4749,
+      "fewer_card_win_rate": 0.1641,
+      "same_card_win_rate": 0.5224,
+      "more_card_win_rate": 0.3135,
+      "set_pass_candidate_total": 61056,
+      "set_pass_candidate_avg_per_match": 15.264,
+      "action_counts": {
+        "set": 15192,
+        "pass": 5752,
+        "set_pass": 604
+      },
+      "action_rates": {
+        "set": 0.705,
+        "set_pass": 0.028,
+        "pass": 0.2669
+      },
+      "matchups": {
+        "Aggro": {
+          "matches": 2000,
+          "wins": 932,
+          "losses": 932,
+          "draws": 136,
+          "win_rate": 0.466
+        },
+        "Guard": {
+          "matches": 1000,
+          "wins": 494,
+          "losses": 447,
+          "draws": 59,
+          "win_rate": 0.494
+        },
+        "Standard": {
+          "matches": 1000,
+          "wins": 475,
+          "losses": 473,
+          "draws": 52,
+          "win_rate": 0.475
+        }
+      },
+      "picked_card_stats": [
+        {
+          "name": "攻撃",
+          "picked_count": 4166,
+          "used_count": 1263,
+          "winner_usage_count": 584,
+          "lethal_count": 416,
+          "rarity": "common",
+          "id": "battle_attack"
+        },
+        {
+          "name": "防御",
+          "picked_count": 3801,
+          "used_count": 1117,
+          "winner_usage_count": 476,
+          "lethal_count": 252,
+          "rarity": "common",
+          "id": "battle_defend"
+        },
+        {
+          "name": "ステップ",
+          "picked_count": 3762,
+          "used_count": 1068,
+          "winner_usage_count": 480,
+          "lethal_count": 287,
+          "rarity": "common",
+          "id": "battle_step"
+        },
+        {
+          "name": "圧迫",
+          "picked_count": 3217,
+          "used_count": 989,
+          "winner_usage_count": 465,
+          "lethal_count": 110,
+          "rarity": "common",
+          "id": "control_pressure"
+        },
+        {
+          "name": "見定め",
+          "picked_count": 2895,
+          "used_count": 871,
+          "winner_usage_count": 334,
+          "lethal_count": 83,
+          "rarity": "common",
+          "id": "control_peek_own_top"
+        },
+        {
+          "name": "集中",
+          "picked_count": 2885,
+          "used_count": 760,
+          "winner_usage_count": 293,
+          "lethal_count": 121,
+          "rarity": "common",
+          "id": "control_focus"
+        },
+        {
+          "name": "構え",
+          "picked_count": 2875,
+          "used_count": 811,
+          "winner_usage_count": 348,
+          "lethal_count": 118,
+          "rarity": "common",
+          "id": "control_guard"
+        },
+        {
+          "name": "牽制",
+          "picked_count": 2874,
+          "used_count": 918,
+          "winner_usage_count": 440,
+          "lethal_count": 33,
+          "rarity": "common",
+          "id": "control_disrupt"
+        },
+        {
+          "name": "遠眼",
+          "picked_count": 2819,
+          "used_count": 799,
+          "winner_usage_count": 328,
+          "lethal_count": 102,
+          "rarity": "common",
+          "id": "control_peek_opponent_top"
+        },
+        {
+          "name": "公開勝負",
+          "picked_count": 2706,
+          "used_count": 794,
+          "winner_usage_count": 324,
+          "lethal_count": 121,
+          "rarity": "common",
+          "id": "control_opening_expose"
+        },
+        {
+          "name": "崩し",
+          "picked_count": 1789,
+          "used_count": 586,
+          "winner_usage_count": 384,
+          "lethal_count": 361,
+          "rarity": "uncommon",
+          "id": "battle_break"
+        },
+        {
+          "name": "貫き",
+          "picked_count": 1720,
+          "used_count": 550,
+          "winner_usage_count": 379,
+          "lethal_count": 335,
+          "rarity": "uncommon",
+          "id": "battle_pierce"
+        },
+        {
+          "name": "踏み込み",
+          "picked_count": 1567,
+          "used_count": 560,
+          "winner_usage_count": 424,
+          "lethal_count": 397,
+          "rarity": "rare",
+          "id": "battle_step_in"
+        },
+        {
+          "name": "粉砕",
+          "picked_count": 1561,
+          "used_count": 533,
+          "winner_usage_count": 299,
+          "lethal_count": 270,
+          "rarity": "uncommon",
+          "id": "battle_crush"
+        },
+        {
+          "name": "返し刃",
+          "picked_count": 1516,
+          "used_count": 502,
+          "winner_usage_count": 300,
+          "lethal_count": 218,
+          "rarity": "uncommon",
+          "id": "battle_counter"
+        },
+        {
+          "name": "踏ん張り",
+          "picked_count": 1471,
+          "used_count": 495,
+          "winner_usage_count": 258,
+          "lethal_count": 170,
+          "rarity": "uncommon",
+          "id": "battle_brace"
+        },
+        {
+          "name": "大振り",
+          "picked_count": 1450,
+          "used_count": 501,
+          "winner_usage_count": 273,
+          "lethal_count": 254,
+          "rarity": "rare",
+          "id": "battle_heavy_swing"
+        },
+        {
+          "name": "渾身",
+          "picked_count": 1440,
+          "used_count": 502,
+          "winner_usage_count": 256,
+          "lethal_count": 247,
+          "rarity": "rare",
+          "id": "battle_all_in"
+        },
+        {
+          "name": "強撃",
+          "picked_count": 1417,
+          "used_count": 465,
+          "winner_usage_count": 239,
+          "lethal_count": 204,
+          "rarity": "uncommon",
+          "id": "battle_power_attack"
+        },
+        {
+          "name": "残像",
+          "picked_count": 1389,
+          "used_count": 479,
+          "winner_usage_count": 213,
+          "lethal_count": 138,
+          "rarity": "rare",
+          "id": "battle_afterimage"
+        },
+        {
+          "name": "十字受け",
+          "picked_count": 1351,
+          "used_count": 476,
+          "winner_usage_count": 239,
+          "lethal_count": 129,
+          "rarity": "uncommon",
+          "id": "battle_cross_guard"
+        },
+        {
+          "name": "フェイント",
+          "picked_count": 1342,
+          "used_count": 393,
+          "winner_usage_count": 153,
+          "lethal_count": 73,
+          "rarity": "uncommon",
+          "id": "battle_feint"
+        },
+        {
+          "name": "鉄壁",
+          "picked_count": 1296,
+          "used_count": 492,
+          "winner_usage_count": 243,
+          "lethal_count": 79,
+          "rarity": "rare",
+          "id": "battle_wall"
+        },
+        {
+          "name": "退き足",
+          "picked_count": 1259,
+          "used_count": 388,
+          "winner_usage_count": 156,
+          "lethal_count": 85,
+          "rarity": "uncommon",
+          "id": "battle_backstep"
+        },
+        {
+          "name": "Bastion",
+          "picked_count": 1254,
+          "used_count": 451,
+          "winner_usage_count": 209,
+          "lethal_count": 76,
+          "rarity": "uncommon",
+          "id": "battle_bastion"
+        },
+        {
+          "name": "押し込み",
+          "picked_count": 1242,
+          "used_count": 418,
+          "winner_usage_count": 207,
+          "lethal_count": 146,
+          "rarity": "uncommon",
+          "id": "battle_press"
+        },
+        {
+          "name": "疾走",
+          "picked_count": 1221,
+          "used_count": 390,
+          "winner_usage_count": 237,
+          "lethal_count": 185,
+          "rarity": "rare",
+          "id": "battle_dash"
+        },
+        {
+          "name": "受け流し",
+          "picked_count": 1168,
+          "used_count": 398,
+          "winner_usage_count": 197,
+          "lethal_count": 119,
+          "rarity": "uncommon",
+          "id": "battle_guard"
+        },
+        {
+          "name": "Bulwark",
+          "picked_count": 1086,
+          "used_count": 363,
+          "winner_usage_count": 193,
+          "lethal_count": 103,
+          "rarity": "uncommon",
+          "id": "battle_bulwark"
+        },
+        {
+          "name": "低姿勢",
+          "picked_count": 1045,
+          "used_count": 335,
+          "winner_usage_count": 153,
+          "lethal_count": 70,
+          "rarity": "uncommon",
+          "id": "battle_low_stance"
+        },
+        {
+          "name": "Tripwire",
+          "picked_count": 994,
+          "used_count": 5,
+          "winner_usage_count": 2,
+          "lethal_count": 2,
+          "rarity": "rare",
+          "id": "battle_tripwire"
+        },
+        {
+          "name": "受け直し",
+          "picked_count": 745,
+          "used_count": 253,
+          "winner_usage_count": 126,
+          "lethal_count": 27,
+          "rarity": "uncommon",
+          "id": "control_cover"
+        },
+        {
+          "name": "前のめり",
+          "picked_count": 698,
+          "used_count": 221,
+          "winner_usage_count": 99,
+          "lethal_count": 42,
+          "rarity": "uncommon",
+          "id": "control_overclock"
+        },
+        {
+          "name": "重心落とし",
+          "picked_count": 615,
+          "used_count": 167,
+          "winner_usage_count": 76,
+          "lethal_count": 33,
+          "rarity": "uncommon",
+          "id": "control_anchor"
+        },
+        {
+          "name": "補強",
+          "picked_count": 607,
+          "used_count": 181,
+          "winner_usage_count": 83,
+          "lethal_count": 17,
+          "rarity": "uncommon",
+          "id": "control_fortify"
+        },
+        {
+          "name": "探り",
+          "picked_count": 607,
+          "used_count": 183,
+          "winner_usage_count": 60,
+          "lethal_count": 19,
+          "rarity": "uncommon",
+          "id": "control_peek_hand"
+        },
+        {
+          "name": "看破",
+          "picked_count": 606,
+          "used_count": 164,
+          "winner_usage_count": 63,
+          "lethal_count": 26,
+          "rarity": "uncommon",
+          "id": "control_opening_read"
+        },
+        {
+          "name": "迷い手",
+          "picked_count": 591,
+          "used_count": 168,
+          "winner_usage_count": 79,
+          "lethal_count": 27,
+          "rarity": "uncommon",
+          "id": "control_hand_echo"
+        },
+        {
+          "name": "加速",
+          "picked_count": 586,
+          "used_count": 164,
+          "winner_usage_count": 81,
+          "lethal_count": 24,
+          "rarity": "uncommon",
+          "id": "control_haste"
+        },
+        {
+          "name": "手繰り直し",
+          "picked_count": 585,
+          "used_count": 24,
+          "winner_usage_count": 7,
+          "lethal_count": 2,
+          "rarity": "uncommon",
+          "id": "control_redraw_hand"
+        },
+        {
+          "name": "受け流しの加護",
+          "picked_count": 580,
+          "used_count": 142,
+          "winner_usage_count": 56,
+          "lethal_count": 0,
+          "rarity": "uncommon",
+          "id": "blessing_parry"
+        },
+        {
+          "name": "小太刀の加護",
+          "picked_count": 576,
+          "used_count": 92,
+          "winner_usage_count": 42,
+          "lethal_count": 0,
+          "rarity": "uncommon",
+          "id": "blessing_shortblade"
+        },
+        {
+          "name": "勢い溜め",
+          "picked_count": 571,
+          "used_count": 178,
+          "winner_usage_count": 64,
+          "lethal_count": 19,
+          "rarity": "uncommon",
+          "id": "control_momentum"
+        },
+        {
+          "name": "封祈",
+          "picked_count": 571,
+          "used_count": 19,
+          "winner_usage_count": 8,
+          "lethal_count": 2,
+          "rarity": "uncommon",
+          "id": "control_blessing_lock"
+        },
+        {
+          "name": "抑制の加護",
+          "picked_count": 570,
+          "used_count": 99,
+          "winner_usage_count": 36,
+          "lethal_count": 0,
+          "rarity": "rare",
+          "id": "blessing_suppression"
+        },
+        {
+          "name": "穢れ",
+          "picked_count": 564,
+          "used_count": 43,
+          "winner_usage_count": 20,
+          "lethal_count": 0,
+          "rarity": "uncommon",
+          "id": "control_defile"
+        },
+        {
+          "name": "祓い直し",
+          "picked_count": 560,
+          "used_count": 13,
+          "winner_usage_count": 4,
+          "lethal_count": 0,
+          "rarity": "uncommon",
+          "id": "control_discard_facedown_blessing"
+        },
+        {
+          "name": "攻勢の加護",
+          "picked_count": 559,
+          "used_count": 132,
+          "winner_usage_count": 56,
+          "lethal_count": 0,
+          "rarity": "rare",
+          "id": "blessing_offense"
+        },
+        {
+          "name": "前借り",
+          "picked_count": 548,
+          "used_count": 105,
+          "winner_usage_count": 41,
+          "lethal_count": 13,
+          "rarity": "uncommon",
+          "id": "control_all_in_focus"
+        },
+        {
+          "name": "Blank First",
+          "picked_count": 544,
+          "used_count": 195,
+          "winner_usage_count": 79,
+          "lethal_count": 5,
+          "rarity": "uncommon",
+          "id": "control_blank_first"
+        },
+        {
+          "name": "追風の加護",
+          "picked_count": 541,
+          "used_count": 124,
+          "winner_usage_count": 48,
+          "lethal_count": 0,
+          "rarity": "uncommon",
+          "id": "blessing_tailwind"
+        },
+        {
+          "name": "鈍りの加護",
+          "picked_count": 534,
+          "used_count": 102,
+          "winner_usage_count": 45,
+          "lethal_count": 0,
+          "rarity": "uncommon",
+          "id": "blessing_dullness"
+        },
+        {
+          "name": "間合いの加護",
+          "picked_count": 527,
+          "used_count": 88,
+          "winner_usage_count": 34,
+          "lethal_count": 0,
+          "rarity": "uncommon",
+          "id": "blessing_range"
+        },
+        {
+          "name": "小盾の加護",
+          "picked_count": 525,
+          "used_count": 96,
+          "winner_usage_count": 49,
+          "lethal_count": 0,
+          "rarity": "uncommon",
+          "id": "blessing_buckler"
+        },
+        {
+          "name": "攻の加護",
+          "picked_count": 520,
+          "used_count": 111,
+          "winner_usage_count": 56,
+          "lethal_count": 0,
+          "rarity": "rare",
+          "id": "blessing_attack"
+        },
+        {
+          "name": "踏み止まりの加護",
+          "picked_count": 498,
+          "used_count": 137,
+          "winner_usage_count": 67,
+          "lethal_count": 0,
+          "rarity": "uncommon",
+          "id": "blessing_laststand"
+        },
+        {
+          "name": "速の加護",
+          "picked_count": 488,
+          "used_count": 112,
+          "winner_usage_count": 50,
+          "lethal_count": 0,
+          "rarity": "rare",
+          "id": "blessing_speed"
+        },
+        {
+          "name": "罠糸の加護",
+          "picked_count": 479,
+          "used_count": 148,
+          "winner_usage_count": 76,
+          "lethal_count": 0,
+          "rarity": "rare",
+          "id": "blessing_trap_web"
+        },
+        {
+          "name": "防の加護",
+          "picked_count": 470,
+          "used_count": 104,
+          "winner_usage_count": 53,
+          "lethal_count": 0,
+          "rarity": "rare",
+          "id": "blessing_guard"
+        },
+        {
+          "name": "防壁の加護",
+          "picked_count": 469,
+          "used_count": 121,
+          "winner_usage_count": 55,
+          "lethal_count": 0,
+          "rarity": "rare",
+          "id": "blessing_barrier"
+        },
+        {
+          "name": "鈍足の加護",
+          "picked_count": 436,
+          "used_count": 87,
+          "winner_usage_count": 41,
+          "lethal_count": 0,
+          "rarity": "rare",
+          "id": "blessing_slow"
+        },
+        {
+          "name": "Crush Spirit",
+          "picked_count": 422,
+          "used_count": 133,
+          "winner_usage_count": 85,
+          "lethal_count": 2,
+          "rarity": "rare",
+          "id": "control_crush_spirit"
+        },
+        {
+          "name": "見切りの加護",
+          "picked_count": 415,
+          "used_count": 65,
+          "winner_usage_count": 28,
+          "lethal_count": 0,
+          "rarity": "rare",
+          "id": "blessing_insight"
+        },
+        {
+          "name": "蓄え",
+          "picked_count": 397,
+          "used_count": 140,
+          "winner_usage_count": 59,
+          "lethal_count": 6,
+          "rarity": "rare",
+          "id": "control_reserve"
+        },
+        {
+          "name": "転祈",
+          "picked_count": 395,
+          "used_count": 26,
+          "winner_usage_count": 9,
+          "lethal_count": 1,
+          "rarity": "rare",
+          "id": "control_blessing_flip"
+        },
+        {
+          "name": "先触れ",
+          "picked_count": 392,
+          "used_count": 108,
+          "winner_usage_count": 41,
+          "lethal_count": 13,
+          "rarity": "rare",
+          "id": "control_topdeck_hand"
+        },
+        {
+          "name": "破祈",
+          "picked_count": 390,
+          "used_count": 26,
+          "winner_usage_count": 12,
+          "lethal_count": 2,
+          "rarity": "rare",
+          "id": "control_blessing_break"
+        },
+        {
+          "name": "知恵の加護",
+          "picked_count": 241,
+          "used_count": 76,
+          "winner_usage_count": 27,
+          "lethal_count": 0,
+          "rarity": "rare",
+          "id": "blessing_draw"
+        }
+      ],
+      "blessing_card_stats": [
+        {
+          "id": "blessing_parry",
+          "name": "受け流しの加護",
+          "rarity": "uncommon",
+          "deck_copy_count": 580,
+          "deck_match_count": 570,
+          "wins_with_card": 246,
+          "played_match_count": 142,
+          "active_match_count": 140,
+          "event_count": 23,
+          "decisive_count": 23,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.43157894736842106
+        },
+        {
+          "id": "blessing_shortblade",
+          "name": "小太刀の加護",
+          "rarity": "uncommon",
+          "deck_copy_count": 576,
+          "deck_match_count": 566,
+          "wins_with_card": 275,
+          "played_match_count": 92,
+          "active_match_count": 91,
+          "event_count": 14,
+          "decisive_count": 14,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.48586572438162545
+        },
+        {
+          "id": "blessing_suppression",
+          "name": "抑制の加護",
+          "rarity": "rare",
+          "deck_copy_count": 570,
+          "deck_match_count": 566,
+          "wins_with_card": 247,
+          "played_match_count": 99,
+          "active_match_count": 97,
+          "event_count": 6,
+          "decisive_count": 6,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.4363957597173145
+        },
+        {
+          "id": "blessing_offense",
+          "name": "攻勢の加護",
+          "rarity": "rare",
+          "deck_copy_count": 559,
+          "deck_match_count": 550,
+          "wins_with_card": 237,
+          "played_match_count": 132,
+          "active_match_count": 132,
+          "event_count": 47,
+          "decisive_count": 47,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.4309090909090909
+        },
+        {
+          "id": "blessing_tailwind",
+          "name": "追風の加護",
+          "rarity": "uncommon",
+          "deck_copy_count": 541,
+          "deck_match_count": 527,
+          "wins_with_card": 240,
+          "played_match_count": 124,
+          "active_match_count": 124,
+          "event_count": 4,
+          "decisive_count": 4,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.45540796963946867
+        },
+        {
+          "id": "blessing_dullness",
+          "name": "鈍りの加護",
+          "rarity": "uncommon",
+          "deck_copy_count": 534,
+          "deck_match_count": 525,
+          "wins_with_card": 258,
+          "played_match_count": 102,
+          "active_match_count": 102,
+          "event_count": 5,
+          "decisive_count": 5,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.49142857142857144
+        },
+        {
+          "id": "blessing_buckler",
+          "name": "小盾の加護",
+          "rarity": "uncommon",
+          "deck_copy_count": 525,
+          "deck_match_count": 520,
+          "wins_with_card": 247,
+          "played_match_count": 96,
+          "active_match_count": 96,
+          "event_count": 14,
+          "decisive_count": 14,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.475
+        },
+        {
+          "id": "blessing_range",
+          "name": "間合いの加護",
+          "rarity": "uncommon",
+          "deck_copy_count": 527,
+          "deck_match_count": 520,
+          "wins_with_card": 246,
+          "played_match_count": 88,
+          "active_match_count": 87,
+          "event_count": 13,
+          "decisive_count": 13,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.47307692307692306
+        },
+        {
+          "id": "blessing_attack",
+          "name": "攻の加護",
+          "rarity": "rare",
+          "deck_copy_count": 520,
+          "deck_match_count": 518,
+          "wins_with_card": 236,
+          "played_match_count": 111,
+          "active_match_count": 108,
+          "event_count": 0,
+          "decisive_count": 0,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.4555984555984556
+        },
+        {
+          "id": "blessing_laststand",
+          "name": "踏み止まりの加護",
+          "rarity": "uncommon",
+          "deck_copy_count": 498,
+          "deck_match_count": 490,
+          "wins_with_card": 236,
+          "played_match_count": 137,
+          "active_match_count": 136,
+          "event_count": 26,
+          "decisive_count": 26,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.4816326530612245
+        },
+        {
+          "id": "blessing_speed",
+          "name": "速の加護",
+          "rarity": "rare",
+          "deck_copy_count": 488,
+          "deck_match_count": 483,
+          "wins_with_card": 212,
+          "played_match_count": 112,
+          "active_match_count": 109,
+          "event_count": 2,
+          "decisive_count": 2,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.4389233954451346
+        },
+        {
+          "id": "blessing_trap_web",
+          "name": "罠糸の加護",
+          "rarity": "rare",
+          "deck_copy_count": 479,
+          "deck_match_count": 477,
+          "wins_with_card": 224,
+          "played_match_count": 148,
+          "active_match_count": 146,
+          "event_count": 27,
+          "decisive_count": 27,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.469601677148847
+        },
+        {
+          "id": "blessing_guard",
+          "name": "防の加護",
+          "rarity": "rare",
+          "deck_copy_count": 470,
+          "deck_match_count": 468,
+          "wins_with_card": 238,
+          "played_match_count": 104,
+          "active_match_count": 103,
+          "event_count": 3,
+          "decisive_count": 3,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.5085470085470085
+        },
+        {
+          "id": "blessing_barrier",
+          "name": "防壁の加護",
+          "rarity": "rare",
+          "deck_copy_count": 469,
+          "deck_match_count": 464,
+          "wins_with_card": 212,
+          "played_match_count": 121,
+          "active_match_count": 118,
+          "event_count": 28,
+          "decisive_count": 28,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.45689655172413796
+        },
+        {
+          "id": "blessing_slow",
+          "name": "鈍足の加護",
+          "rarity": "rare",
+          "deck_copy_count": 436,
+          "deck_match_count": 435,
+          "wins_with_card": 192,
+          "played_match_count": 87,
+          "active_match_count": 84,
+          "event_count": 6,
+          "decisive_count": 6,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.4413793103448276
+        },
+        {
+          "id": "blessing_insight",
+          "name": "見切りの加護",
+          "rarity": "rare",
+          "deck_copy_count": 415,
+          "deck_match_count": 413,
+          "wins_with_card": 177,
+          "played_match_count": 65,
+          "active_match_count": 63,
+          "event_count": 64,
+          "decisive_count": 64,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.42857142857142855
+        },
+        {
+          "id": "blessing_draw",
+          "name": "知恵の加護",
+          "rarity": "rare",
+          "deck_copy_count": 241,
+          "deck_match_count": 241,
+          "wins_with_card": 110,
+          "played_match_count": 76,
+          "active_match_count": 76,
+          "event_count": 1,
+          "decisive_count": 1,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.45643153526970953
+        }
+      ],
+      "rarity_play_stats": [
+        {
+          "rarity": "common",
+          "picked_count": 32000,
+          "used_count": 9390,
+          "winner_usage_count": 4072,
+          "lethal_count": 1643,
+          "usage_rate": 0.2934,
+          "winner_contribution_rate": 0.4337
+        },
+        {
+          "rarity": "uncommon",
+          "picked_count": 32000,
+          "used_count": 9212,
+          "winner_usage_count": 4597,
+          "lethal_count": 2615,
+          "usage_rate": 0.2879,
+          "winner_contribution_rate": 0.499
+        },
+        {
+          "rarity": "rare",
+          "picked_count": 16000,
+          "used_count": 4417,
+          "winner_usage_count": 2332,
+          "lethal_count": 1326,
+          "usage_rate": 0.2761,
+          "winner_contribution_rate": 0.528
+        }
+      ],
+      "priority": null
+    },
+    "Guard": {
+      "label": "Guard",
+      "draft_bot": "GuardDraftBot",
+      "play_bot": "GuardBot",
+      "matches": 4000,
+      "wins": 1874,
+      "losses": 1906,
+      "draws": 220,
+      "win_rate": 0.4685,
+      "first_pass_win_rate": 0.4451,
+      "starting_player_win_rate": 0.4696,
+      "responding_player_win_rate": 0.4674,
+      "fewer_card_win_rate": 0.1681,
+      "same_card_win_rate": 0.5256,
+      "more_card_win_rate": 0.3063,
+      "set_pass_candidate_total": 69017,
+      "set_pass_candidate_avg_per_match": 17.2542,
+      "action_counts": {
+        "set": 16487,
+        "pass": 6225,
+        "set_pass": 489
+      },
+      "action_rates": {
+        "set": 0.7106,
+        "set_pass": 0.0211,
+        "pass": 0.2683
+      },
+      "matchups": {
+        "Aggro": {
+          "matches": 1000,
+          "wins": 447,
+          "losses": 494,
+          "draws": 59,
+          "win_rate": 0.447
+        },
+        "Guard": {
+          "matches": 2000,
+          "wins": 948,
+          "losses": 948,
+          "draws": 104,
+          "win_rate": 0.474
+        },
+        "Standard": {
+          "matches": 1000,
+          "wins": 479,
+          "losses": 464,
+          "draws": 57,
+          "win_rate": 0.479
+        }
+      },
+      "picked_card_stats": [
+        {
+          "name": "攻撃",
+          "picked_count": 4077,
+          "used_count": 1163,
+          "winner_usage_count": 521,
+          "lethal_count": 375,
+          "rarity": "common",
+          "id": "battle_attack"
+        },
+        {
+          "name": "防御",
+          "picked_count": 3948,
+          "used_count": 1293,
+          "winner_usage_count": 551,
+          "lethal_count": 275,
+          "rarity": "common",
+          "id": "battle_defend"
+        },
+        {
+          "name": "ステップ",
+          "picked_count": 3551,
+          "used_count": 922,
+          "winner_usage_count": 370,
+          "lethal_count": 222,
+          "rarity": "common",
+          "id": "battle_step"
+        },
+        {
+          "name": "圧迫",
+          "picked_count": 3220,
+          "used_count": 1031,
+          "winner_usage_count": 472,
+          "lethal_count": 97,
+          "rarity": "common",
+          "id": "control_pressure"
+        },
+        {
+          "name": "構え",
+          "picked_count": 3071,
+          "used_count": 918,
+          "winner_usage_count": 393,
+          "lethal_count": 153,
+          "rarity": "common",
+          "id": "control_guard"
+        },
+        {
+          "name": "遠眼",
+          "picked_count": 2921,
+          "used_count": 992,
+          "winner_usage_count": 401,
+          "lethal_count": 96,
+          "rarity": "common",
+          "id": "control_peek_opponent_top"
+        },
+        {
+          "name": "見定め",
+          "picked_count": 2837,
+          "used_count": 977,
+          "winner_usage_count": 408,
+          "lethal_count": 86,
+          "rarity": "common",
+          "id": "control_peek_own_top"
+        },
+        {
+          "name": "集中",
+          "picked_count": 2802,
+          "used_count": 756,
+          "winner_usage_count": 311,
+          "lethal_count": 144,
+          "rarity": "common",
+          "id": "control_focus"
+        },
+        {
+          "name": "公開勝負",
+          "picked_count": 2794,
+          "used_count": 777,
+          "winner_usage_count": 322,
+          "lethal_count": 124,
+          "rarity": "common",
+          "id": "control_opening_expose"
+        },
+        {
+          "name": "牽制",
+          "picked_count": 2779,
+          "used_count": 862,
+          "winner_usage_count": 432,
+          "lethal_count": 29,
+          "rarity": "common",
+          "id": "control_disrupt"
+        },
+        {
+          "name": "貫き",
+          "picked_count": 1730,
+          "used_count": 547,
+          "winner_usage_count": 367,
+          "lethal_count": 346,
+          "rarity": "uncommon",
+          "id": "battle_pierce"
+        },
+        {
+          "name": "崩し",
+          "picked_count": 1699,
+          "used_count": 543,
+          "winner_usage_count": 363,
+          "lethal_count": 336,
+          "rarity": "uncommon",
+          "id": "battle_break"
+        },
+        {
+          "name": "十字受け",
+          "picked_count": 1582,
+          "used_count": 610,
+          "winner_usage_count": 317,
+          "lethal_count": 150,
+          "rarity": "uncommon",
+          "id": "battle_cross_guard"
+        },
+        {
+          "name": "踏み込み",
+          "picked_count": 1510,
+          "used_count": 531,
+          "winner_usage_count": 398,
+          "lethal_count": 368,
+          "rarity": "rare",
+          "id": "battle_step_in"
+        },
+        {
+          "name": "踏ん張り",
+          "picked_count": 1500,
+          "used_count": 580,
+          "winner_usage_count": 311,
+          "lethal_count": 205,
+          "rarity": "uncommon",
+          "id": "battle_brace"
+        },
+        {
+          "name": "返し刃",
+          "picked_count": 1466,
+          "used_count": 555,
+          "winner_usage_count": 303,
+          "lethal_count": 215,
+          "rarity": "uncommon",
+          "id": "battle_counter"
+        },
+        {
+          "name": "渾身",
+          "picked_count": 1449,
+          "used_count": 455,
+          "winner_usage_count": 226,
+          "lethal_count": 216,
+          "rarity": "rare",
+          "id": "battle_all_in"
+        },
+        {
+          "name": "粉砕",
+          "picked_count": 1446,
+          "used_count": 458,
+          "winner_usage_count": 267,
+          "lethal_count": 237,
+          "rarity": "uncommon",
+          "id": "battle_crush"
+        },
+        {
+          "name": "Bastion",
+          "picked_count": 1410,
+          "used_count": 535,
+          "winner_usage_count": 222,
+          "lethal_count": 74,
+          "rarity": "uncommon",
+          "id": "battle_bastion"
+        },
+        {
+          "name": "鉄壁",
+          "picked_count": 1381,
+          "used_count": 536,
+          "winner_usage_count": 243,
+          "lethal_count": 74,
+          "rarity": "rare",
+          "id": "battle_wall"
+        },
+        {
+          "name": "残像",
+          "picked_count": 1348,
+          "used_count": 508,
+          "winner_usage_count": 213,
+          "lethal_count": 109,
+          "rarity": "rare",
+          "id": "battle_afterimage"
+        },
+        {
+          "name": "大振り",
+          "picked_count": 1320,
+          "used_count": 470,
+          "winner_usage_count": 252,
+          "lethal_count": 238,
+          "rarity": "rare",
+          "id": "battle_heavy_swing"
+        },
+        {
+          "name": "押し込み",
+          "picked_count": 1309,
+          "used_count": 464,
+          "winner_usage_count": 256,
+          "lethal_count": 170,
+          "rarity": "uncommon",
+          "id": "battle_press"
+        },
+        {
+          "name": "退き足",
+          "picked_count": 1262,
+          "used_count": 482,
+          "winner_usage_count": 184,
+          "lethal_count": 85,
+          "rarity": "uncommon",
+          "id": "battle_backstep"
+        },
+        {
+          "name": "疾走",
+          "picked_count": 1239,
+          "used_count": 438,
+          "winner_usage_count": 250,
+          "lethal_count": 192,
+          "rarity": "rare",
+          "id": "battle_dash"
+        },
+        {
+          "name": "Bulwark",
+          "picked_count": 1224,
+          "used_count": 431,
+          "winner_usage_count": 202,
+          "lethal_count": 98,
+          "rarity": "uncommon",
+          "id": "battle_bulwark"
+        },
+        {
+          "name": "フェイント",
+          "picked_count": 1204,
+          "used_count": 400,
+          "winner_usage_count": 166,
+          "lethal_count": 105,
+          "rarity": "uncommon",
+          "id": "battle_feint"
+        },
+        {
+          "name": "受け流し",
+          "picked_count": 1200,
+          "used_count": 416,
+          "winner_usage_count": 204,
+          "lethal_count": 116,
+          "rarity": "uncommon",
+          "id": "battle_guard"
+        },
+        {
+          "name": "強撃",
+          "picked_count": 1199,
+          "used_count": 386,
+          "winner_usage_count": 198,
+          "lethal_count": 168,
+          "rarity": "uncommon",
+          "id": "battle_power_attack"
+        },
+        {
+          "name": "低姿勢",
+          "picked_count": 1170,
+          "used_count": 415,
+          "winner_usage_count": 182,
+          "lethal_count": 86,
+          "rarity": "uncommon",
+          "id": "battle_low_stance"
+        },
+        {
+          "name": "Tripwire",
+          "picked_count": 1091,
+          "used_count": 4,
+          "winner_usage_count": 2,
+          "lethal_count": 2,
+          "rarity": "rare",
+          "id": "battle_tripwire"
+        },
+        {
+          "name": "受け直し",
+          "picked_count": 744,
+          "used_count": 244,
+          "winner_usage_count": 99,
+          "lethal_count": 27,
+          "rarity": "uncommon",
+          "id": "control_cover"
+        },
+        {
+          "name": "前のめり",
+          "picked_count": 709,
+          "used_count": 217,
+          "winner_usage_count": 116,
+          "lethal_count": 39,
+          "rarity": "uncommon",
+          "id": "control_overclock"
+        },
+        {
+          "name": "重心落とし",
+          "picked_count": 638,
+          "used_count": 175,
+          "winner_usage_count": 83,
+          "lethal_count": 38,
+          "rarity": "uncommon",
+          "id": "control_anchor"
+        },
+        {
+          "name": "補強",
+          "picked_count": 605,
+          "used_count": 211,
+          "winner_usage_count": 102,
+          "lethal_count": 25,
+          "rarity": "uncommon",
+          "id": "control_fortify"
+        },
+        {
+          "name": "穢れ",
+          "picked_count": 592,
+          "used_count": 42,
+          "winner_usage_count": 13,
+          "lethal_count": 1,
+          "rarity": "uncommon",
+          "id": "control_defile"
+        },
+        {
+          "name": "祓い直し",
+          "picked_count": 581,
+          "used_count": 10,
+          "winner_usage_count": 3,
+          "lethal_count": 0,
+          "rarity": "uncommon",
+          "id": "control_discard_facedown_blessing"
+        },
+        {
+          "name": "攻勢の加護",
+          "picked_count": 575,
+          "used_count": 170,
+          "winner_usage_count": 94,
+          "lethal_count": 0,
+          "rarity": "rare",
+          "id": "blessing_offense"
+        },
+        {
+          "name": "Blank First",
+          "picked_count": 574,
+          "used_count": 215,
+          "winner_usage_count": 97,
+          "lethal_count": 8,
+          "rarity": "uncommon",
+          "id": "control_blank_first"
+        },
+        {
+          "name": "加速",
+          "picked_count": 573,
+          "used_count": 168,
+          "winner_usage_count": 73,
+          "lethal_count": 26,
+          "rarity": "uncommon",
+          "id": "control_haste"
+        },
+        {
+          "name": "攻の加護",
+          "picked_count": 573,
+          "used_count": 125,
+          "winner_usage_count": 67,
+          "lethal_count": 0,
+          "rarity": "rare",
+          "id": "blessing_attack"
+        },
+        {
+          "name": "勢い溜め",
+          "picked_count": 567,
+          "used_count": 177,
+          "winner_usage_count": 81,
+          "lethal_count": 28,
+          "rarity": "uncommon",
+          "id": "control_momentum"
+        },
+        {
+          "name": "受け流しの加護",
+          "picked_count": 561,
+          "used_count": 135,
+          "winner_usage_count": 52,
+          "lethal_count": 0,
+          "rarity": "uncommon",
+          "id": "blessing_parry"
+        },
+        {
+          "name": "封祈",
+          "picked_count": 559,
+          "used_count": 45,
+          "winner_usage_count": 20,
+          "lethal_count": 2,
+          "rarity": "uncommon",
+          "id": "control_blessing_lock"
+        },
+        {
+          "name": "看破",
+          "picked_count": 557,
+          "used_count": 168,
+          "winner_usage_count": 70,
+          "lethal_count": 25,
+          "rarity": "uncommon",
+          "id": "control_opening_read"
+        },
+        {
+          "name": "間合いの加護",
+          "picked_count": 557,
+          "used_count": 50,
+          "winner_usage_count": 22,
+          "lethal_count": 0,
+          "rarity": "uncommon",
+          "id": "blessing_range"
+        },
+        {
+          "name": "抑制の加護",
+          "picked_count": 554,
+          "used_count": 50,
+          "winner_usage_count": 20,
+          "lethal_count": 0,
+          "rarity": "rare",
+          "id": "blessing_suppression"
+        },
+        {
+          "name": "迷い手",
+          "picked_count": 546,
+          "used_count": 167,
+          "winner_usage_count": 61,
+          "lethal_count": 25,
+          "rarity": "uncommon",
+          "id": "control_hand_echo"
+        },
+        {
+          "name": "鈍りの加護",
+          "picked_count": 543,
+          "used_count": 104,
+          "winner_usage_count": 37,
+          "lethal_count": 0,
+          "rarity": "uncommon",
+          "id": "blessing_dullness"
+        },
+        {
+          "name": "手繰り直し",
+          "picked_count": 542,
+          "used_count": 85,
+          "winner_usage_count": 26,
+          "lethal_count": 10,
+          "rarity": "uncommon",
+          "id": "control_redraw_hand"
+        },
+        {
+          "name": "追風の加護",
+          "picked_count": 541,
+          "used_count": 127,
+          "winner_usage_count": 65,
+          "lethal_count": 0,
+          "rarity": "uncommon",
+          "id": "blessing_tailwind"
+        },
+        {
+          "name": "前借り",
+          "picked_count": 540,
+          "used_count": 142,
+          "winner_usage_count": 59,
+          "lethal_count": 23,
+          "rarity": "uncommon",
+          "id": "control_all_in_focus"
+        },
+        {
+          "name": "踏み止まりの加護",
+          "picked_count": 536,
+          "used_count": 146,
+          "winner_usage_count": 67,
+          "lethal_count": 0,
+          "rarity": "uncommon",
+          "id": "blessing_laststand"
+        },
+        {
+          "name": "探り",
+          "picked_count": 512,
+          "used_count": 164,
+          "winner_usage_count": 60,
+          "lethal_count": 12,
+          "rarity": "uncommon",
+          "id": "control_peek_hand"
+        },
+        {
+          "name": "小太刀の加護",
+          "picked_count": 512,
+          "used_count": 109,
+          "winner_usage_count": 50,
+          "lethal_count": 0,
+          "rarity": "uncommon",
+          "id": "blessing_shortblade"
+        },
+        {
+          "name": "小盾の加護",
+          "picked_count": 510,
+          "used_count": 134,
+          "winner_usage_count": 51,
+          "lethal_count": 0,
+          "rarity": "uncommon",
+          "id": "blessing_buckler"
+        },
+        {
+          "name": "防壁の加護",
+          "picked_count": 493,
+          "used_count": 136,
+          "winner_usage_count": 57,
+          "lethal_count": 0,
+          "rarity": "rare",
+          "id": "blessing_barrier"
+        },
+        {
+          "name": "見切りの加護",
+          "picked_count": 478,
+          "used_count": 61,
+          "winner_usage_count": 24,
+          "lethal_count": 0,
+          "rarity": "rare",
+          "id": "blessing_insight"
+        },
+        {
+          "name": "速の加護",
+          "picked_count": 465,
+          "used_count": 105,
+          "winner_usage_count": 42,
+          "lethal_count": 0,
+          "rarity": "rare",
+          "id": "blessing_speed"
+        },
+        {
+          "name": "罠糸の加護",
+          "picked_count": 461,
+          "used_count": 125,
+          "winner_usage_count": 69,
+          "lethal_count": 0,
+          "rarity": "rare",
+          "id": "blessing_trap_web"
+        },
+        {
+          "name": "鈍足の加護",
+          "picked_count": 455,
+          "used_count": 93,
+          "winner_usage_count": 49,
+          "lethal_count": 0,
+          "rarity": "rare",
+          "id": "blessing_slow"
+        },
+        {
+          "name": "防の加護",
+          "picked_count": 422,
+          "used_count": 97,
+          "winner_usage_count": 42,
+          "lethal_count": 0,
+          "rarity": "rare",
+          "id": "blessing_guard"
+        },
+        {
+          "name": "先触れ",
+          "picked_count": 403,
+          "used_count": 114,
+          "winner_usage_count": 41,
+          "lethal_count": 15,
+          "rarity": "rare",
+          "id": "control_topdeck_hand"
+        },
+        {
+          "name": "破祈",
+          "picked_count": 402,
+          "used_count": 41,
+          "winner_usage_count": 19,
+          "lethal_count": 3,
+          "rarity": "rare",
+          "id": "control_blessing_break"
+        },
+        {
+          "name": "転祈",
+          "picked_count": 396,
+          "used_count": 24,
+          "winner_usage_count": 11,
+          "lethal_count": 1,
+          "rarity": "rare",
+          "id": "control_blessing_flip"
+        },
+        {
+          "name": "Crush Spirit",
+          "picked_count": 387,
+          "used_count": 162,
+          "winner_usage_count": 83,
+          "lethal_count": 2,
+          "rarity": "rare",
+          "id": "control_crush_spirit"
+        },
+        {
+          "name": "蓄え",
+          "picked_count": 386,
+          "used_count": 140,
+          "winner_usage_count": 54,
+          "lethal_count": 5,
+          "rarity": "rare",
+          "id": "control_reserve"
+        },
+        {
+          "name": "知恵の加護",
+          "picked_count": 212,
+          "used_count": 65,
+          "winner_usage_count": 23,
+          "lethal_count": 0,
+          "rarity": "rare",
+          "id": "blessing_draw"
+        }
+      ],
+      "blessing_card_stats": [
+        {
+          "id": "blessing_offense",
+          "name": "攻勢の加護",
+          "rarity": "rare",
+          "deck_copy_count": 575,
+          "deck_match_count": 568,
+          "wins_with_card": 256,
+          "played_match_count": 170,
+          "active_match_count": 168,
+          "event_count": 67,
+          "decisive_count": 67,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.4507042253521127
+        },
+        {
+          "id": "blessing_attack",
+          "name": "攻の加護",
+          "rarity": "rare",
+          "deck_copy_count": 573,
+          "deck_match_count": 557,
+          "wins_with_card": 269,
+          "played_match_count": 125,
+          "active_match_count": 125,
+          "event_count": 0,
+          "decisive_count": 0,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.4829443447037702
+        },
+        {
+          "id": "blessing_parry",
+          "name": "受け流しの加護",
+          "rarity": "uncommon",
+          "deck_copy_count": 561,
+          "deck_match_count": 552,
+          "wins_with_card": 246,
+          "played_match_count": 135,
+          "active_match_count": 133,
+          "event_count": 18,
+          "decisive_count": 18,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.44565217391304346
+        },
+        {
+          "id": "blessing_suppression",
+          "name": "抑制の加護",
+          "rarity": "rare",
+          "deck_copy_count": 554,
+          "deck_match_count": 551,
+          "wins_with_card": 250,
+          "played_match_count": 50,
+          "active_match_count": 49,
+          "event_count": 3,
+          "decisive_count": 3,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.4537205081669691
+        },
+        {
+          "id": "blessing_range",
+          "name": "間合いの加護",
+          "rarity": "uncommon",
+          "deck_copy_count": 557,
+          "deck_match_count": 547,
+          "wins_with_card": 245,
+          "played_match_count": 50,
+          "active_match_count": 50,
+          "event_count": 9,
+          "decisive_count": 9,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.44789762340036565
+        },
+        {
+          "id": "blessing_dullness",
+          "name": "鈍りの加護",
+          "rarity": "uncommon",
+          "deck_copy_count": 543,
+          "deck_match_count": 535,
+          "wins_with_card": 240,
+          "played_match_count": 104,
+          "active_match_count": 103,
+          "event_count": 7,
+          "decisive_count": 7,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.4485981308411215
+        },
+        {
+          "id": "blessing_tailwind",
+          "name": "追風の加護",
+          "rarity": "uncommon",
+          "deck_copy_count": 541,
+          "deck_match_count": 533,
+          "wins_with_card": 251,
+          "played_match_count": 127,
+          "active_match_count": 125,
+          "event_count": 12,
+          "decisive_count": 12,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.4709193245778612
+        },
+        {
+          "id": "blessing_laststand",
+          "name": "踏み止まりの加護",
+          "rarity": "uncommon",
+          "deck_copy_count": 536,
+          "deck_match_count": 524,
+          "wins_with_card": 243,
+          "played_match_count": 146,
+          "active_match_count": 142,
+          "event_count": 28,
+          "decisive_count": 28,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.4637404580152672
+        },
+        {
+          "id": "blessing_buckler",
+          "name": "小盾の加護",
+          "rarity": "uncommon",
+          "deck_copy_count": 510,
+          "deck_match_count": 506,
+          "wins_with_card": 231,
+          "played_match_count": 134,
+          "active_match_count": 134,
+          "event_count": 30,
+          "decisive_count": 30,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.45652173913043476
+        },
+        {
+          "id": "blessing_shortblade",
+          "name": "小太刀の加護",
+          "rarity": "uncommon",
+          "deck_copy_count": 512,
+          "deck_match_count": 501,
+          "wins_with_card": 237,
+          "played_match_count": 109,
+          "active_match_count": 108,
+          "event_count": 26,
+          "decisive_count": 26,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.47305389221556887
+        },
+        {
+          "id": "blessing_barrier",
+          "name": "防壁の加護",
+          "rarity": "rare",
+          "deck_copy_count": 493,
+          "deck_match_count": 490,
+          "wins_with_card": 224,
+          "played_match_count": 136,
+          "active_match_count": 131,
+          "event_count": 36,
+          "decisive_count": 36,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.45714285714285713
+        },
+        {
+          "id": "blessing_insight",
+          "name": "見切りの加護",
+          "rarity": "rare",
+          "deck_copy_count": 478,
+          "deck_match_count": 469,
+          "wins_with_card": 207,
+          "played_match_count": 61,
+          "active_match_count": 61,
+          "event_count": 64,
+          "decisive_count": 64,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.44136460554371004
+        },
+        {
+          "id": "blessing_speed",
+          "name": "速の加護",
+          "rarity": "rare",
+          "deck_copy_count": 465,
+          "deck_match_count": 461,
+          "wins_with_card": 201,
+          "played_match_count": 105,
+          "active_match_count": 104,
+          "event_count": 1,
+          "decisive_count": 1,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.4360086767895879
+        },
+        {
+          "id": "blessing_trap_web",
+          "name": "罠糸の加護",
+          "rarity": "rare",
+          "deck_copy_count": 461,
+          "deck_match_count": 454,
+          "wins_with_card": 245,
+          "played_match_count": 125,
+          "active_match_count": 124,
+          "event_count": 16,
+          "decisive_count": 16,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.539647577092511
+        },
+        {
+          "id": "blessing_slow",
+          "name": "鈍足の加護",
+          "rarity": "rare",
+          "deck_copy_count": 455,
+          "deck_match_count": 450,
+          "wins_with_card": 200,
+          "played_match_count": 93,
+          "active_match_count": 88,
+          "event_count": 9,
+          "decisive_count": 9,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.4444444444444444
+        },
+        {
+          "id": "blessing_guard",
+          "name": "防の加護",
+          "rarity": "rare",
+          "deck_copy_count": 422,
+          "deck_match_count": 420,
+          "wins_with_card": 201,
+          "played_match_count": 97,
+          "active_match_count": 95,
+          "event_count": 2,
+          "decisive_count": 2,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.4785714285714286
+        },
+        {
+          "id": "blessing_draw",
+          "name": "知恵の加護",
+          "rarity": "rare",
+          "deck_copy_count": 212,
+          "deck_match_count": 212,
+          "wins_with_card": 100,
+          "played_match_count": 65,
+          "active_match_count": 64,
+          "event_count": 3,
+          "decisive_count": 3,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.4716981132075472
+        }
+      ],
+      "rarity_play_stats": [
+        {
+          "rarity": "common",
+          "picked_count": 32000,
+          "used_count": 9691,
+          "winner_usage_count": 4181,
+          "lethal_count": 1601,
+          "usage_rate": 0.3028,
+          "winner_contribution_rate": 0.4314
+        },
+        {
+          "rarity": "uncommon",
+          "picked_count": 32000,
+          "used_count": 9857,
+          "winner_usage_count": 4849,
+          "lethal_count": 2680,
+          "usage_rate": 0.308,
+          "winner_contribution_rate": 0.4919
+        },
+        {
+          "rarity": "rare",
+          "picked_count": 16000,
+          "used_count": 4450,
+          "winner_usage_count": 2279,
+          "lethal_count": 1225,
+          "usage_rate": 0.2781,
+          "winner_contribution_rate": 0.5121
+        }
+      ],
+      "priority": null
+    },
+    "Standard": {
+      "label": "Standard",
+      "draft_bot": "StandardDraftBot",
+      "play_bot": "StandardBot",
+      "matches": 4000,
+      "wins": 1889,
+      "losses": 1906,
+      "draws": 205,
+      "win_rate": 0.4723,
+      "first_pass_win_rate": 0.4875,
+      "starting_player_win_rate": 0.4698,
+      "responding_player_win_rate": 0.4747,
+      "fewer_card_win_rate": 0.1482,
+      "same_card_win_rate": 0.5299,
+      "more_card_win_rate": 0.3219,
+      "set_pass_candidate_total": 59409,
+      "set_pass_candidate_avg_per_match": 14.8522,
+      "action_counts": {
+        "set": 15200,
+        "pass": 5713,
+        "set_pass": 569
+      },
+      "action_rates": {
+        "set": 0.7076,
+        "set_pass": 0.0265,
+        "pass": 0.2659
+      },
+      "matchups": {
+        "Aggro": {
+          "matches": 1000,
+          "wins": 473,
+          "losses": 475,
+          "draws": 52,
+          "win_rate": 0.473
+        },
+        "Guard": {
+          "matches": 1000,
+          "wins": 464,
+          "losses": 479,
+          "draws": 57,
+          "win_rate": 0.464
+        },
+        "Standard": {
+          "matches": 2000,
+          "wins": 952,
+          "losses": 952,
+          "draws": 96,
+          "win_rate": 0.476
+        }
+      },
+      "picked_card_stats": [
+        {
+          "name": "攻撃",
+          "picked_count": 4047,
+          "used_count": 1172,
+          "winner_usage_count": 541,
+          "lethal_count": 393,
+          "rarity": "common",
+          "id": "battle_attack"
+        },
+        {
+          "name": "防御",
+          "picked_count": 3822,
+          "used_count": 1117,
+          "winner_usage_count": 506,
+          "lethal_count": 255,
+          "rarity": "common",
+          "id": "battle_defend"
+        },
+        {
+          "name": "ステップ",
+          "picked_count": 3659,
+          "used_count": 1067,
+          "winner_usage_count": 448,
+          "lethal_count": 271,
+          "rarity": "common",
+          "id": "battle_step"
+        },
+        {
+          "name": "圧迫",
+          "picked_count": 3299,
+          "used_count": 1014,
+          "winner_usage_count": 469,
+          "lethal_count": 99,
+          "rarity": "common",
+          "id": "control_pressure"
+        },
+        {
+          "name": "構え",
+          "picked_count": 3042,
+          "used_count": 900,
+          "winner_usage_count": 430,
+          "lethal_count": 158,
+          "rarity": "common",
+          "id": "control_guard"
+        },
+        {
+          "name": "集中",
+          "picked_count": 2911,
+          "used_count": 793,
+          "winner_usage_count": 358,
+          "lethal_count": 161,
+          "rarity": "common",
+          "id": "control_focus"
+        },
+        {
+          "name": "公開勝負",
+          "picked_count": 2841,
+          "used_count": 845,
+          "winner_usage_count": 325,
+          "lethal_count": 118,
+          "rarity": "common",
+          "id": "control_opening_expose"
+        },
+        {
+          "name": "遠眼",
+          "picked_count": 2833,
+          "used_count": 864,
+          "winner_usage_count": 350,
+          "lethal_count": 91,
+          "rarity": "common",
+          "id": "control_peek_opponent_top"
+        },
+        {
+          "name": "見定め",
+          "picked_count": 2823,
+          "used_count": 902,
+          "winner_usage_count": 347,
+          "lethal_count": 88,
+          "rarity": "common",
+          "id": "control_peek_own_top"
+        },
+        {
+          "name": "牽制",
+          "picked_count": 2723,
+          "used_count": 850,
+          "winner_usage_count": 412,
+          "lethal_count": 36,
+          "rarity": "common",
+          "id": "control_disrupt"
+        },
+        {
+          "name": "崩し",
+          "picked_count": 1719,
+          "used_count": 538,
+          "winner_usage_count": 355,
+          "lethal_count": 314,
+          "rarity": "uncommon",
+          "id": "battle_break"
+        },
+        {
+          "name": "貫き",
+          "picked_count": 1717,
+          "used_count": 557,
+          "winner_usage_count": 376,
+          "lethal_count": 340,
+          "rarity": "uncommon",
+          "id": "battle_pierce"
+        },
+        {
+          "name": "返し刃",
+          "picked_count": 1546,
+          "used_count": 496,
+          "winner_usage_count": 284,
+          "lethal_count": 218,
+          "rarity": "uncommon",
+          "id": "battle_counter"
+        },
+        {
+          "name": "渾身",
+          "picked_count": 1520,
+          "used_count": 540,
+          "winner_usage_count": 259,
+          "lethal_count": 251,
+          "rarity": "rare",
+          "id": "battle_all_in"
+        },
+        {
+          "name": "粉砕",
+          "picked_count": 1515,
+          "used_count": 510,
+          "winner_usage_count": 300,
+          "lethal_count": 267,
+          "rarity": "uncommon",
+          "id": "battle_crush"
+        },
+        {
+          "name": "踏み込み",
+          "picked_count": 1504,
+          "used_count": 520,
+          "winner_usage_count": 393,
+          "lethal_count": 374,
+          "rarity": "rare",
+          "id": "battle_step_in"
+        },
+        {
+          "name": "踏ん張り",
+          "picked_count": 1483,
+          "used_count": 503,
+          "winner_usage_count": 256,
+          "lethal_count": 161,
+          "rarity": "uncommon",
+          "id": "battle_brace"
+        },
+        {
+          "name": "十字受け",
+          "picked_count": 1421,
+          "used_count": 492,
+          "winner_usage_count": 225,
+          "lethal_count": 136,
+          "rarity": "uncommon",
+          "id": "battle_cross_guard"
+        },
+        {
+          "name": "大振り",
+          "picked_count": 1399,
+          "used_count": 464,
+          "winner_usage_count": 263,
+          "lethal_count": 253,
+          "rarity": "rare",
+          "id": "battle_heavy_swing"
+        },
+        {
+          "name": "鉄壁",
+          "picked_count": 1383,
+          "used_count": 493,
+          "winner_usage_count": 213,
+          "lethal_count": 84,
+          "rarity": "rare",
+          "id": "battle_wall"
+        },
+        {
+          "name": "Bastion",
+          "picked_count": 1364,
+          "used_count": 473,
+          "winner_usage_count": 210,
+          "lethal_count": 85,
+          "rarity": "uncommon",
+          "id": "battle_bastion"
+        },
+        {
+          "name": "残像",
+          "picked_count": 1345,
+          "used_count": 450,
+          "winner_usage_count": 193,
+          "lethal_count": 107,
+          "rarity": "rare",
+          "id": "battle_afterimage"
+        },
+        {
+          "name": "強撃",
+          "picked_count": 1292,
+          "used_count": 396,
+          "winner_usage_count": 229,
+          "lethal_count": 189,
+          "rarity": "uncommon",
+          "id": "battle_power_attack"
+        },
+        {
+          "name": "押し込み",
+          "picked_count": 1275,
+          "used_count": 398,
+          "winner_usage_count": 205,
+          "lethal_count": 131,
+          "rarity": "uncommon",
+          "id": "battle_press"
+        },
+        {
+          "name": "退き足",
+          "picked_count": 1268,
+          "used_count": 410,
+          "winner_usage_count": 162,
+          "lethal_count": 87,
+          "rarity": "uncommon",
+          "id": "battle_backstep"
+        },
+        {
+          "name": "フェイント",
+          "picked_count": 1258,
+          "used_count": 390,
+          "winner_usage_count": 152,
+          "lethal_count": 91,
+          "rarity": "uncommon",
+          "id": "battle_feint"
+        },
+        {
+          "name": "疾走",
+          "picked_count": 1180,
+          "used_count": 408,
+          "winner_usage_count": 232,
+          "lethal_count": 191,
+          "rarity": "rare",
+          "id": "battle_dash"
+        },
+        {
+          "name": "Bulwark",
+          "picked_count": 1146,
+          "used_count": 381,
+          "winner_usage_count": 177,
+          "lethal_count": 94,
+          "rarity": "uncommon",
+          "id": "battle_bulwark"
+        },
+        {
+          "name": "受け流し",
+          "picked_count": 1123,
+          "used_count": 366,
+          "winner_usage_count": 170,
+          "lethal_count": 103,
+          "rarity": "uncommon",
+          "id": "battle_guard"
+        },
+        {
+          "name": "低姿勢",
+          "picked_count": 1113,
+          "used_count": 357,
+          "winner_usage_count": 153,
+          "lethal_count": 69,
+          "rarity": "uncommon",
+          "id": "battle_low_stance"
+        },
+        {
+          "name": "Tripwire",
+          "picked_count": 1062,
+          "used_count": 4,
+          "winner_usage_count": 3,
+          "lethal_count": 3,
+          "rarity": "rare",
+          "id": "battle_tripwire"
+        },
+        {
+          "name": "受け直し",
+          "picked_count": 800,
+          "used_count": 255,
+          "winner_usage_count": 132,
+          "lethal_count": 31,
+          "rarity": "uncommon",
+          "id": "control_cover"
+        },
+        {
+          "name": "前のめり",
+          "picked_count": 718,
+          "used_count": 216,
+          "winner_usage_count": 110,
+          "lethal_count": 36,
+          "rarity": "uncommon",
+          "id": "control_overclock"
+        },
+        {
+          "name": "重心落とし",
+          "picked_count": 636,
+          "used_count": 182,
+          "winner_usage_count": 85,
+          "lethal_count": 35,
+          "rarity": "uncommon",
+          "id": "control_anchor"
+        },
+        {
+          "name": "封祈",
+          "picked_count": 605,
+          "used_count": 33,
+          "winner_usage_count": 16,
+          "lethal_count": 3,
+          "rarity": "uncommon",
+          "id": "control_blessing_lock"
+        },
+        {
+          "name": "探り",
+          "picked_count": 597,
+          "used_count": 170,
+          "winner_usage_count": 66,
+          "lethal_count": 22,
+          "rarity": "uncommon",
+          "id": "control_peek_hand"
+        },
+        {
+          "name": "加速",
+          "picked_count": 585,
+          "used_count": 190,
+          "winner_usage_count": 97,
+          "lethal_count": 32,
+          "rarity": "uncommon",
+          "id": "control_haste"
+        },
+        {
+          "name": "祓い直し",
+          "picked_count": 585,
+          "used_count": 11,
+          "winner_usage_count": 2,
+          "lethal_count": 0,
+          "rarity": "uncommon",
+          "id": "control_discard_facedown_blessing"
+        },
+        {
+          "name": "補強",
+          "picked_count": 573,
+          "used_count": 175,
+          "winner_usage_count": 79,
+          "lethal_count": 22,
+          "rarity": "uncommon",
+          "id": "control_fortify"
+        },
+        {
+          "name": "勢い溜め",
+          "picked_count": 571,
+          "used_count": 150,
+          "winner_usage_count": 64,
+          "lethal_count": 20,
+          "rarity": "uncommon",
+          "id": "control_momentum"
+        },
+        {
+          "name": "攻の加護",
+          "picked_count": 568,
+          "used_count": 122,
+          "winner_usage_count": 52,
+          "lethal_count": 0,
+          "rarity": "rare",
+          "id": "blessing_attack"
+        },
+        {
+          "name": "間合いの加護",
+          "picked_count": 568,
+          "used_count": 56,
+          "winner_usage_count": 27,
+          "lethal_count": 0,
+          "rarity": "uncommon",
+          "id": "blessing_range"
+        },
+        {
+          "name": "Blank First",
+          "picked_count": 566,
+          "used_count": 208,
+          "winner_usage_count": 95,
+          "lethal_count": 3,
+          "rarity": "uncommon",
+          "id": "control_blank_first"
+        },
+        {
+          "name": "小太刀の加護",
+          "picked_count": 558,
+          "used_count": 117,
+          "winner_usage_count": 53,
+          "lethal_count": 0,
+          "rarity": "uncommon",
+          "id": "blessing_shortblade"
+        },
+        {
+          "name": "迷い手",
+          "picked_count": 553,
+          "used_count": 163,
+          "winner_usage_count": 64,
+          "lethal_count": 19,
+          "rarity": "uncommon",
+          "id": "control_hand_echo"
+        },
+        {
+          "name": "受け流しの加護",
+          "picked_count": 552,
+          "used_count": 124,
+          "winner_usage_count": 56,
+          "lethal_count": 0,
+          "rarity": "uncommon",
+          "id": "blessing_parry"
+        },
+        {
+          "name": "手繰り直し",
+          "picked_count": 550,
+          "used_count": 82,
+          "winner_usage_count": 24,
+          "lethal_count": 11,
+          "rarity": "uncommon",
+          "id": "control_redraw_hand"
+        },
+        {
+          "name": "小盾の加護",
+          "picked_count": 547,
+          "used_count": 120,
+          "winner_usage_count": 44,
+          "lethal_count": 0,
+          "rarity": "uncommon",
+          "id": "blessing_buckler"
+        },
+        {
+          "name": "穢れ",
+          "picked_count": 547,
+          "used_count": 37,
+          "winner_usage_count": 18,
+          "lethal_count": 6,
+          "rarity": "uncommon",
+          "id": "control_defile"
+        },
+        {
+          "name": "抑制の加護",
+          "picked_count": 544,
+          "used_count": 74,
+          "winner_usage_count": 28,
+          "lethal_count": 0,
+          "rarity": "rare",
+          "id": "blessing_suppression"
+        },
+        {
+          "name": "追風の加護",
+          "picked_count": 536,
+          "used_count": 94,
+          "winner_usage_count": 40,
+          "lethal_count": 0,
+          "rarity": "uncommon",
+          "id": "blessing_tailwind"
+        },
+        {
+          "name": "前借り",
+          "picked_count": 535,
+          "used_count": 174,
+          "winner_usage_count": 77,
+          "lethal_count": 14,
+          "rarity": "uncommon",
+          "id": "control_all_in_focus"
+        },
+        {
+          "name": "看破",
+          "picked_count": 533,
+          "used_count": 146,
+          "winner_usage_count": 56,
+          "lethal_count": 15,
+          "rarity": "uncommon",
+          "id": "control_opening_read"
+        },
+        {
+          "name": "攻勢の加護",
+          "picked_count": 525,
+          "used_count": 130,
+          "winner_usage_count": 62,
+          "lethal_count": 0,
+          "rarity": "rare",
+          "id": "blessing_offense"
+        },
+        {
+          "name": "踏み止まりの加護",
+          "picked_count": 524,
+          "used_count": 132,
+          "winner_usage_count": 51,
+          "lethal_count": 0,
+          "rarity": "uncommon",
+          "id": "blessing_laststand"
+        },
+        {
+          "name": "鈍りの加護",
+          "picked_count": 521,
+          "used_count": 84,
+          "winner_usage_count": 39,
+          "lethal_count": 0,
+          "rarity": "uncommon",
+          "id": "blessing_dullness"
+        },
+        {
+          "name": "防の加護",
+          "picked_count": 496,
+          "used_count": 102,
+          "winner_usage_count": 46,
+          "lethal_count": 0,
+          "rarity": "rare",
+          "id": "blessing_guard"
+        },
+        {
+          "name": "罠糸の加護",
+          "picked_count": 480,
+          "used_count": 139,
+          "winner_usage_count": 59,
+          "lethal_count": 0,
+          "rarity": "rare",
+          "id": "blessing_trap_web"
+        },
+        {
+          "name": "見切りの加護",
+          "picked_count": 463,
+          "used_count": 69,
+          "winner_usage_count": 32,
+          "lethal_count": 0,
+          "rarity": "rare",
+          "id": "blessing_insight"
+        },
+        {
+          "name": "防壁の加護",
+          "picked_count": 458,
+          "used_count": 127,
+          "winner_usage_count": 60,
+          "lethal_count": 0,
+          "rarity": "rare",
+          "id": "blessing_barrier"
+        },
+        {
+          "name": "速の加護",
+          "picked_count": 453,
+          "used_count": 96,
+          "winner_usage_count": 50,
+          "lethal_count": 0,
+          "rarity": "rare",
+          "id": "blessing_speed"
+        },
+        {
+          "name": "鈍足の加護",
+          "picked_count": 452,
+          "used_count": 107,
+          "winner_usage_count": 53,
+          "lethal_count": 0,
+          "rarity": "rare",
+          "id": "blessing_slow"
+        },
+        {
+          "name": "破祈",
+          "picked_count": 419,
+          "used_count": 28,
+          "winner_usage_count": 15,
+          "lethal_count": 3,
+          "rarity": "rare",
+          "id": "control_blessing_break"
+        },
+        {
+          "name": "先触れ",
+          "picked_count": 403,
+          "used_count": 120,
+          "winner_usage_count": 47,
+          "lethal_count": 13,
+          "rarity": "rare",
+          "id": "control_topdeck_hand"
+        },
+        {
+          "name": "蓄え",
+          "picked_count": 387,
+          "used_count": 132,
+          "winner_usage_count": 48,
+          "lethal_count": 1,
+          "rarity": "rare",
+          "id": "control_reserve"
+        },
+        {
+          "name": "転祈",
+          "picked_count": 369,
+          "used_count": 22,
+          "winner_usage_count": 6,
+          "lethal_count": 2,
+          "rarity": "rare",
+          "id": "control_blessing_flip"
+        },
+        {
+          "name": "Crush Spirit",
+          "picked_count": 358,
+          "used_count": 115,
+          "winner_usage_count": 58,
+          "lethal_count": 0,
+          "rarity": "rare",
+          "id": "control_crush_spirit"
+        },
+        {
+          "name": "知恵の加護",
+          "picked_count": 232,
+          "used_count": 65,
+          "winner_usage_count": 25,
+          "lethal_count": 0,
+          "rarity": "rare",
+          "id": "blessing_draw"
+        }
+      ],
+      "blessing_card_stats": [
+        {
+          "id": "blessing_range",
+          "name": "間合いの加護",
+          "rarity": "uncommon",
+          "deck_copy_count": 568,
+          "deck_match_count": 560,
+          "wins_with_card": 255,
+          "played_match_count": 56,
+          "active_match_count": 55,
+          "event_count": 9,
+          "decisive_count": 9,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.45535714285714285
+        },
+        {
+          "id": "blessing_attack",
+          "name": "攻の加護",
+          "rarity": "rare",
+          "deck_copy_count": 568,
+          "deck_match_count": 555,
+          "wins_with_card": 250,
+          "played_match_count": 122,
+          "active_match_count": 119,
+          "event_count": 1,
+          "decisive_count": 1,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.45045045045045046
+        },
+        {
+          "id": "blessing_shortblade",
+          "name": "小太刀の加護",
+          "rarity": "uncommon",
+          "deck_copy_count": 558,
+          "deck_match_count": 547,
+          "wins_with_card": 240,
+          "played_match_count": 117,
+          "active_match_count": 115,
+          "event_count": 17,
+          "decisive_count": 17,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.43875685557586835
+        },
+        {
+          "id": "blessing_parry",
+          "name": "受け流しの加護",
+          "rarity": "uncommon",
+          "deck_copy_count": 552,
+          "deck_match_count": 541,
+          "wins_with_card": 269,
+          "played_match_count": 124,
+          "active_match_count": 123,
+          "event_count": 25,
+          "decisive_count": 25,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.49722735674676527
+        },
+        {
+          "id": "blessing_buckler",
+          "name": "小盾の加護",
+          "rarity": "uncommon",
+          "deck_copy_count": 547,
+          "deck_match_count": 538,
+          "wins_with_card": 241,
+          "played_match_count": 120,
+          "active_match_count": 116,
+          "event_count": 18,
+          "decisive_count": 18,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.4479553903345725
+        },
+        {
+          "id": "blessing_suppression",
+          "name": "抑制の加護",
+          "rarity": "rare",
+          "deck_copy_count": 544,
+          "deck_match_count": 538,
+          "wins_with_card": 235,
+          "played_match_count": 74,
+          "active_match_count": 73,
+          "event_count": 2,
+          "decisive_count": 2,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.4368029739776952
+        },
+        {
+          "id": "blessing_tailwind",
+          "name": "追風の加護",
+          "rarity": "uncommon",
+          "deck_copy_count": 536,
+          "deck_match_count": 531,
+          "wins_with_card": 247,
+          "played_match_count": 94,
+          "active_match_count": 94,
+          "event_count": 3,
+          "decisive_count": 3,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.4651600753295669
+        },
+        {
+          "id": "blessing_offense",
+          "name": "攻勢の加護",
+          "rarity": "rare",
+          "deck_copy_count": 525,
+          "deck_match_count": 522,
+          "wins_with_card": 233,
+          "played_match_count": 130,
+          "active_match_count": 127,
+          "event_count": 37,
+          "decisive_count": 37,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.446360153256705
+        },
+        {
+          "id": "blessing_dullness",
+          "name": "鈍りの加護",
+          "rarity": "uncommon",
+          "deck_copy_count": 521,
+          "deck_match_count": 515,
+          "wins_with_card": 226,
+          "played_match_count": 84,
+          "active_match_count": 84,
+          "event_count": 4,
+          "decisive_count": 4,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.4388349514563107
+        },
+        {
+          "id": "blessing_laststand",
+          "name": "踏み止まりの加護",
+          "rarity": "uncommon",
+          "deck_copy_count": 524,
+          "deck_match_count": 514,
+          "wins_with_card": 229,
+          "played_match_count": 132,
+          "active_match_count": 128,
+          "event_count": 25,
+          "decisive_count": 25,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.4455252918287938
+        },
+        {
+          "id": "blessing_guard",
+          "name": "防の加護",
+          "rarity": "rare",
+          "deck_copy_count": 496,
+          "deck_match_count": 492,
+          "wins_with_card": 234,
+          "played_match_count": 102,
+          "active_match_count": 100,
+          "event_count": 0,
+          "decisive_count": 0,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.47560975609756095
+        },
+        {
+          "id": "blessing_trap_web",
+          "name": "罠糸の加護",
+          "rarity": "rare",
+          "deck_copy_count": 480,
+          "deck_match_count": 477,
+          "wins_with_card": 232,
+          "played_match_count": 139,
+          "active_match_count": 137,
+          "event_count": 20,
+          "decisive_count": 20,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.4863731656184486
+        },
+        {
+          "id": "blessing_insight",
+          "name": "見切りの加護",
+          "rarity": "rare",
+          "deck_copy_count": 463,
+          "deck_match_count": 458,
+          "wins_with_card": 203,
+          "played_match_count": 69,
+          "active_match_count": 68,
+          "event_count": 68,
+          "decisive_count": 68,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.4432314410480349
+        },
+        {
+          "id": "blessing_barrier",
+          "name": "防壁の加護",
+          "rarity": "rare",
+          "deck_copy_count": 458,
+          "deck_match_count": 453,
+          "wins_with_card": 224,
+          "played_match_count": 127,
+          "active_match_count": 126,
+          "event_count": 41,
+          "decisive_count": 41,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.49448123620309054
+        },
+        {
+          "id": "blessing_speed",
+          "name": "速の加護",
+          "rarity": "rare",
+          "deck_copy_count": 453,
+          "deck_match_count": 450,
+          "wins_with_card": 228,
+          "played_match_count": 96,
+          "active_match_count": 95,
+          "event_count": 1,
+          "decisive_count": 1,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.5066666666666667
+        },
+        {
+          "id": "blessing_slow",
+          "name": "鈍足の加護",
+          "rarity": "rare",
+          "deck_copy_count": 452,
+          "deck_match_count": 449,
+          "wins_with_card": 223,
+          "played_match_count": 107,
+          "active_match_count": 107,
+          "event_count": 19,
+          "decisive_count": 19,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.49665924276169265
+        },
+        {
+          "id": "blessing_draw",
+          "name": "知恵の加護",
+          "rarity": "rare",
+          "deck_copy_count": 232,
+          "deck_match_count": 232,
+          "wins_with_card": 110,
+          "played_match_count": 65,
+          "active_match_count": 63,
+          "event_count": 1,
+          "decisive_count": 1,
+          "pre_reveal_count": 0,
+          "passive_decisive_count": 0,
+          "win_rate_when_in_deck": 0.47413793103448276
+        }
+      ],
+      "rarity_play_stats": [
+        {
+          "rarity": "common",
+          "picked_count": 32000,
+          "used_count": 9524,
+          "winner_usage_count": 4186,
+          "lethal_count": 1670,
+          "usage_rate": 0.2976,
+          "winner_contribution_rate": 0.4395
+        },
+        {
+          "rarity": "uncommon",
+          "picked_count": 32000,
+          "used_count": 9186,
+          "winner_usage_count": 4549,
+          "lethal_count": 2554,
+          "usage_rate": 0.2871,
+          "winner_contribution_rate": 0.4952
+        },
+        {
+          "rarity": "rare",
+          "picked_count": 16000,
+          "used_count": 4327,
+          "winner_usage_count": 2197,
+          "lethal_count": 1282,
+          "usage_rate": 0.2704,
+          "winner_contribution_rate": 0.5077
+        }
+      ],
+      "priority": null
+    }
+  },
+  "overall_priority": null,
+  "output_dir": "logs/draft_full_suite_x1000_seed911_blessing_controls"
+}

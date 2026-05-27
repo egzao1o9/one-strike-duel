@@ -1,0 +1,17 @@
+{
+  "id": "blessing_dullness",
+  "name": "鈍りの加護",
+  "card_type": "blessing",
+  "rarity": "uncommon",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": ["blessing", "speed", "debuff"],
+  "public_text": "任意のバトル計算時に使用する。相手の素早さ-1。使用後、この加護を裏向きにする。",
+  "enabled": true,
+  "play_zone": "blessing_zone",
+  "after_play_zone": "blessing_zone",
+  "slot_type": "blessing",
+  "effects": [{"id": "blessing_dullness_01", "seq": 1, "enabled": true, "trigger": "on_battle_calculate", "priority": 100, "effect_type": "modify_total_stat", "target": "opponent_total", "stat": "speed", "value": -1, "duration": "while_in_zone", "active_zone": "blessing_zone", "keyword": "flip_after_use", "display_text": "相手の素早さ-1"}],
+  "notes": "One-shot -1 speed blessing."
+}

@@ -1,0 +1,19 @@
+{
+  "id": "control_opening_expose",
+  "name": "公開勝負",
+  "type": "control",
+  "rarity": "common",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": ["reveal", "neutral"],
+  "public_text": "このターンお互いのプレイヤーは1枚目のセットを表向きで行う。",
+  "effects": [
+    {
+      "trigger": "on_play",
+      "effect_type": "custom",
+      "keyword": "both_first_set_face_up"
+    }
+  ],
+  "notes": "Both players reveal their first set this turn."
+}

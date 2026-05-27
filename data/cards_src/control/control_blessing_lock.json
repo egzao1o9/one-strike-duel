@@ -1,0 +1,19 @@
+{
+  "id": "control_blessing_lock",
+  "name": "封祈",
+  "type": "control",
+  "rarity": "uncommon",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": ["blessing", "lock"],
+  "public_text": "このターン、相手は加護カードを使用できない。",
+  "effects": [
+    {
+      "trigger": "on_play",
+      "effect_type": "custom",
+      "keyword": "lock_opponent_blessing"
+    }
+  ],
+  "notes": "Opponent cannot use blessing this turn."
+}

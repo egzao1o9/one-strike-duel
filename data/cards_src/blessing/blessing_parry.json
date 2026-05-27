@@ -1,0 +1,17 @@
+{
+  "id": "blessing_parry",
+  "name": "受け流しの加護",
+  "card_type": "blessing",
+  "rarity": "uncommon",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": ["blessing", "defense", "counter"],
+  "public_text": "相手の攻撃が自分の防御を1だけ上回っている時に使用できる。その攻撃を防ぐ。使用後、この加護を裏向きにする。",
+  "enabled": true,
+  "play_zone": "blessing_zone",
+  "after_play_zone": "blessing_zone",
+  "slot_type": "blessing",
+  "effects": [{"id": "blessing_parry_01", "seq": 1, "enabled": true, "trigger": "on_battle_calculate", "priority": 100, "effect_type": "modify_total_stat", "target": "self_total", "stat": "block", "value": 1, "duration": "while_in_zone", "active_zone": "blessing_zone", "keyword": "flip_after_use", "display_text": "条件付きで自分の防御+1"}],
+  "notes": "Exact-one parry blessing."
+}

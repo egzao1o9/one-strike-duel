@@ -629,6 +629,45 @@
     "notes": "One-shot defensive blessing."
   },
   {
+    "id": "blessing_buckler",
+    "name": "小盾の加護",
+    "card_type": "blessing",
+    "rarity": "uncommon",
+    "attack": 0,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "blessing",
+      "defense"
+    ],
+    "public_text": "任意のバトル計算時に使用する。自分の防御+1。使用後、この加護を裏向きにする。",
+    "enabled": true,
+    "play_zone": "blessing_zone",
+    "after_play_zone": "blessing_zone",
+    "slot_type": "blessing",
+    "flavor_text": "",
+    "effects": [
+      {
+        "id": "blessing_buckler_01",
+        "seq": 1,
+        "enabled": true,
+        "trigger": "on_battle_calculate",
+        "priority": 100,
+        "effect_type": "modify_total_stat",
+        "target": "self_total",
+        "stat": "block",
+        "value": 1,
+        "duration": "while_in_zone",
+        "active_zone": "blessing_zone",
+        "keyword": "flip_after_use",
+        "display_text": "自分の防御+1",
+        "value2": 0,
+        "count": 0
+      }
+    ],
+    "notes": "One-shot +1 block blessing."
+  },
+  {
     "id": "blessing_draw",
     "name": "知恵の加護",
     "card_type": "blessing",
@@ -665,6 +704,46 @@
       }
     ],
     "notes": "Basic blessing that adds one draw at the turn draw step."
+  },
+  {
+    "id": "blessing_dullness",
+    "name": "鈍りの加護",
+    "card_type": "blessing",
+    "rarity": "uncommon",
+    "attack": 0,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "blessing",
+      "speed",
+      "debuff"
+    ],
+    "public_text": "任意のバトル計算時に使用する。相手の素早さ-1。使用後、この加護を裏向きにする。",
+    "enabled": true,
+    "play_zone": "blessing_zone",
+    "after_play_zone": "blessing_zone",
+    "slot_type": "blessing",
+    "flavor_text": "",
+    "effects": [
+      {
+        "id": "blessing_dullness_01",
+        "seq": 1,
+        "enabled": true,
+        "trigger": "on_battle_calculate",
+        "priority": 100,
+        "effect_type": "modify_total_stat",
+        "target": "opponent_total",
+        "stat": "speed",
+        "value": -1,
+        "duration": "while_in_zone",
+        "active_zone": "blessing_zone",
+        "keyword": "flip_after_use",
+        "display_text": "相手の素早さ-1",
+        "value2": 0,
+        "count": 0
+      }
+    ],
+    "notes": "One-shot -1 speed blessing."
   },
   {
     "id": "blessing_guard",
@@ -717,7 +796,7 @@
       "trick",
       "reveal"
     ],
-    "public_text": "公開前に使用できる。相手の伏せカード1枚をランダムに公開する。使用後、この加護を裏向きにする。",
+    "public_text": "相手がカードをセットした時に使用できる。相手の伏せカード1枚を選び表向きにする。使用後、この加護を裏向きにする。",
     "enabled": true,
     "play_zone": "blessing_zone",
     "after_play_zone": "blessing_zone",
@@ -728,20 +807,56 @@
         "id": "blessing_insight_01",
         "seq": 1,
         "enabled": true,
-        "trigger": "on_battle_start",
+        "trigger": "on_play",
         "priority": 100,
-        "effect_type": "reveal_cards",
-        "target": "opponent_set_cards",
-        "count": 1,
+        "effect_type": "custom",
+        "keyword": "reveal_on_set",
+        "display_text": "相手がカードをセットした時、相手の伏せカード1枚を表向きにする。",
+        "value": 0,
+        "value2": 0,
+        "count": 0
+      }
+    ],
+    "notes": "Reveal one opponent set card when they set cards."
+  },
+  {
+    "id": "blessing_laststand",
+    "name": "踏み止まりの加護",
+    "card_type": "blessing",
+    "rarity": "uncommon",
+    "attack": 0,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "blessing",
+      "defense"
+    ],
+    "public_text": "自分がこのバトルに2枚以下しか伏せていない場合に使用できる。自分の防御+2。使用後、この加護を裏向きにする。",
+    "enabled": true,
+    "play_zone": "blessing_zone",
+    "after_play_zone": "blessing_zone",
+    "slot_type": "blessing",
+    "flavor_text": "",
+    "effects": [
+      {
+        "id": "blessing_laststand_01",
+        "seq": 1,
+        "enabled": true,
+        "trigger": "on_battle_calculate",
+        "priority": 100,
+        "effect_type": "modify_total_stat",
+        "target": "self_total",
+        "stat": "block",
+        "value": 2,
         "duration": "while_in_zone",
         "active_zone": "blessing_zone",
         "keyword": "flip_after_use",
-        "display_text": "公開前に使用できる。相手の伏せカード1枚をランダムに公開する。使用後、この加護を裏向きにする。",
-        "value": 0,
-        "value2": 0
+        "display_text": "2枚以下なら自分の防御+2",
+        "value2": 0,
+        "count": 0
       }
     ],
-    "notes": "Pre-reveal blessing."
+    "notes": "Defense boost when using 2 or fewer set cards."
   },
   {
     "id": "blessing_offense",
@@ -782,6 +897,121 @@
       }
     ],
     "notes": "One-shot offensive blessing."
+  },
+  {
+    "id": "blessing_parry",
+    "name": "受け流しの加護",
+    "card_type": "blessing",
+    "rarity": "uncommon",
+    "attack": 0,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "blessing",
+      "defense",
+      "counter"
+    ],
+    "public_text": "相手の攻撃が自分の防御を1だけ上回っている時に使用できる。その攻撃を防ぐ。使用後、この加護を裏向きにする。",
+    "enabled": true,
+    "play_zone": "blessing_zone",
+    "after_play_zone": "blessing_zone",
+    "slot_type": "blessing",
+    "flavor_text": "",
+    "effects": [
+      {
+        "id": "blessing_parry_01",
+        "seq": 1,
+        "enabled": true,
+        "trigger": "on_battle_calculate",
+        "priority": 100,
+        "effect_type": "modify_total_stat",
+        "target": "self_total",
+        "stat": "block",
+        "value": 1,
+        "duration": "while_in_zone",
+        "active_zone": "blessing_zone",
+        "keyword": "flip_after_use",
+        "display_text": "条件付きで自分の防御+1",
+        "value2": 0,
+        "count": 0
+      }
+    ],
+    "notes": "Exact-one parry blessing."
+  },
+  {
+    "id": "blessing_range",
+    "name": "間合いの加護",
+    "card_type": "blessing",
+    "rarity": "uncommon",
+    "attack": 0,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "blessing",
+      "speed",
+      "counter"
+    ],
+    "public_text": "相手がこのバトルで4枚目のカードを伏せた時に使用できる。そのバトルで相手の素早さ-2。使用後、この加護を裏向きにする。",
+    "enabled": true,
+    "play_zone": "blessing_zone",
+    "after_play_zone": "blessing_zone",
+    "slot_type": "blessing",
+    "flavor_text": "",
+    "effects": [
+      {
+        "id": "blessing_range_01",
+        "seq": 1,
+        "enabled": true,
+        "trigger": "on_play",
+        "priority": 100,
+        "effect_type": "custom",
+        "keyword": "opponent_fourth_set_speed_down",
+        "display_text": "相手が4枚目を伏せた時、そのバトルで相手の素早さ-2",
+        "value": 0,
+        "value2": 0,
+        "count": 0
+      }
+    ],
+    "notes": "Triggers when opponent sets a fourth card."
+  },
+  {
+    "id": "blessing_shortblade",
+    "name": "小太刀の加護",
+    "card_type": "blessing",
+    "rarity": "uncommon",
+    "attack": 0,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "blessing",
+      "attack"
+    ],
+    "public_text": "任意のバトル計算時に使用する。自分の攻撃+1。使用後、この加護を裏向きにする。",
+    "enabled": true,
+    "play_zone": "blessing_zone",
+    "after_play_zone": "blessing_zone",
+    "slot_type": "blessing",
+    "flavor_text": "",
+    "effects": [
+      {
+        "id": "blessing_shortblade_01",
+        "seq": 1,
+        "enabled": true,
+        "trigger": "on_battle_calculate",
+        "priority": 100,
+        "effect_type": "modify_total_stat",
+        "target": "self_total",
+        "stat": "attack",
+        "value": 1,
+        "duration": "while_in_zone",
+        "active_zone": "blessing_zone",
+        "keyword": "flip_after_use",
+        "display_text": "自分の攻撃+1",
+        "value2": 0,
+        "count": 0
+      }
+    ],
+    "notes": "One-shot +1 attack blessing."
   },
   {
     "id": "blessing_slow",
@@ -902,6 +1132,45 @@
     "notes": "Reveal-time attack suppression blessing."
   },
   {
+    "id": "blessing_tailwind",
+    "name": "追風の加護",
+    "card_type": "blessing",
+    "rarity": "uncommon",
+    "attack": 0,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "blessing",
+      "speed"
+    ],
+    "public_text": "任意のバトル計算時に使用する。自分の素早さ+1。使用後、この加護を裏向きにする。",
+    "enabled": true,
+    "play_zone": "blessing_zone",
+    "after_play_zone": "blessing_zone",
+    "slot_type": "blessing",
+    "flavor_text": "",
+    "effects": [
+      {
+        "id": "blessing_tailwind_01",
+        "seq": 1,
+        "enabled": true,
+        "trigger": "on_battle_calculate",
+        "priority": 100,
+        "effect_type": "modify_total_stat",
+        "target": "self_total",
+        "stat": "speed",
+        "value": 1,
+        "duration": "while_in_zone",
+        "active_zone": "blessing_zone",
+        "keyword": "flip_after_use",
+        "display_text": "自分の素早さ+1",
+        "value2": 0,
+        "count": 0
+      }
+    ],
+    "notes": "One-shot +1 speed blessing."
+  },
+  {
     "id": "blessing_trap_web",
     "name": "罠糸の加護",
     "card_type": "blessing",
@@ -941,6 +1210,40 @@
       }
     ],
     "notes": "Conditional defensive blessing against wide boards."
+  },
+  {
+    "id": "control_all_in_focus",
+    "name": "前借り",
+    "card_type": "control",
+    "rarity": "uncommon",
+    "attack": 0,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "attack",
+      "tempo"
+    ],
+    "public_text": "自分のカードを1枚選ぶ。そのカードの攻撃値を+2する。次のターンのドロー枚数が1枚減る。",
+    "enabled": true,
+    "play_zone": "instant",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [
+      {
+        "trigger": "on_play",
+        "effect_type": "custom",
+        "keyword": "attack_boost_draw_penalty",
+        "id": "control_all_in_focus_01",
+        "seq": 1,
+        "enabled": true,
+        "priority": 100,
+        "value": 0,
+        "value2": 0,
+        "count": 0
+      }
+    ],
+    "notes": "Boost offense now, lose one draw next turn."
   },
   {
     "id": "control_anchor",
@@ -1006,6 +1309,108 @@
       }
     ],
     "notes": "Negates the opponent's first set battle card this turn."
+  },
+  {
+    "id": "control_blessing_break",
+    "name": "破祈",
+    "card_type": "control",
+    "rarity": "rare",
+    "attack": 0,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "blessing",
+      "removal"
+    ],
+    "public_text": "場の加護カードを捨てる。",
+    "enabled": true,
+    "play_zone": "instant",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [
+      {
+        "trigger": "on_play",
+        "effect_type": "custom",
+        "keyword": "discard_blessing",
+        "id": "control_blessing_break_01",
+        "seq": 1,
+        "enabled": true,
+        "priority": 100,
+        "value": 0,
+        "value2": 0,
+        "count": 0
+      }
+    ],
+    "notes": "Discard a blessing from the field."
+  },
+  {
+    "id": "control_blessing_flip",
+    "name": "転祈",
+    "card_type": "control",
+    "rarity": "rare",
+    "attack": 0,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "blessing",
+      "trick"
+    ],
+    "public_text": "場の加護カードを裏返す。",
+    "enabled": true,
+    "play_zone": "instant",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [
+      {
+        "trigger": "on_play",
+        "effect_type": "custom",
+        "keyword": "toggle_blessing",
+        "id": "control_blessing_flip_01",
+        "seq": 1,
+        "enabled": true,
+        "priority": 100,
+        "value": 0,
+        "value2": 0,
+        "count": 0
+      }
+    ],
+    "notes": "Flip a blessing face up/down."
+  },
+  {
+    "id": "control_blessing_lock",
+    "name": "封祈",
+    "card_type": "control",
+    "rarity": "uncommon",
+    "attack": 0,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "blessing",
+      "lock"
+    ],
+    "public_text": "このターン、相手は加護カードを使用できない。",
+    "enabled": true,
+    "play_zone": "instant",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [
+      {
+        "trigger": "on_play",
+        "effect_type": "custom",
+        "keyword": "lock_opponent_blessing",
+        "id": "control_blessing_lock_01",
+        "seq": 1,
+        "enabled": true,
+        "priority": 100,
+        "value": 0,
+        "value2": 0,
+        "count": 0
+      }
+    ],
+    "notes": "Opponent cannot use blessing this turn."
   },
   {
     "id": "control_cover",
@@ -1081,6 +1486,74 @@
       }
     ],
     "notes": "Reduces the opponent's attack by 3 this turn."
+  },
+  {
+    "id": "control_defile",
+    "name": "穢れ",
+    "card_type": "control",
+    "rarity": "uncommon",
+    "attack": 0,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "blessing",
+      "debuff"
+    ],
+    "public_text": "相手の加護カードを裏向きにする。",
+    "enabled": true,
+    "play_zone": "instant",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [
+      {
+        "trigger": "on_play",
+        "effect_type": "custom",
+        "keyword": "face_down_opponent_blessing",
+        "id": "control_defile_01",
+        "seq": 1,
+        "enabled": true,
+        "priority": 100,
+        "value": 0,
+        "value2": 0,
+        "count": 0
+      }
+    ],
+    "notes": "Turn the opponent blessing face down."
+  },
+  {
+    "id": "control_discard_facedown_blessing",
+    "name": "祓い直し",
+    "card_type": "control",
+    "rarity": "uncommon",
+    "attack": 0,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "blessing",
+      "support"
+    ],
+    "public_text": "自分の裏向きの加護カードを捨てる。",
+    "enabled": true,
+    "play_zone": "instant",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [
+      {
+        "trigger": "on_play",
+        "effect_type": "custom",
+        "keyword": "discard_own_facedown_blessing",
+        "id": "control_discard_facedown_blessing_01",
+        "seq": 1,
+        "enabled": true,
+        "priority": 100,
+        "value": 0,
+        "value2": 0,
+        "count": 0
+      }
+    ],
+    "notes": "Discard your facedown blessing."
   },
   {
     "id": "control_disrupt",
@@ -1212,6 +1685,40 @@
     "notes": "このターン、自分のブロック+1。"
   },
   {
+    "id": "control_hand_echo",
+    "name": "迷い手",
+    "card_type": "control",
+    "rarity": "uncommon",
+    "attack": 0,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "hand",
+      "disrupt"
+    ],
+    "public_text": "相手は手札を1枚捨てる。自分は相手の捨て札から1枚カードを選び、それを相手の手札に加える。",
+    "enabled": true,
+    "play_zone": "instant",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [
+      {
+        "trigger": "on_play",
+        "effect_type": "custom",
+        "keyword": "discard_and_return_opponent",
+        "id": "control_hand_echo_01",
+        "seq": 1,
+        "enabled": true,
+        "priority": 100,
+        "value": 0,
+        "value2": 0,
+        "count": 0
+      }
+    ],
+    "notes": "Opponent discards, then gets one discard back."
+  },
+  {
     "id": "control_haste",
     "name": "加速",
     "card_type": "control",
@@ -1276,6 +1783,74 @@
     "notes": "次ターン、自分の素早さ+2。"
   },
   {
+    "id": "control_opening_expose",
+    "name": "公開勝負",
+    "card_type": "control",
+    "rarity": "common",
+    "attack": 0,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "reveal",
+      "neutral"
+    ],
+    "public_text": "このターンお互いのプレイヤーは1枚目のセットを表向きで行う。",
+    "enabled": true,
+    "play_zone": "instant",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [
+      {
+        "trigger": "on_play",
+        "effect_type": "custom",
+        "keyword": "both_first_set_face_up",
+        "id": "control_opening_expose_01",
+        "seq": 1,
+        "enabled": true,
+        "priority": 100,
+        "value": 0,
+        "value2": 0,
+        "count": 0
+      }
+    ],
+    "notes": "Both players reveal their first set this turn."
+  },
+  {
+    "id": "control_opening_read",
+    "name": "看破",
+    "card_type": "control",
+    "rarity": "uncommon",
+    "attack": 0,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "reveal",
+      "trick"
+    ],
+    "public_text": "このターン相手のプレイヤーは1枚目のセットを表向きで行う。",
+    "enabled": true,
+    "play_zone": "instant",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [
+      {
+        "trigger": "on_play",
+        "effect_type": "custom",
+        "keyword": "opponent_first_set_face_up",
+        "id": "control_opening_read_01",
+        "seq": 1,
+        "enabled": true,
+        "priority": 100,
+        "value": 0,
+        "value2": 0,
+        "count": 0
+      }
+    ],
+    "notes": "Force opponent first set face up."
+  },
+  {
     "id": "control_overclock",
     "name": "前のめり",
     "card_type": "control",
@@ -1320,6 +1895,111 @@
     "notes": "このターン、攻撃+1、素早さ+1。"
   },
   {
+    "id": "control_peek_hand",
+    "name": "探り",
+    "card_type": "control",
+    "rarity": "uncommon",
+    "attack": 0,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "reveal",
+      "trick"
+    ],
+    "public_text": "相手の手札をランダムで1枚見る。",
+    "enabled": true,
+    "play_zone": "instant",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [
+      {
+        "trigger": "on_play",
+        "effect_type": "reveal_cards",
+        "target": "opponent_hand",
+        "count": 1,
+        "duration": "instant",
+        "id": "control_peek_hand_01",
+        "seq": 1,
+        "enabled": true,
+        "priority": 100,
+        "value": 0,
+        "value2": 0
+      }
+    ],
+    "notes": "Peek one random card from opponent hand."
+  },
+  {
+    "id": "control_peek_opponent_top",
+    "name": "遠眼",
+    "card_type": "control",
+    "rarity": "common",
+    "attack": 0,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "reveal",
+      "deck"
+    ],
+    "public_text": "相手の山札のトップを見る。",
+    "enabled": true,
+    "play_zone": "instant",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [
+      {
+        "trigger": "on_play",
+        "effect_type": "reveal_cards",
+        "target": "opponent_deck",
+        "count": 1,
+        "duration": "instant",
+        "id": "control_peek_opponent_top_01",
+        "seq": 1,
+        "enabled": true,
+        "priority": 100,
+        "value": 0,
+        "value2": 0
+      }
+    ],
+    "notes": "Peek opponent top deck."
+  },
+  {
+    "id": "control_peek_own_top",
+    "name": "見定め",
+    "card_type": "control",
+    "rarity": "common",
+    "attack": 0,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "reveal",
+      "deck"
+    ],
+    "public_text": "自分の山札のトップを見る。",
+    "enabled": true,
+    "play_zone": "instant",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [
+      {
+        "trigger": "on_play",
+        "effect_type": "reveal_cards",
+        "target": "self_deck",
+        "count": 1,
+        "duration": "instant",
+        "id": "control_peek_own_top_01",
+        "seq": 1,
+        "enabled": true,
+        "priority": 100,
+        "value": 0,
+        "value2": 0
+      }
+    ],
+    "notes": "Peek your top deck."
+  },
+  {
     "id": "control_pressure",
     "name": "圧迫",
     "card_type": "control",
@@ -1352,6 +2032,40 @@
     "notes": "このターン、相手のブロック-1。"
   },
   {
+    "id": "control_redraw_hand",
+    "name": "手繰り直し",
+    "card_type": "control",
+    "rarity": "uncommon",
+    "attack": 0,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "draw",
+      "hand"
+    ],
+    "public_text": "自分の手札をすべて捨て、同じ枚数山札から引く。",
+    "enabled": true,
+    "play_zone": "instant",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [
+      {
+        "trigger": "on_play",
+        "effect_type": "custom",
+        "keyword": "redraw_hand",
+        "id": "control_redraw_hand_01",
+        "seq": 1,
+        "enabled": true,
+        "priority": 100,
+        "value": 0,
+        "value2": 0,
+        "count": 0
+      }
+    ],
+    "notes": "Discard your hand and redraw the same amount."
+  },
+  {
     "id": "control_reserve",
     "name": "蓄え",
     "card_type": "control",
@@ -1382,5 +2096,39 @@
       }
     ],
     "notes": "次ターン開始時、追加で1枚引く。"
+  },
+  {
+    "id": "control_topdeck_hand",
+    "name": "先触れ",
+    "card_type": "control",
+    "rarity": "rare",
+    "attack": 0,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "draw",
+      "trick"
+    ],
+    "public_text": "自分の山札のトップを見る。そのカードはこのターン手札扱いとなる。",
+    "enabled": true,
+    "play_zone": "instant",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [
+      {
+        "trigger": "on_play",
+        "effect_type": "custom",
+        "keyword": "topdeck_as_hand",
+        "id": "control_topdeck_hand_01",
+        "seq": 1,
+        "enabled": true,
+        "priority": 100,
+        "value": 0,
+        "value2": 0,
+        "count": 0
+      }
+    ],
+    "notes": "Treat the top card of your deck as hand for this turn."
   }
 ]

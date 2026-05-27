@@ -5,7 +5,7 @@ from pathlib import Path
 import random
 
 from bots.base_bot import BaseBot, BattleAction
-from engine.card import Card, load_cards
+from engine.card import Card, Effect, load_cards
 from engine.deck import DeckDefinition, build_draw_pile, load_decks
 from engine.effects import activate_start_of_turn_effects, resolve_information_effects
 from engine.game_state import GameState, PlayerState
@@ -107,10 +107,16 @@ class MatchRunner:
             player = self.state.players[player_id]
             player.current_control_card = None
             player.set_cards = []
+            player.revealed_set_indexes = set()
             player.battle_passed = False
             player.current_reveals = []
             player.mulligan1_discarded = 0
             player.mulligan2_discarded = 0
+            player.blessing_locked_this_turn = False
+            self.state.force_first_set_face_up[player_id] = False
+        self.state.current_blessing_events = []
+        for player_id, bot in self.bot_map.items():
+            player = self.state.players[player_id]
 
             overflow_discards = self._discard_overflow(player_id, bot)
             draw_bonus = activate_start_of_turn_effects(player)
@@ -224,6 +230,7 @@ class MatchRunner:
                     continue
                 player.blessing_face_up = True
                 player.blessing_zone = card
+                player.blessing_placed_turns.append(self.state.turn)
                 blessing_payload[player_id] = {
                     "played": card.id,
                     "replaced": None,
@@ -235,7 +242,9 @@ class MatchRunner:
                     player,
                     self.state.players[self.state.opponent_of(player_id)],
                     card,
+                    self.state.rng,
                 )
+                self._apply_control_custom_effects(player_id, card, reveals)
             chosen[player_id] = card.name
             chosen_ids[player_id] = card.id
             chosen_sources[player_id] = card.instance_source or "unknown"
@@ -314,10 +323,20 @@ class MatchRunner:
                 action_type = "pass"
             else:
                 player.set_cards.extend(chosen_cards)
+                self._apply_on_set_blessings(player_id, chosen_cards)
+                face_up_indexes: list[int] = []
+                if self.state.force_first_set_face_up[player_id] and len(player.set_cards) - len(chosen_cards) == 0:
+                    face_up_indexes.append(0)
+                    player.revealed_set_indexes.add(0)
                 if action_type == "set_pass":
                     player.battle_passed = True
 
         after_counts = {"p1": len(self.state.players["p1"].set_cards), "p2": len(self.state.players["p2"].set_cards)}
+        if action_type in {"pass", "set_pass"}:
+            opponent_id = self.state.opponent_of(player_id)
+            opponent_player = self.state.players[opponent_id]
+            if opponent_player.blessing_zone is not None and opponent_player.blessing_face_up:
+                opponent_player.blessing_pressure_pass_actions += 1
         return {
             "became_passed": player.battle_passed and action_type in {"set_pass", "pass"},
             "history": {
@@ -330,6 +349,10 @@ class MatchRunner:
                 "set_card_ids": [card.id for card in chosen_cards],
                 "set_card_names": [card.name for card in chosen_cards],
                 "set_card_sources": [card.instance_source or "unknown" for card in chosen_cards],
+                "face_up_indexes": face_up_indexes if 'face_up_indexes' in locals() else [],
+                "face_up_card_names": [
+                    chosen_cards[index].name for index in (face_up_indexes if 'face_up_indexes' in locals() else []) if index < len(chosen_cards)
+                ],
                 "hand_count_before": hand_count_before,
                 "hand_count_after": len(player.hand),
                 "set_pass_candidate_count": _extract_set_pass_candidate_count(debug_info),
@@ -355,9 +378,11 @@ class MatchRunner:
             "p1_cards": [card.name for card in self.state.players["p1"].set_cards],
             "p1_card_ids": [card.id for card in self.state.players["p1"].set_cards],
             "p1_card_sources": [card.instance_source or "unknown" for card in self.state.players["p1"].set_cards],
+            "p1_revealed_set_indexes": sorted(self.state.players["p1"].revealed_set_indexes),
             "p2_cards": [card.name for card in self.state.players["p2"].set_cards],
             "p2_card_ids": [card.id for card in self.state.players["p2"].set_cards],
             "p2_card_sources": [card.instance_source or "unknown" for card in self.state.players["p2"].set_cards],
+            "p2_revealed_set_indexes": sorted(self.state.players["p2"].revealed_set_indexes),
             "p1_facedown_count": context["p1_facedown_count"],
             "p2_facedown_count": context["p2_facedown_count"],
             "p1_hand_count_end": context["p1_hand_count_end"],
@@ -386,7 +411,7 @@ class MatchRunner:
                 "modifiers": list(resolution.finals["p2"].applied_effects),
             },
             "reveal_steps": list(resolution.reveal_steps),
-            "blessing_events": list(resolution.blessing_events),
+            "blessing_events": list(self.state.current_blessing_events) + list(resolution.blessing_events),
             "result": resolution.result,
             "draw_reason": resolution.end_reason,
         }
@@ -400,6 +425,7 @@ class MatchRunner:
             if player.current_control_card is not None:
                 player.discard_pile.append(player.current_control_card)
                 player.current_control_card = None
+            self._return_unused_temp_topdeck_cards(player)
         if resolution.winner:
             self.state.finished = True
             self.state.winner = resolution.winner
@@ -435,6 +461,142 @@ class MatchRunner:
                 continue
             selected.append(card)
         return selected
+
+    def _apply_control_custom_effects(self, player_id: str, card: Card, reveals: dict[str, list[str]]) -> None:
+        player = self.state.players[player_id]
+        opponent_id = self.state.opponent_of(player_id)
+        opponent = self.state.players[opponent_id]
+
+        match card.id:
+            case "control_blessing_flip":
+                target_side = None
+                if opponent.blessing_zone is not None and opponent.blessing_face_up:
+                    opponent.blessing_face_up = False
+                    target_side = opponent_id
+                elif player.blessing_zone is not None and not player.blessing_face_up:
+                    player.blessing_face_up = True
+                    target_side = player_id
+                elif player.blessing_zone is not None:
+                    player.blessing_face_up = False
+                    target_side = player_id
+                if target_side:
+                    self.state.current_blessing_events.append(
+                        {"player_id": player_id, "blessing_id": self.state.players[target_side].blessing_zone.id, "event": "control_flip", "target_player_id": target_side}
+                    )
+                    if not self.state.players[target_side].blessing_face_up:
+                        self.state.players[target_side].blessing_facedown_turns.append(self.state.turn)
+            case "control_blessing_break":
+                self._discard_blessing(opponent_id if opponent.blessing_zone is not None else player_id)
+            case "control_topdeck_hand":
+                if player.draw_pile:
+                    top = player.draw_pile.pop(0)
+                    player.hand.append(top)
+                    player.temp_topdeck_hand_ids.append(top.id)
+                    reveals[player_id].append(top.name)
+            case "control_redraw_hand":
+                redraw_count = len(player.hand)
+                player.discard_pile.extend(player.hand)
+                player.hand = []
+                player.draw(redraw_count)
+            case "control_discard_facedown_blessing":
+                if player.blessing_zone is not None and not player.blessing_face_up:
+                    self._discard_blessing(player_id)
+            case "control_defile":
+                if opponent.blessing_zone is not None and opponent.blessing_face_up:
+                    opponent.blessing_face_up = False
+                    opponent.blessing_facedown_turns.append(self.state.turn)
+                    self.state.current_blessing_events.append(
+                        {"player_id": player_id, "blessing_id": opponent.blessing_zone.id, "event": "control_face_down", "target_player_id": opponent_id}
+                    )
+            case "control_blessing_lock":
+                opponent.blessing_locked_this_turn = True
+            case "control_opening_read":
+                self.state.force_first_set_face_up[opponent_id] = True
+            case "control_opening_expose":
+                self.state.force_first_set_face_up["p1"] = True
+                self.state.force_first_set_face_up["p2"] = True
+            case "control_hand_echo":
+                if opponent.hand:
+                    discarded = opponent.hand.pop(self.state.rng.randrange(len(opponent.hand)))
+                    opponent.discard_pile.append(discarded)
+                    return_card = self._choose_weakest_card(opponent.discard_pile)
+                    if return_card is not None:
+                        opponent.discard_pile.remove(return_card)
+                        opponent.hand.append(return_card)
+                    reveals[player_id].append(discarded.name)
+            case "control_all_in_focus":
+                player.active_turn_effects.append(
+                    Effect(trigger="on_battle_calculate", effect_type="modify_total_stat", target="self_total", stat="attack", value=2)
+                )
+                player.queued_next_turn_effects.append(
+                    Effect(trigger="next_turn", effect_type="modify_rule_value", target="self_player", stat="draw_per_turn", value=-1)
+                )
+
+    def _apply_on_set_blessings(self, player_id: str, chosen_cards: list[Card]) -> None:
+        opponent_id = self.state.opponent_of(player_id)
+        opponent = self.state.players[opponent_id]
+        blessing = opponent.blessing_zone
+        if blessing is None or not opponent.blessing_face_up or opponent.blessing_locked_this_turn:
+            return
+        if blessing.id == "blessing_insight" and chosen_cards:
+            target_index = len(self.state.players[player_id].set_cards) - len(chosen_cards)
+            self.state.players[player_id].revealed_set_indexes.add(target_index)
+            opponent.blessing_face_up = False
+            opponent.blessing_used_turns.append(self.state.turn)
+            opponent.blessing_facedown_turns.append(self.state.turn)
+            self.state.current_blessing_events.append(
+                {
+                    "player_id": opponent_id,
+                    "blessing_id": blessing.id,
+                    "event": "on_set_reveal",
+                    "target_player_id": player_id,
+                    "target_card_id": chosen_cards[0].id,
+                    "target_index": target_index,
+                }
+            )
+        elif blessing.id == "blessing_range" and len(self.state.players[player_id].set_cards) >= 4:
+            opponent.active_turn_effects.append(
+                Effect(trigger="on_battle_calculate", effect_type="modify_total_stat", target="opponent_total", stat="speed", value=-2)
+            )
+            opponent.blessing_face_up = False
+            opponent.blessing_used_turns.append(self.state.turn)
+            opponent.blessing_facedown_turns.append(self.state.turn)
+            self.state.current_blessing_events.append(
+                {
+                    "player_id": opponent_id,
+                    "blessing_id": blessing.id,
+                    "event": "on_opponent_fourth_set",
+                    "target_player_id": player_id,
+                    "value": -2,
+                }
+            )
+
+    def _discard_blessing(self, player_id: str) -> None:
+        player = self.state.players[player_id]
+        if player.blessing_zone is None:
+            return
+        player.discard_pile.append(player.blessing_zone)
+        player.blessing_zone = None
+        player.blessing_face_up = True
+
+    def _return_unused_temp_topdeck_cards(self, player: PlayerState) -> None:
+        if not player.temp_topdeck_hand_ids:
+            return
+        remaining_ids = list(player.temp_topdeck_hand_ids)
+        player.temp_topdeck_hand_ids = []
+        to_return: list[Card] = []
+        for temp_id in remaining_ids:
+            for index, card in enumerate(player.hand):
+                if card.id == temp_id:
+                    to_return.append(player.hand.pop(index))
+                    break
+        for card in reversed(to_return):
+            player.draw_pile.insert(0, card)
+
+    def _choose_weakest_card(self, cards: list[Card]) -> Card | None:
+        if not cards:
+            return None
+        return min(cards, key=lambda card: (card.attack + card.block + card.speed + len(card.effects), card.id))
 
 
 def _extract_set_pass_candidate_count(debug_info: dict[str, object] | None) -> int | None:

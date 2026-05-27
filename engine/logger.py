@@ -81,6 +81,10 @@ class MatchLogger:
                 "draw_shortfall_turns": list(player.draw_shortfall_turns),
                 "active_blessing": None if player.blessing_zone is None else player.blessing_zone.id,
                 "blessing_face_up": player.blessing_face_up,
+                "blessing_placed_turns": list(player.blessing_placed_turns),
+                "blessing_used_turns": list(player.blessing_used_turns),
+                "blessing_facedown_turns": list(player.blessing_facedown_turns),
+                "blessing_pressure_pass_actions": player.blessing_pressure_pass_actions,
             }
             for player_id, player in state.players.items()
         }

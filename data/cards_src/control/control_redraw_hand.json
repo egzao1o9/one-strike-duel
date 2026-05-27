@@ -1,0 +1,19 @@
+{
+  "id": "control_redraw_hand",
+  "name": "手繰り直し",
+  "type": "control",
+  "rarity": "uncommon",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": ["draw", "hand"],
+  "public_text": "自分の手札をすべて捨て、同じ枚数山札から引く。",
+  "effects": [
+    {
+      "trigger": "on_play",
+      "effect_type": "custom",
+      "keyword": "redraw_hand"
+    }
+  ],
+  "notes": "Discard your hand and redraw the same amount."
+}

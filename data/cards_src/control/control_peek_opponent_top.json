@@ -1,0 +1,21 @@
+{
+  "id": "control_peek_opponent_top",
+  "name": "遠眼",
+  "type": "control",
+  "rarity": "common",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": ["reveal", "deck"],
+  "public_text": "相手の山札のトップを見る。",
+  "effects": [
+    {
+      "trigger": "on_play",
+      "effect_type": "reveal_cards",
+      "target": "opponent_deck",
+      "count": 1,
+      "duration": "instant"
+    }
+  ],
+  "notes": "Peek opponent top deck."
+}

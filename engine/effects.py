@@ -30,6 +30,8 @@ def activate_start_of_turn_effects(player: PlayerState) -> int:
     for effect in player.queued_next_turn_effects:
         if effect.kind == "draw_cards":
             draw_bonus += effect.value
+        elif effect.effect_type == "modify_rule_value" and effect.stat == "draw_per_turn":
+            draw_bonus += effect.value
         else:
             player.active_turn_effects.append(effect)
     player.queued_next_turn_effects.clear()
@@ -46,15 +48,32 @@ def activate_start_of_turn_effects(player: PlayerState) -> int:
     return draw_bonus
 
 
-def resolve_information_effects(player: PlayerState, opponent: PlayerState, card: Card) -> list[str]:
+def resolve_information_effects(player: PlayerState, opponent: PlayerState, card: Card, rng=None) -> list[str]:
     revealed: list[str] = []
     for effect in card.effects:
         legacy_kind = effect.legacy_key()
-        if legacy_kind != "reveal_opponent_hand_random":
+        if legacy_kind == "reveal_opponent_hand_random":
+            if opponent.hand:
+                chooser = rng.choice if rng is not None else (lambda items: items[0])
+                target = chooser(opponent.hand)
+                revealed.append(target.name)
             continue
-        if opponent.hand:
-            target = opponent.hand[0]
-            revealed.append(target.name)
+        if effect.effect_type != "reveal_cards":
+            continue
+        count = max(1, effect.count or 1)
+        if effect.target == "opponent_hand":
+            pool = list(opponent.hand)
+            if not pool:
+                continue
+            chooser = rng.sample if rng is not None else (lambda items, k: items[:k])
+            for target in chooser(pool, min(count, len(pool))):
+                revealed.append(target.name)
+        elif effect.target == "self_deck":
+            for target in list(player.draw_pile)[:count]:
+                revealed.append(target.name)
+        elif effect.target == "opponent_deck":
+            for target in list(opponent.draw_pile)[:count]:
+                revealed.append(target.name)
     player.current_reveals.extend(revealed)
     return revealed
 

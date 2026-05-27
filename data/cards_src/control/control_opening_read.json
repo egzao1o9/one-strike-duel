@@ -1,0 +1,19 @@
+{
+  "id": "control_opening_read",
+  "name": "看破",
+  "type": "control",
+  "rarity": "uncommon",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": ["reveal", "trick"],
+  "public_text": "このターン相手のプレイヤーは1枚目のセットを表向きで行う。",
+  "effects": [
+    {
+      "trigger": "on_play",
+      "effect_type": "custom",
+      "keyword": "opponent_first_set_face_up"
+    }
+  ],
+  "notes": "Force opponent first set face up."
+}

@@ -1,0 +1,19 @@
+{
+  "id": "control_topdeck_hand",
+  "name": "先触れ",
+  "type": "control",
+  "rarity": "rare",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": ["draw", "trick"],
+  "public_text": "自分の山札のトップを見る。そのカードはこのターン手札扱いとなる。",
+  "effects": [
+    {
+      "trigger": "on_play",
+      "effect_type": "custom",
+      "keyword": "topdeck_as_hand"
+    }
+  ],
+  "notes": "Treat the top card of your deck as hand for this turn."
+}

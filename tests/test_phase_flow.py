@@ -317,3 +317,82 @@ def test_blessing_draw_bonus_applies_at_turn_start() -> None:
 
     assert payload["p1"]["draw_count"] == 5
     assert payload["p1"]["active_blessing"] == "blessing_draw"
+
+
+def test_control_defile_turns_opponent_blessing_face_down() -> None:
+    p1 = ScriptedBattleBot(control_card_id="control_defile")
+    runner = MatchRunner(p1, RandomBot(seed=2), "starter_attack", "starter_defense", shuffle_decks=False, seed=3, max_turns=1)
+    runner.state.players["p1"].hand = [
+        runner.cards["control_defile"],
+        runner.cards["battle_attack"],
+        runner.cards["battle_defend"],
+        runner.cards["control_focus"],
+    ]
+    runner.state.players["p2"].hand = [
+        runner.cards["battle_guard"],
+        runner.cards["battle_counter"],
+        runner.cards["control_focus"],
+        runner.cards["control_haste"],
+    ]
+    runner.state.players["p2"].blessing_zone = runner.cards["blessing_guard"]
+    runner.state.players["p2"].blessing_face_up = True
+
+    runner._run_control_phase()
+
+    assert runner.state.players["p2"].blessing_face_up is False
+    assert runner.state.players["p2"].blessing_facedown_turns == [1]
+
+
+def test_topdeck_hand_card_returns_if_unused_at_end_turn() -> None:
+    p1 = ScriptedBattleBot([BattleAction("pass")], control_card_id="control_topdeck_hand")
+    p2 = ScriptedBattleBot([BattleAction("pass")])
+    runner = MatchRunner(p1, p2, "starter_attack", "starter_defense", shuffle_decks=False, seed=3, max_turns=1)
+    runner._initial_draw = lambda: None
+    top = runner.cards["battle_press"]
+    runner.state.players["p1"].hand = [
+        runner.cards["control_topdeck_hand"],
+        runner.cards["battle_attack"],
+        runner.cards["battle_defend"],
+        runner.cards["control_focus"],
+    ]
+    runner.state.players["p1"].draw_pile = [top]
+    runner.state.players["p2"].hand = [
+        runner.cards["battle_guard"],
+        runner.cards["battle_counter"],
+        runner.cards["control_focus"],
+        runner.cards["control_haste"],
+    ]
+    runner.state.players["p2"].draw_pile = []
+
+    runner.run()
+
+    assert runner.state.players["p1"].draw_pile
+    assert runner.state.players["p1"].draw_pile[0].id == "battle_press"
+
+
+def test_blessing_insight_reveals_newly_set_card() -> None:
+    p1 = ScriptedBattleBot([BattleAction("set_pass", ("battle_press",))])
+    p2 = ScriptedBattleBot([BattleAction("pass")])
+    runner = MatchRunner(p1, p2, "starter_attack", "starter_defense", shuffle_decks=False, seed=3, max_turns=1)
+    runner.state.players["p1"].hand = [
+        runner.cards["battle_press"],
+        runner.cards["battle_attack"],
+        runner.cards["battle_defend"],
+        runner.cards["control_focus"],
+    ]
+    runner.state.players["p2"].hand = [
+        runner.cards["battle_guard"],
+        runner.cards["battle_counter"],
+        runner.cards["control_focus"],
+        runner.cards["control_haste"],
+    ]
+    runner.state.players["p2"].blessing_zone = runner.cards["blessing_insight"]
+    runner.state.players["p2"].blessing_face_up = True
+    runner.state.players["p1"].draw_pile = []
+    runner.state.players["p2"].draw_pile = []
+
+    result = runner.run()
+    battle = result.log["turns"][0]["battle"]
+
+    assert battle["p1_revealed_set_indexes"] == [0]
+    assert any(event["event"] == "on_set_reveal" for event in battle["blessing_events"])

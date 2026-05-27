@@ -33,7 +33,7 @@ TARGET_ROLE_COUNTS = {
 TARGET_TYPE_COUNTS = {
     "battle": 13,
     "control": 7,
-    "blessing": 2,
+    "blessing": 1,
 }
 
 NORMAL_PUBLIC_PACKS = 3
@@ -380,7 +380,7 @@ class RoleBalanceDraftBot(BaseDraftBot):
         bundle_cards = [cards[card_id] for card_id in bundle]
         score = 0.0
         for card in bundle_cards:
-            score += self._score_candidate(card, own_summary, own_cards, remaining_picks, visibility=visibility)
+            score += self._score_candidate(card, cards, own_summary, own_cards, remaining_picks, visibility=visibility)
         result_cards = own_cards + list(bundle)
         result_summary = summarize_deck(result_cards, cards)
         score += self._summary_balance_bonus(result_summary)
@@ -400,6 +400,7 @@ class RoleBalanceDraftBot(BaseDraftBot):
     def _score_candidate(
         self,
         card: Card,
+        cards: dict[str, Card],
         own_summary: DraftDeckSummary,
         own_cards: list[str],
         remaining_picks: int,
@@ -408,7 +409,12 @@ class RoleBalanceDraftBot(BaseDraftBot):
     ) -> float:
         role = infer_role_color(card)
         duplicate_count = own_cards.count(card.id)
-        type_count = own_summary.battle_count if card.type == "battle" else own_summary.control_count
+        if card.type == "battle":
+            type_count = own_summary.battle_count
+        elif card.type == "blessing":
+            type_count = own_summary.blessing_count
+        else:
+            type_count = own_summary.control_count
         target_type = TARGET_TYPE_COUNTS[card.type]
         role_count = own_summary.role_counts[role]
         target_role = TARGET_ROLE_COUNTS[role]
@@ -417,6 +423,7 @@ class RoleBalanceDraftBot(BaseDraftBot):
         score += need_bonus(type_count, target_type, remaining_picks, weight=1.8)
         score += need_bonus(role_count, target_role, remaining_picks, weight=1.4)
         score -= duplicate_count * 1.0
+        score += blessing_pick_adjustment(card, own_cards, cards)
 
         if card.type == "battle":
             score += max(card.attack, 0) * 0.3
@@ -659,7 +666,7 @@ class PublicInfoDraftBot(BaseDraftBot):
             role = infer_role_color(card)
             score += base_card_score(card)
             score += need_bonus(
-                own_summary.battle_count if card.type == "battle" else own_summary.control_count,
+                own_summary.battle_count if card.type == "battle" else (own_summary.blessing_count if card.type == "blessing" else own_summary.control_count),
                 TARGET_TYPE_COUNTS[card.type],
                 remaining_picks,
                 weight=1.5,
@@ -671,6 +678,7 @@ class PublicInfoDraftBot(BaseDraftBot):
                 weight=1.0,
             )
             score -= own_all.count(card.id) * 0.8
+            score += blessing_pick_adjustment(card, own_all, cards)
             score += self._style_value(card)
             score += self._counter_value(card, opponent_public_profile)
             if visibility == "hidden":
@@ -1085,6 +1093,23 @@ def need_bonus(current: int, target: int, remaining_picks: int, *, weight: float
     elif remaining_picks <= deficit + 2:
         urgency = 1.35
     return deficit * weight * urgency / max(remaining_picks, 1)
+
+
+BLESSING_SUPPORT_IDS = {"control_discard_facedown_blessing", "control_blessing_break"}
+
+
+def blessing_pick_adjustment(card: Card, own_cards: list[str], cards: dict[str, Card]) -> float:
+    if card.type != "blessing":
+        return 0.0
+    blessing_count = sum(1 for card_id in own_cards if cards[card_id].type == "blessing")
+    support_count = sum(1 for card_id in own_cards if card_id in BLESSING_SUPPORT_IDS)
+    if blessing_count == 0:
+        return 0.55
+    if blessing_count == 1:
+        return 0.1
+    penalty = 1.0 + (blessing_count - 2) * 0.7
+    penalty -= min(support_count, 2) * 0.45
+    return -max(penalty, 0.15)
 
 
 def _run_normal_half(

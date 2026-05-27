@@ -1,0 +1,19 @@
+{
+  "id": "control_defile",
+  "name": "穢れ",
+  "type": "control",
+  "rarity": "uncommon",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": ["blessing", "debuff"],
+  "public_text": "相手の加護カードを裏向きにする。",
+  "effects": [
+    {
+      "trigger": "on_play",
+      "effect_type": "custom",
+      "keyword": "face_down_opponent_blessing"
+    }
+  ],
+  "notes": "Turn the opponent blessing face down."
+}

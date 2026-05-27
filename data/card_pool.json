@@ -107,7 +107,15 @@
       "count": 2
     },
     {
+      "card_id": "blessing_buckler",
+      "count": 2
+    },
+    {
       "card_id": "blessing_draw",
+      "count": 2
+    },
+    {
+      "card_id": "blessing_dullness",
       "count": 2
     },
     {
@@ -119,7 +127,23 @@
       "count": 2
     },
     {
+      "card_id": "blessing_laststand",
+      "count": 2
+    },
+    {
       "card_id": "blessing_offense",
+      "count": 2
+    },
+    {
+      "card_id": "blessing_parry",
+      "count": 2
+    },
+    {
+      "card_id": "blessing_range",
+      "count": 2
+    },
+    {
+      "card_id": "blessing_shortblade",
       "count": 2
     },
     {
@@ -135,7 +159,15 @@
       "count": 2
     },
     {
+      "card_id": "blessing_tailwind",
+      "count": 2
+    },
+    {
       "card_id": "blessing_trap_web",
+      "count": 2
+    },
+    {
+      "card_id": "control_all_in_focus",
       "count": 2
     },
     {
@@ -147,11 +179,31 @@
       "count": 2
     },
     {
+      "card_id": "control_blessing_break",
+      "count": 2
+    },
+    {
+      "card_id": "control_blessing_flip",
+      "count": 2
+    },
+    {
+      "card_id": "control_blessing_lock",
+      "count": 2
+    },
+    {
       "card_id": "control_cover",
       "count": 2
     },
     {
       "card_id": "control_crush_spirit",
+      "count": 2
+    },
+    {
+      "card_id": "control_defile",
+      "count": 2
+    },
+    {
+      "card_id": "control_discard_facedown_blessing",
       "count": 2
     },
     {
@@ -171,6 +223,10 @@
       "count": 5
     },
     {
+      "card_id": "control_hand_echo",
+      "count": 2
+    },
+    {
       "card_id": "control_haste",
       "count": 2
     },
@@ -179,15 +235,43 @@
       "count": 2
     },
     {
+      "card_id": "control_opening_expose",
+      "count": 5
+    },
+    {
+      "card_id": "control_opening_read",
+      "count": 2
+    },
+    {
       "card_id": "control_overclock",
       "count": 2
+    },
+    {
+      "card_id": "control_peek_hand",
+      "count": 2
+    },
+    {
+      "card_id": "control_peek_opponent_top",
+      "count": 5
+    },
+    {
+      "card_id": "control_peek_own_top",
+      "count": 5
     },
     {
       "card_id": "control_pressure",
       "count": 5
     },
     {
+      "card_id": "control_redraw_hand",
+      "count": 2
+    },
+    {
       "card_id": "control_reserve",
+      "count": 2
+    },
+    {
+      "card_id": "control_topdeck_hand",
       "count": 2
     }
   ]

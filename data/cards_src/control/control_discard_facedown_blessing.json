@@ -1,0 +1,19 @@
+{
+  "id": "control_discard_facedown_blessing",
+  "name": "祓い直し",
+  "type": "control",
+  "rarity": "uncommon",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": ["blessing", "support"],
+  "public_text": "自分の裏向きの加護カードを捨てる。",
+  "effects": [
+    {
+      "trigger": "on_play",
+      "effect_type": "custom",
+      "keyword": "discard_own_facedown_blessing"
+    }
+  ],
+  "notes": "Discard your facedown blessing."
+}

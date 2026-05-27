@@ -1,0 +1,19 @@
+{
+  "id": "control_blessing_flip",
+  "name": "転祈",
+  "type": "control",
+  "rarity": "rare",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": ["blessing", "trick"],
+  "public_text": "場の加護カードを裏返す。",
+  "effects": [
+    {
+      "trigger": "on_play",
+      "effect_type": "custom",
+      "keyword": "toggle_blessing"
+    }
+  ],
+  "notes": "Flip a blessing face up/down."
+}

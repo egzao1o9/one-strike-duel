@@ -24,7 +24,14 @@ class PlayerState:
     current_control_card: Card | None = None
     blessing_zone: Card | None = None
     blessing_face_up: bool = True
+    blessing_placed_turns: list[int] = field(default_factory=list)
+    blessing_used_turns: list[int] = field(default_factory=list)
+    blessing_facedown_turns: list[int] = field(default_factory=list)
+    blessing_pressure_pass_actions: int = 0
+    blessing_locked_this_turn: bool = False
+    temp_topdeck_hand_ids: list[str] = field(default_factory=list)
     set_cards: list[Card] = field(default_factory=list)
+    revealed_set_indexes: set[int] = field(default_factory=set)
     battle_passed: bool = False
     current_reveals: list[str] = field(default_factory=list)
     mulligan1_discarded: int = 0
@@ -80,6 +87,9 @@ class PlayerView:
     opponent_control_card: Card | None
     opponent_blessing_zone: Card | None
     opponent_blessing_face_up: bool
+    opponent_blessing_locked: bool
+    own_revealed_set_cards: tuple[Card, ...]
+    opponent_revealed_set_cards: tuple[Card, ...]
     own_facedown_count: int
     opponent_facedown_count: int
     own_battle_passed: bool
@@ -103,6 +113,8 @@ class GameState:
     max_turns: int = 50
     battle_starting_player: str = "p1"
     acting_player: str = "p1"
+    force_first_set_face_up: dict[str, bool] = field(default_factory=lambda: {"p1": False, "p2": False})
+    current_blessing_events: list[dict[str, object]] = field(default_factory=list)
 
     def opponent_of(self, player_id: str) -> str:
         return "p2" if player_id == "p1" else "p1"
@@ -134,6 +146,13 @@ class GameState:
             opponent_control_card=opponent.current_control_card,
             opponent_blessing_zone=opponent.blessing_zone,
             opponent_blessing_face_up=opponent.blessing_face_up,
+            opponent_blessing_locked=opponent.blessing_locked_this_turn,
+            own_revealed_set_cards=tuple(
+                card for index, card in enumerate(player.set_cards) if index in player.revealed_set_indexes
+            ),
+            opponent_revealed_set_cards=tuple(
+                card for index, card in enumerate(opponent.set_cards) if index in opponent.revealed_set_indexes
+            ),
             own_facedown_count=len(player.set_cards),
             opponent_facedown_count=len(opponent.set_cards),
             own_battle_passed=player.battle_passed,

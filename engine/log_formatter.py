@@ -66,6 +66,8 @@ def render_match_log_markdown(payload: dict[str, Any]) -> str:
         _render_player_summary_row("p1", players["p1"]),
         _render_player_summary_row("p2", players["p2"]),
         "",
+        f"- P1 Blessing: {_render_player_blessing_summary(players['p1'])}",
+        f"- P2 Blessing: {_render_player_blessing_summary(players['p2'])}",
         f"- Winner: {PLAYER_LABELS[winner] if winner else 'Draw'}",
         f"- End Reason: {END_REASON_LABELS.get(end_reason, str(end_reason))}",
         f"- Turns: {payload.get('turn_count', len(payload.get('turns', [])))}",
@@ -133,6 +135,9 @@ def _render_turn(turn: dict[str, Any]) -> list[str]:
         f"- Battle IDs: P1 {_render_card_list(battle.get('p1_card_ids', []))} [{_render_card_list(battle.get('p1_card_sources', []))}] "
         f"/ P2 {_render_card_list(battle.get('p2_card_ids', []))} [{_render_card_list(battle.get('p2_card_sources', []))}]"
     )
+    lines.append(
+        f"- Revealed Set Cards: P1 {_render_face_up_cards(battle, 'p1')} / P2 {_render_face_up_cards(battle, 'p2')}"
+    )
     lines.append(f"- Initiative: {_get_initiative_label(battle)}")
     lines.append(f"- Result: {RESULT_LABELS.get(battle.get('result'), battle.get('result', 'unknown'))}")
     if battle.get("actions"):
@@ -142,6 +147,8 @@ def _render_turn(turn: dict[str, Any]) -> list[str]:
                 f"set={action.get('set_count', 0)} ids={action.get('set_card_ids', [])} sources={action.get('set_card_sources', [])} "
                 f"set_pass_candidates={action.get('set_pass_candidate_count')} after={action.get('counts_after', {})}"
             )
+            if action.get("face_up_card_names"):
+                lines.append(f"- Face Up: {_render_card_list(action.get('face_up_card_names', []))}")
             if action.get("debug"):
                 lines.append(f"- Debug: {action.get('debug')}")
     if battle.get("reveal_steps"):
@@ -173,6 +180,7 @@ def _render_turn_markdown(turn: dict[str, Any]) -> list[str]:
         f"| Blessing | {_render_blessing_state(battle, 'p1')} | {_render_blessing_state(battle, 'p2')} |",
         f"| Battle Card IDs | {_render_card_list(battle.get('p1_card_ids', []))} | {_render_card_list(battle.get('p2_card_ids', []))} |",
         f"| Battle Card Sources | {_render_card_list(battle.get('p1_card_sources', []))} | {_render_card_list(battle.get('p2_card_sources', []))} |",
+        f"| Revealed Set Cards | {_render_face_up_cards(battle, 'p1')} | {_render_face_up_cards(battle, 'p2')} |",
         f"| Final Stats | {_render_battle_stats(battle, 'p1')} | {_render_battle_stats(battle, 'p2')} |",
         f"| Facedown Count | {battle.get('p1_facedown_count', '-')} | {battle.get('p2_facedown_count', '-')} |",
         f"| Hand Count Flow | {_render_hand_flow(turn, 'p1')} | {_render_hand_flow(turn, 'p2')} |",
@@ -201,6 +209,10 @@ def _render_turn_markdown(turn: dict[str, Any]) -> list[str]:
                 f"{action.get('set_count', 0)} | {_render_card_list(action.get('set_card_ids', []))} | {_render_card_list(action.get('set_card_sources', []))} | "
                 f"{action.get('set_pass_candidate_count', '-')} | P1={action.get('counts_after', {}).get('p1', '?')} / P2={action.get('counts_after', {}).get('p2', '?')} |"
             )
+            if action.get("face_up_card_names"):
+                lines.append(
+                    f"| Open | {_render_card_list(action.get('face_up_card_names', []))} | - | - | - | - | - |"
+                )
             if action.get("debug"):
                 lines.append(f"| Debug | `{str(action.get('debug'))}` | - | - | - | - | - |")
     if battle.get("reveal_steps"):
@@ -274,3 +286,29 @@ def _render_blessing_state(battle: dict[str, Any], player_id: str) -> str:
     if not blessing_id:
         return "-"
     return f"{blessing_id} ({'up' if battle.get(f'{player_id}_blessing_face_up') else 'down'})"
+
+
+def _render_face_up_cards(battle: dict[str, Any], player_id: str) -> str:
+    cards = battle.get(f"{player_id}_cards", [])
+    indexes = battle.get(f"{player_id}_revealed_set_indexes", [])
+    if not cards or not indexes:
+        return "-"
+    revealed = [cards[index] for index in indexes if 0 <= index < len(cards)]
+    return _render_card_list(revealed)
+
+
+def _render_player_blessing_summary(player: dict[str, Any]) -> str:
+    blessing_id = player.get("active_blessing")
+    if not blessing_id:
+        return "-"
+    return (
+        f"{blessing_id} ({'up' if player.get('blessing_face_up', True) else 'down'}) / "
+        f"placed={_render_int_list(player.get('blessing_placed_turns', []))} / "
+        f"used={_render_int_list(player.get('blessing_used_turns', []))} / "
+        f"down={_render_int_list(player.get('blessing_facedown_turns', []))} / "
+        f"pressure={player.get('blessing_pressure_pass_actions', 0)}"
+    )
+
+
+def _render_int_list(values: list[int]) -> str:
+    return ", ".join(str(value) for value in values) if values else "-"

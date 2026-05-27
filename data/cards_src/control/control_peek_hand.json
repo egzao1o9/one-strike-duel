@@ -1,0 +1,21 @@
+{
+  "id": "control_peek_hand",
+  "name": "探り",
+  "type": "control",
+  "rarity": "uncommon",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": ["reveal", "trick"],
+  "public_text": "相手の手札をランダムで1枚見る。",
+  "effects": [
+    {
+      "trigger": "on_play",
+      "effect_type": "reveal_cards",
+      "target": "opponent_hand",
+      "count": 1,
+      "duration": "instant"
+    }
+  ],
+  "notes": "Peek one random card from opponent hand."
+}
