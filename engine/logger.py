@@ -29,26 +29,40 @@ class MatchLogger:
         assert self._current_turn is not None
         self._current_turn["turn_start"] = payload
 
-    def record_phase1(self, discarded: dict[str, list[str]]) -> None:
+    def record_phase1(self, discarded: dict[str, list[str]], hand_counts: dict[str, int] | None = None) -> None:
         assert self._current_turn is not None
         self._current_turn["phase1_mulligan"] = {
             "p1_discarded": discarded["p1"],
             "p2_discarded": discarded["p2"],
+            "hand_counts": hand_counts or {},
         }
 
-    def record_control(self, cards: dict[str, str | None], reveals: dict[str, list[str]]) -> None:
+    def record_control(
+        self,
+        cards: dict[str, str | None],
+        reveals: dict[str, list[str]],
+        card_ids: dict[str, str | None] | None = None,
+        card_sources: dict[str, str | None] | None = None,
+        hand_counts: dict[str, int] | None = None,
+        debug: dict[str, object] | None = None,
+    ) -> None:
         assert self._current_turn is not None
         self._current_turn["control"] = {
             "p1": cards["p1"],
             "p2": cards["p2"],
             "reveals": reveals,
+            "ids": card_ids or {},
+            "sources": card_sources or {},
+            "hand_counts": hand_counts or {},
+            "debug": debug or {},
         }
 
-    def record_phase3(self, discarded: dict[str, list[str]]) -> None:
+    def record_phase3(self, discarded: dict[str, list[str]], hand_counts: dict[str, int] | None = None) -> None:
         assert self._current_turn is not None
         self._current_turn["phase3_mulligan"] = {
             "p1_discarded": discarded["p1"],
             "p2_discarded": discarded["p2"],
+            "hand_counts": hand_counts or {},
         }
 
     def record_battle(self, battle_payload: dict[str, object]) -> None:

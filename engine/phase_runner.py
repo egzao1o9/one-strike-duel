@@ -59,6 +59,7 @@ class MatchRunner:
             bot_name=bot_name,
             public_deck=deck.public_cards,
             hidden_deck=deck.hidden_cards,
+            deck_metadata=dict(deck.metadata),
             draw_pile=build_draw_pile(deck, self.cards, self.rng, shuffle=shuffle_decks),
         )
 
@@ -84,11 +85,11 @@ class MatchRunner:
         turn_start_payload = self._start_turn()
         self.logger.record_turn_start(turn_start_payload)
         phase1 = self._run_mulligan_phase("phase1_mulligan", limit=None)
-        self.logger.record_phase1(phase1)
-        control_cards, reveals = self._run_control_phase()
-        self.logger.record_control(control_cards, reveals)
+        self.logger.record_phase1(phase1["discarded"], phase1["hand_counts"])
+        control_cards, control_ids, control_sources, reveals, control_hand_counts, control_debug = self._run_control_phase()
+        self.logger.record_control(control_cards, reveals, control_ids, control_sources, control_hand_counts, control_debug)
         phase3 = self._run_mulligan_phase("phase3_mulligan", limit=2)
-        self.logger.record_phase3(phase3)
+        self.logger.record_phase3(phase3["discarded"], phase3["hand_counts"])
         battle_context = self._run_battle_select_phase()
         resolution = resolve_battle(self.state)
         self._record_battle(resolution, battle_context)
@@ -113,7 +114,8 @@ class MatchRunner:
 
             overflow_discards = self._discard_overflow(player_id, bot)
             draw_bonus = activate_start_of_turn_effects(player)
-            draw_result = self._draw_for_turn_start(player, self.state.turn_draw_limit + draw_bonus)
+            base_draw_limit = 0 if self.state.turn == 1 else self.state.turn_draw_limit
+            draw_result = self._draw_for_turn_start(player, base_draw_limit + draw_bonus)
             payload[player_id] = {
                 "overflow_discarded": [card.name for card in overflow_discards],
                 "drawn": [card.name for card in draw_result["drawn"]],
@@ -165,9 +167,10 @@ class MatchRunner:
             "draw_shortfall": draw_shortfall,
         }
 
-    def _run_mulligan_phase(self, phase_name: str, limit: int | None) -> dict[str, list[str]]:
+    def _run_mulligan_phase(self, phase_name: str, limit: int | None) -> dict[str, object]:
         self.state.phase = phase_name
         discarded_cards: dict[str, list[str]] = {"p1": [], "p2": []}
+        hand_counts: dict[str, int] = {}
         for player_id, bot in self.bot_map.items():
             player = self.state.players[player_id]
             view = self.state.build_view(player_id)
@@ -181,19 +184,34 @@ class MatchRunner:
                 player.mulligan2_discarded = len(actual)
             player.draw(len(actual))
             discarded_cards[player_id] = [card.name for card in actual]
-        return discarded_cards
+            hand_counts[player_id] = len(player.hand)
+        return {
+            "discarded": discarded_cards,
+            "hand_counts": hand_counts,
+            "p1": discarded_cards["p1"],
+            "p2": discarded_cards["p2"],
+        }
 
-    def _run_control_phase(self) -> tuple[dict[str, str | None], dict[str, list[str]]]:
+    def _run_control_phase(self) -> tuple[dict[str, str | None], dict[str, str | None], dict[str, str | None], dict[str, list[str]], dict[str, int], dict[str, object]]:
         self.state.phase = "control"
         chosen: dict[str, str | None] = {"p1": None, "p2": None}
+        chosen_ids: dict[str, str | None] = {"p1": None, "p2": None}
+        chosen_sources: dict[str, str | None] = {"p1": None, "p2": None}
         reveals: dict[str, list[str]] = {"p1": [], "p2": []}
+        hand_counts: dict[str, int] = {}
+        debug_payload: dict[str, object] = {}
         for player_id, bot in self.bot_map.items():
             player = self.state.players[player_id]
             view = self.state.build_view(player_id)
             selected_id = bot.choose_control_card(view)
+            bot_debug = bot.consume_debug_info()
+            if bot_debug:
+                debug_payload[player_id] = bot_debug.get("control", bot_debug)
             if not selected_id:
+                hand_counts[player_id] = len(player.hand)
                 continue
             if not any(card.id == selected_id and card.type == "control" for card in player.hand):
+                hand_counts[player_id] = len(player.hand)
                 continue
             card = player.remove_from_hand(selected_id)
             player.current_control_card = card
@@ -204,7 +222,12 @@ class MatchRunner:
                 card,
             )
             chosen[player_id] = card.name
-        return chosen, reveals
+            chosen_ids[player_id] = card.id
+            chosen_sources[player_id] = card.instance_source or "unknown"
+            hand_counts[player_id] = len(player.hand)
+        for player_id in ("p1", "p2"):
+            hand_counts.setdefault(player_id, len(self.state.players[player_id].hand))
+        return chosen, chosen_ids, chosen_sources, reveals, hand_counts, debug_payload
 
     def _run_battle_select_phase(self) -> dict[str, object]:
         self.state.phase = "battle_select"
@@ -227,7 +250,8 @@ class MatchRunner:
 
             view = self.state.build_view(player_id)
             requested = self.bot_map[player_id].choose_battle_action(view)
-            applied = self._apply_battle_action(player_id, requested)
+            debug_info = self.bot_map[player_id].consume_debug_info()
+            applied = self._apply_battle_action(player_id, requested, debug_info)
             if applied["became_passed"] and first_pass_player is None:
                 first_pass_player = player_id
             action_history.append(applied["history"])
@@ -239,12 +263,15 @@ class MatchRunner:
             "actions": action_history,
             "p1_facedown_count": len(self.state.players["p1"].set_cards),
             "p2_facedown_count": len(self.state.players["p2"].set_cards),
+            "p1_hand_count_end": len(self.state.players["p1"].hand),
+            "p2_hand_count_end": len(self.state.players["p2"].hand),
         }
 
-    def _apply_battle_action(self, player_id: str, requested: BattleAction) -> dict[str, object]:
+    def _apply_battle_action(self, player_id: str, requested: BattleAction, debug_info: dict[str, object] | None = None) -> dict[str, object]:
         player = self.state.players[player_id]
         opponent = self.state.players[self.state.opponent_of(player_id)]
         before_counts = {"p1": len(self.state.players["p1"].set_cards), "p2": len(self.state.players["p2"].set_cards)}
+        hand_count_before = len(player.hand)
 
         legal_slots = max(0, len(opponent.set_cards) + 1 - len(player.set_cards))
         chosen_cards: list[Card] = []
@@ -280,11 +307,20 @@ class MatchRunner:
             "became_passed": player.battle_passed and action_type in {"set_pass", "pass"},
             "history": {
                 "player_id": player_id,
+                "requested_action_type": requested.action_type,
+                "requested_card_ids": list(requested.card_ids),
                 "action_type": action_type,
                 "action_name": _action_name(action_type),
                 "set_count": len(chosen_cards),
+                "set_card_ids": [card.id for card in chosen_cards],
+                "set_card_names": [card.name for card in chosen_cards],
+                "set_card_sources": [card.instance_source or "unknown" for card in chosen_cards],
+                "hand_count_before": hand_count_before,
+                "hand_count_after": len(player.hand),
+                "set_pass_candidate_count": _extract_set_pass_candidate_count(debug_info),
                 "counts_before": before_counts,
                 "counts_after": after_counts,
+                "debug": debug_info or {},
             },
         }
 
@@ -302,9 +338,15 @@ class MatchRunner:
             "first_pass_player": context["first_pass_player"],
             "actions": context["actions"],
             "p1_cards": [card.name for card in self.state.players["p1"].set_cards],
+            "p1_card_ids": [card.id for card in self.state.players["p1"].set_cards],
+            "p1_card_sources": [card.instance_source or "unknown" for card in self.state.players["p1"].set_cards],
             "p2_cards": [card.name for card in self.state.players["p2"].set_cards],
+            "p2_card_ids": [card.id for card in self.state.players["p2"].set_cards],
+            "p2_card_sources": [card.instance_source or "unknown" for card in self.state.players["p2"].set_cards],
             "p1_facedown_count": context["p1_facedown_count"],
             "p2_facedown_count": context["p2_facedown_count"],
+            "p1_hand_count_end": context["p1_hand_count_end"],
+            "p2_hand_count_end": context["p2_hand_count_end"],
             "winner_facedown_count": winner_facedown_count,
             "loser_facedown_count": loser_facedown_count,
             "won_with_fewer_cards": fewer_cards_win,
@@ -364,6 +406,17 @@ class MatchRunner:
                 continue
             selected.append(card)
         return selected
+
+
+def _extract_set_pass_candidate_count(debug_info: dict[str, object] | None) -> int | None:
+    if not isinstance(debug_info, dict):
+        return None
+    battle_debug = debug_info.get("battle")
+    if isinstance(battle_debug, dict):
+        value = battle_debug.get("set_pass_candidate_count")
+        return int(value) if isinstance(value, int) else None
+    value = debug_info.get("set_pass_candidate_count")
+    return int(value) if isinstance(value, int) else None
 
 
 def _action_name(action_type: str) -> str:

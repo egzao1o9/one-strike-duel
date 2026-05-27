@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from dataclasses import dataclass, field
 
 from engine.game_state import PlayerView
@@ -40,3 +42,6 @@ class BaseBot:
 
     def choose_battle_card(self, view: PlayerView) -> str | None:
         return next((card.id for card in view.hand if card.type == "battle"), None)
+
+    def consume_debug_info(self) -> dict[str, Any] | None:
+        return None

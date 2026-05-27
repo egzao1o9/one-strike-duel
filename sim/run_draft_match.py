@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 import json
 from pathlib import Path
 import random
@@ -23,6 +24,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--seed", type=int, default=71)
     parser.add_argument("--cards", default="data/cards.json")
     parser.add_argument("--pool", default="data/card_pool.json")
+    parser.add_argument("--draft-mode", choices=("simple", "full"), default="simple")
     parser.add_argument("--log-path", default="logs/draft_match.json")
     parser.add_argument("--markdown-path", default="logs/draft_match.md")
     return parser.parse_args()
@@ -42,6 +44,7 @@ def main() -> None:
         draft_bot1,
         draft_bot2,
         deck_size=20,
+        draft_mode=args.draft_mode,
     )
 
     runner = MatchRunner(
@@ -83,13 +86,24 @@ def build_draft_payload(
         "pool_id": draft.pool.id,
         "pool_name": draft.pool.name,
         "first_player": draft.first_player,
+        "draft_mode": draft.deck1.metadata.get("draft_mode", "unknown"),
         "draft_bots": {"p1": draft_bot1, "p2": draft_bot2},
         "deck1": list(draft.deck1.all_cards),
         "deck2": list(draft.deck2.all_cards),
         "deck1_public": list(draft.deck1.public_cards),
         "deck1_hidden": list(draft.deck1.hidden_cards),
+        "deck1_public_normal": list(draft.deck1.metadata.get("public_normal_cards", [])),
+        "deck1_hidden_normal": list(draft.deck1.metadata.get("hidden_normal_cards", [])),
+        "deck1_public_rare": list(draft.deck1.metadata.get("public_rare_cards", [])),
+        "deck1_hidden_rare": list(draft.deck1.metadata.get("hidden_rare_cards", [])),
         "deck2_public": list(draft.deck2.public_cards),
         "deck2_hidden": list(draft.deck2.hidden_cards),
+        "deck2_public_normal": list(draft.deck2.metadata.get("public_normal_cards", [])),
+        "deck2_hidden_normal": list(draft.deck2.metadata.get("hidden_normal_cards", [])),
+        "deck2_public_rare": list(draft.deck2.metadata.get("public_rare_cards", [])),
+        "deck2_hidden_rare": list(draft.deck2.metadata.get("hidden_rare_cards", [])),
+        "deck1_rarity_counts": dict(draft.deck1.metadata.get("final_rarity_counts", {})),
+        "deck2_rarity_counts": dict(draft.deck2.metadata.get("final_rarity_counts", {})),
         "picks": [
             {
                 "number": pick.number,
@@ -100,8 +114,12 @@ def build_draft_payload(
                 "pick_position": pick.pick_position,
                 "offer_card_ids": list(pick.offer_card_ids),
                 "offer_card_names": [cards[card_id].name for card_id in pick.offer_card_ids],
+                "offer_groups": [list(group) for group in pick.offer_groups],
+                "offer_group_names": [[cards[card_id].name for card_id in group] for group in pick.offer_groups],
+                "selected_card_ids": list(pick.selected_card_ids or ((pick.card_id,) if pick.card_id else tuple())),
+                "selected_card_names": [cards[card_id].name for card_id in (pick.selected_card_ids or ((pick.card_id,) if pick.card_id else tuple()))],
                 "card_id": pick.card_id,
-                "card_name": cards[pick.card_id].name,
+                "card_name": cards[pick.card_id].name if pick.card_id else "",
             }
             for pick in draft.picks
         ],
@@ -118,9 +136,14 @@ def render_draft_match_markdown(draft: DraftResult, cards: dict[str, Card], matc
         "",
         f"- Pool: `{draft.pool.id}` ({draft.pool.name})",
         f"- First Pick: `{draft.first_player}`",
+        f"- Draft Mode: `{draft.deck1.metadata.get('draft_mode', 'unknown')}`",
         f"- Deck Size: {len(draft.deck1.all_cards)}",
         f"- P1 Public / Hidden: {len(draft.deck1.public_cards)} / {len(draft.deck1.hidden_cards)}",
         f"- P2 Public / Hidden: {len(draft.deck2.public_cards)} / {len(draft.deck2.hidden_cards)}",
+        f"- P1 Normal Public / Hidden: {len(draft.deck1.metadata.get('public_normal_cards', []))} / {len(draft.deck1.metadata.get('hidden_normal_cards', []))}",
+        f"- P1 Rare Public / Hidden: {len(draft.deck1.metadata.get('public_rare_cards', []))} / {len(draft.deck1.metadata.get('hidden_rare_cards', []))}",
+        f"- P2 Normal Public / Hidden: {len(draft.deck2.metadata.get('public_normal_cards', []))} / {len(draft.deck2.metadata.get('hidden_normal_cards', []))}",
+        f"- P2 Rare Public / Hidden: {len(draft.deck2.metadata.get('public_rare_cards', []))} / {len(draft.deck2.metadata.get('hidden_rare_cards', []))}",
         "",
         "## Role Balance",
         "",
@@ -132,28 +155,42 @@ def render_draft_match_markdown(draft: DraftResult, cards: dict[str, Card], matc
         "## Drafted Decks",
         "",
     ]
-    lines.extend(render_deck_table("P1 Public Deck", draft.deck1.public_cards, cards))
+    lines.extend(render_deck_table("P1 Public Normal", tuple(draft.deck1.metadata.get("public_normal_cards", [])), cards))
     lines.append("")
-    lines.extend(render_deck_table("P1 Hidden Deck", draft.deck1.hidden_cards, cards))
+    lines.extend(render_deck_table("P1 Hidden Normal", tuple(draft.deck1.metadata.get("hidden_normal_cards", [])), cards))
     lines.append("")
-    lines.extend(render_deck_table("P2 Public Deck", draft.deck2.public_cards, cards))
+    lines.extend(render_deck_table("P1 Public Rare", tuple(draft.deck1.metadata.get("public_rare_cards", [])), cards))
     lines.append("")
-    lines.extend(render_deck_table("P2 Hidden Deck", draft.deck2.hidden_cards, cards))
+    lines.extend(render_deck_table("P1 Hidden Rare", tuple(draft.deck1.metadata.get("hidden_rare_cards", [])), cards))
+    lines.append("")
+    lines.extend(render_deck_table("P2 Public Normal", tuple(draft.deck2.metadata.get("public_normal_cards", [])), cards))
+    lines.append("")
+    lines.extend(render_deck_table("P2 Hidden Normal", tuple(draft.deck2.metadata.get("hidden_normal_cards", [])), cards))
+    lines.append("")
+    lines.extend(render_deck_table("P2 Public Rare", tuple(draft.deck2.metadata.get("public_rare_cards", [])), cards))
+    lines.append("")
+    lines.extend(render_deck_table("P2 Hidden Rare", tuple(draft.deck2.metadata.get("hidden_rare_cards", [])), cards))
     lines.append("")
     lines.extend(
         [
             "## Pick Order",
             "",
-            "| Pick | Round | Player | Phase | Position | Card | ID | Rarity | Offer |",
-            "|---:|---:|---|---|---:|---|---|---|---|",
+            "| Pick | Round | Player | Phase | Position | Selected | Rarity Mix | Offer |",
+            "|---:|---:|---|---|---:|---|---|---|",
         ]
     )
     for pick in draft.picks:
-        card = cards[pick.card_id]
+        selected_ids = pick.selected_card_ids or ((pick.card_id,) if pick.card_id else tuple())
+        selected_text = ", ".join(cards[card_id].name for card_id in selected_ids)
+        rarity_mix = Counter(cards[card_id].rarity for card_id in selected_ids)
+        rarity_text = ", ".join(f"{rarity}:{count}" for rarity, count in sorted(rarity_mix.items()))
+        if pick.offer_groups:
+            offer_text = " / ".join(", ".join(cards[card_id].name for card_id in group) for group in pick.offer_groups)
+        else:
+            offer_text = ", ".join(cards[card_id].name for card_id in pick.offer_card_ids)
         lines.append(
-            f"| {pick.number} | {pick.round_number} | `{pick.player_id}` | `{pick.visibility}` | {pick.pick_position} | "
-            f"{card.name} | `{card.id}` | `{card.rarity}` | "
-            f"{', '.join(cards[card_id].name for card_id in pick.offer_card_ids)} |"
+            f"| {pick.number} | {pick.round_number} | `{pick.player_id}` | `{pick.phase}` | {pick.pick_position} | "
+            f"{selected_text} | {rarity_text} | {offer_text} |"
         )
     lines.extend(["", "## Match Log", "", render_match_log_markdown(match_log).rstrip(), ""])
     return "\n".join(lines).rstrip() + "\n"

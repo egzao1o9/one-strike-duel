@@ -1,0 +1,14 @@
+{
+  "id": "battle_bulwark",
+  "name": "Bulwark",
+  "type": "battle",
+  "rarity": "uncommon",
+  "attack": 0,
+  "block": 2,
+  "speed": 0,
+  "tags": [
+    "defense"
+  ],
+  "effects": [],
+  "notes": "Plain defensive battle card."
+}

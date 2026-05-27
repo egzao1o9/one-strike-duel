@@ -2,9 +2,9 @@
 
 ## Summary
 
-- Total Cards: 32
-- Battle Cards: 21
-- Control Cards: 11
+- Total Cards: 37
+- Battle Cards: 24
+- Control Cards: 13
 
 ## Card List
 
@@ -14,8 +14,10 @@
 | `battle_all_in` | 渾身 | `battle` | `rare` | 5 | -1 | -1 | attack, finisher |
 | `battle_attack` | 攻撃 | `battle` | `common` | 1 | 0 | 0 | attack |
 | `battle_backstep` | 退き足 | `battle` | `uncommon` | -1 | 1 | 2 | defense, speed |
+| `battle_bastion` | Bastion | `battle` | `uncommon` | -1 | 3 | 0 | defense, heavy |
 | `battle_brace` | 踏ん張り | `battle` | `uncommon` | 1 | 2 | -1 | balanced |
 | `battle_break` | 崩し | `battle` | `uncommon` | 2 | 0 | 1 | attack |
+| `battle_bulwark` | Bulwark | `battle` | `uncommon` | 0 | 2 | 0 | defense |
 | `battle_counter` | 返し刃 | `battle` | `uncommon` | 1 | 1 | 1 | balanced |
 | `battle_cross_guard` | 十字受け | `battle` | `uncommon` | 0 | 2 | 1 | defense, speed |
 | `battle_crush` | 粉砕 | `battle` | `uncommon` | 3 | -1 | 0 | attack, risk |
@@ -30,9 +32,12 @@
 | `battle_press` | 押し込み | `battle` | `uncommon` | 1 | 1 | 0 | balanced |
 | `battle_step` | ステップ | `battle` | `common` | 0 | 0 | 1 | speed |
 | `battle_step_in` | 踏み込み | `battle` | `rare` | 4 | 0 | 2 | attack, risk |
+| `battle_tripwire` | Tripwire | `battle` | `rare` | 0 | -1 | 0 | trick, speed |
 | `battle_wall` | 鉄壁 | `battle` | `rare` | -1 | 5 | -1 | defense, heavy |
 | `control_anchor` | 重心落とし | `control` | `uncommon` | 0 | 0 | 0 | debuff |
+| `control_blank_first` | Blank First | `control` | `uncommon` | 0 | 0 | 0 | debuff, trick |
 | `control_cover` | 受け直し | `control` | `uncommon` | 0 | 0 | 0 | buff |
+| `control_crush_spirit` | Crush Spirit | `control` | `rare` | 0 | 0 | 0 | debuff |
 | `control_disrupt` | 牽制 | `control` | `common` | 0 | 0 | 0 | debuff |
 | `control_focus` | 集中 | `control` | `common` | 0 | 0 | 0 | buff, next_turn |
 | `control_fortify` | 補強 | `control` | `uncommon` | 0 | 0 | 0 | buff |
@@ -86,6 +91,16 @@
 - Notes: 攻めない代わりに位置取りを優先する。
 - Effects: none
 
+### Bastion
+
+- ID: `battle_bastion`
+- Type: `battle`
+- Rarity: `uncommon`
+- Stats: `A=-1 / B=3 / S=0`
+- Tags: defense, heavy
+- Notes: Heavy guard with a small attack loss.
+- Effects: none
+
 ### 踏ん張り
 
 - ID: `battle_brace`
@@ -106,6 +121,16 @@
 - Notes: 相手の防御を崩す。
 - Effects:
   - `battle` / `modify_opponent_block` / value=1
+
+### Bulwark
+
+- ID: `battle_bulwark`
+- Type: `battle`
+- Rarity: `uncommon`
+- Stats: `A=0 / B=2 / S=0`
+- Tags: defense
+- Notes: Plain defensive battle card.
+- Effects: none
 
 ### 返し刃
 
@@ -249,6 +274,17 @@
 - Effects:
   - `battle` / `set_self_block_limit` / value=0
 
+### Tripwire
+
+- ID: `battle_tripwire`
+- Type: `battle`
+- Rarity: `rare`
+- Stats: `A=0 / B=-1 / S=0`
+- Tags: trick, speed
+- Notes: Drops the opponent's speed sharply at the cost of guard.
+- Effects:
+  - `battle` / `modify_opponent_speed` / value=3
+
 ### 鉄壁
 
 - ID: `battle_wall`
@@ -270,6 +306,17 @@
 - Effects:
   - `battle` / `modify_opponent_speed` / value=2
 
+### Blank First
+
+- ID: `control_blank_first`
+- Type: `control`
+- Rarity: `uncommon`
+- Stats: `A=0 / B=0 / S=0`
+- Tags: debuff, trick
+- Notes: Negates the opponent's first set battle card this turn.
+- Effects:
+  - `battle` / `negate_opponent_first_card` / value=1
+
 ### 受け直し
 
 - ID: `control_cover`
@@ -281,6 +328,17 @@
 - Effects:
   - `battle` / `modify_self_block` / value=1
   - `battle` / `modify_self_speed` / value=1
+
+### Crush Spirit
+
+- ID: `control_crush_spirit`
+- Type: `control`
+- Rarity: `rare`
+- Stats: `A=0 / B=0 / S=0`
+- Tags: debuff
+- Notes: Reduces the opponent's attack by 3 this turn.
+- Effects:
+  - `battle` / `modify_opponent_attack` / value=3
 
 ### 牽制
 

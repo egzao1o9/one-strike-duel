@@ -64,6 +64,21 @@
     "notes": "攻めない代わりに位置取りを優先する。"
   },
   {
+    "id": "battle_bastion",
+    "name": "Bastion",
+    "type": "battle",
+    "rarity": "uncommon",
+    "attack": -1,
+    "block": 3,
+    "speed": 0,
+    "tags": [
+      "defense",
+      "heavy"
+    ],
+    "effects": [],
+    "notes": "Heavy guard with a small attack loss."
+  },
+  {
     "id": "battle_brace",
     "name": "踏ん張り",
     "type": "battle",
@@ -96,6 +111,20 @@
       }
     ],
     "notes": "相手の防御を崩す。"
+  },
+  {
+    "id": "battle_bulwark",
+    "name": "Bulwark",
+    "type": "battle",
+    "rarity": "uncommon",
+    "attack": 0,
+    "block": 2,
+    "speed": 0,
+    "tags": [
+      "defense"
+    ],
+    "effects": [],
+    "notes": "Plain defensive battle card."
   },
   {
     "id": "battle_counter",
@@ -312,6 +341,27 @@
     "notes": "このターン、自分はブロック値を得られない。"
   },
   {
+    "id": "battle_tripwire",
+    "name": "Tripwire",
+    "type": "battle",
+    "rarity": "rare",
+    "attack": 0,
+    "block": -1,
+    "speed": 0,
+    "tags": [
+      "trick",
+      "speed"
+    ],
+    "effects": [
+      {
+        "timing": "battle",
+        "kind": "modify_opponent_speed",
+        "value": 3
+      }
+    ],
+    "notes": "Drops the opponent's speed sharply at the cost of guard."
+  },
+  {
     "id": "battle_wall",
     "name": "鉄壁",
     "type": "battle",
@@ -347,6 +397,27 @@
     "notes": "このターン、相手の素早さ-2。"
   },
   {
+    "id": "control_blank_first",
+    "name": "Blank First",
+    "type": "control",
+    "rarity": "uncommon",
+    "attack": 0,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "debuff",
+      "trick"
+    ],
+    "effects": [
+      {
+        "timing": "battle",
+        "kind": "negate_opponent_first_card",
+        "value": 1
+      }
+    ],
+    "notes": "Negates the opponent's first set battle card this turn."
+  },
+  {
     "id": "control_cover",
     "name": "受け直し",
     "type": "control",
@@ -370,6 +441,26 @@
       }
     ],
     "notes": "このターン、ブロック+1、素早さ+1。"
+  },
+  {
+    "id": "control_crush_spirit",
+    "name": "Crush Spirit",
+    "type": "control",
+    "rarity": "rare",
+    "attack": 0,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "debuff"
+    ],
+    "effects": [
+      {
+        "timing": "battle",
+        "kind": "modify_opponent_attack",
+        "value": 3
+      }
+    ],
+    "notes": "Reduces the opponent's attack by 3 this turn."
   },
   {
     "id": "control_disrupt",

@@ -13,7 +13,8 @@ class PlayerState:
     bot_name: str
     public_deck: tuple[str, ...]
     hidden_deck: tuple[str, ...]
-    draw_pile: list[Card]
+    deck_metadata: dict[str, object] = field(default_factory=dict)
+    draw_pile: list[Card] = field(default_factory=list)
     hand: list[Card] = field(default_factory=list)
     discard_pile: list[Card] = field(default_factory=list)
     used_cards: list[Card] = field(default_factory=list)
@@ -60,11 +61,13 @@ class PlayerView:
     hand: tuple[Card, ...]
     own_public_deck: tuple[str, ...]
     own_hidden_deck: tuple[str, ...]
+    own_deck_metadata: dict[str, object]
     own_set_cards: tuple[Card, ...]
     own_discard: tuple[Card, ...]
     own_used: tuple[Card, ...]
     own_control_card: Card | None
     opponent_public_deck: tuple[str, ...]
+    opponent_deck_metadata: dict[str, object]
     opponent_discard: tuple[Card, ...]
     opponent_used: tuple[Card, ...]
     opponent_hand_count: int
@@ -108,11 +111,13 @@ class GameState:
             hand=tuple(player.hand),
             own_public_deck=player.public_deck,
             own_hidden_deck=player.hidden_deck,
+            own_deck_metadata=dict(player.deck_metadata),
             own_set_cards=tuple(player.set_cards),
             own_discard=tuple(player.discard_pile),
             own_used=tuple(player.used_cards),
             own_control_card=player.current_control_card,
             opponent_public_deck=opponent.public_deck,
+            opponent_deck_metadata=dict(opponent.deck_metadata),
             opponent_discard=tuple(opponent.discard_pile),
             opponent_used=tuple(opponent.used_cards),
             opponent_hand_count=len(opponent.hand),

@@ -27,6 +27,7 @@ EFFECT_KINDS = (
     "modify_opponent_attack",
     "modify_opponent_block",
     "modify_opponent_speed",
+    "negate_opponent_first_card",
     "set_self_block_limit",
     "draw_cards",
     "reveal_opponent_hand_random",
@@ -61,6 +62,7 @@ class Card:
     tags: tuple[str, ...] = field(default_factory=tuple)
     effects: tuple[Effect, ...] = field(default_factory=tuple)
     notes: str = ""
+    instance_source: str = ""
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> "Card":

@@ -25,12 +25,14 @@ def test_role_balance_drafter_builds_balanced_deck() -> None:
         RandomDraftBot(),
         deck_size=20,
         first_player="p1",
+        draft_mode="full",
     )
     summary = summarize_deck(draft.deck1.all_cards, cards)
 
     assert summary.total == 20
-    assert summary.control_count >= 6
-    assert summary.role_counts["white"] >= 6
+    assert summary.rarity_counts["common"] == 8
+    assert summary.rarity_counts["uncommon"] == 8
+    assert summary.rarity_counts["rare"] == 4
 
 
 def test_new_draft_flow_tracks_hidden_and_public_picks() -> None:
@@ -44,21 +46,65 @@ def test_new_draft_flow_tracks_hidden_and_public_picks() -> None:
         StandardDraftBot(seed=18),
         deck_size=20,
         first_player="p1",
+        draft_mode="full",
+    )
+
+    assert len(draft.deck1.all_cards) == 20
+    assert len(draft.deck2.all_cards) == 20
+    assert len(draft.deck1.hidden_cards) == 10
+    assert len(draft.deck2.hidden_cards) == 10
+    assert len(draft.deck1.public_cards) == 10
+    assert len(draft.deck2.public_cards) == 10
+    assert len(draft.deck1.metadata["public_normal_cards"]) == 8
+    assert len(draft.deck1.metadata["hidden_normal_cards"]) == 8
+    assert len(draft.deck1.metadata["public_rare_cards"]) == 2
+    assert len(draft.deck1.metadata["hidden_rare_cards"]) == 2
+    assert len(draft.deck2.metadata["public_normal_cards"]) == 8
+    assert len(draft.deck2.metadata["hidden_normal_cards"]) == 8
+    assert len(draft.deck2.metadata["public_rare_cards"]) == 2
+    assert len(draft.deck2.metadata["hidden_rare_cards"]) == 2
+    assert draft.deck1.metadata["final_rarity_counts"] == {"common": 8, "uncommon": 8, "rare": 4}
+    assert draft.deck2.metadata["final_rarity_counts"] == {"common": 8, "uncommon": 8, "rare": 4}
+    assert len(draft.picks) == 16
+    assert draft.picks[0].player_id == "p1"
+    assert draft.picks[0].visibility == "public"
+    assert draft.picks[0].phase == "normal_public"
+    assert len(draft.picks[0].selected_card_ids) == 4
+    assert draft.picks[1].player_id == "p2"
+    assert draft.picks[1].visibility == "hidden"
+    assert draft.picks[1].phase == "normal_hidden"
+    assert draft.picks[2].player_id == "p2"
+    assert draft.picks[2].visibility == "public"
+    assert draft.picks[2].pick_position == 2
+    assert draft.picks[3].player_id == "p1"
+    assert draft.picks[3].visibility == "hidden"
+    assert "public_draft_events" in draft.deck1.metadata
+    assert "public_draft_events" in draft.deck2.metadata
+    assert len(draft.deck1.metadata["public_draft_events"]) > 0
+
+
+def test_simple_draft_flow_hits_rarity_targets() -> None:
+    cards = load_cards("data/cards.json")
+    pool = load_card_pool("data/card_pool.json", cards)
+    draft = draft_with_bots(
+        pool,
+        cards,
+        random.Random(19),
+        RandomDraftBot(),
+        StandardDraftBot(seed=20),
+        deck_size=20,
+        first_player="p1",
+        draft_mode="simple",
     )
 
     assert len(draft.deck1.all_cards) == 20
     assert len(draft.deck2.all_cards) == 20
     assert len(draft.deck1.hidden_cards) == 7
-    assert len(draft.deck2.hidden_cards) == 7
     assert len(draft.deck1.public_cards) == 13
+    assert len(draft.deck2.hidden_cards) == 7
     assert len(draft.deck2.public_cards) == 13
-    assert draft.picks[0].player_id == "p1"
-    assert draft.picks[0].visibility == "hidden"
-    assert draft.picks[1].player_id == "p2"
-    assert draft.picks[1].visibility == "public"
-    assert draft.picks[1].pick_position == 1
-    assert draft.picks[2].player_id == "p1"
-    assert draft.picks[2].visibility == "public"
-    assert draft.picks[2].pick_position == 2
-    assert draft.picks[3].player_id == "p2"
-    assert draft.picks[3].visibility == "hidden"
+    summary1 = summarize_deck(draft.deck1.all_cards, cards)
+    summary2 = summarize_deck(draft.deck2.all_cards, cards)
+    assert summary1.rarity_counts == {"common": 8, "uncommon": 8, "rare": 4}
+    assert summary2.rarity_counts == {"common": 8, "uncommon": 8, "rare": 4}
+    assert draft.deck1.metadata["draft_mode"] == "simple"

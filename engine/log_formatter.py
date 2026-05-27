@@ -100,7 +100,14 @@ def _render_turn(turn: dict[str, Any]) -> list[str]:
         f"- Start: first={PLAYER_LABELS.get(turn_start.get('starting_player'), '?')} / P1 draw={turn_start.get('p1', {}).get('draw_count', 0)} / P2 draw={turn_start.get('p2', {}).get('draw_count', 0)}",
         f"- Mulligan1: P1 {_render_card_list(phase1.get('p1_discarded', []))} / P2 {_render_card_list(phase1.get('p2_discarded', []))}",
         f"- Control: P1 {_render_card_name(control.get('p1'))} / P2 {_render_card_name(control.get('p2'))}",
+        f"- Control IDs: P1 {_render_card_name(control.get('ids', {}).get('p1'))} [{_render_card_name(control.get('sources', {}).get('p1'))}] "
+        f"/ P2 {_render_card_name(control.get('ids', {}).get('p2'))} [{_render_card_name(control.get('sources', {}).get('p2'))}]",
         f"- Mulligan2: P1 {_render_card_list(phase3.get('p1_discarded', []))} / P2 {_render_card_list(phase3.get('p2_discarded', []))}",
+        f"- Hand Counts: start P1={turn_start.get('p1', {}).get('hand_count', '?')} / P2={turn_start.get('p2', {}).get('hand_count', '?')} ; "
+        f"m1 P1={phase1.get('hand_counts', {}).get('p1', '?')} / P2={phase1.get('hand_counts', {}).get('p2', '?')} ; "
+        f"control P1={control.get('hand_counts', {}).get('p1', '?')} / P2={control.get('hand_counts', {}).get('p2', '?')} ; "
+        f"m2 P1={phase3.get('hand_counts', {}).get('p1', '?')} / P2={phase3.get('hand_counts', {}).get('p2', '?')} ; "
+        f"battle_end P1={battle.get('p1_hand_count_end', '?')} / P2={battle.get('p2_hand_count_end', '?')}",
     ]
 
     for side in ("p1", "p2"):
@@ -119,14 +126,21 @@ def _render_turn(turn: dict[str, Any]) -> list[str]:
     lines.append(
         f"- Battle: P1 {_render_battle_side(battle, 'p1')} vs P2 {_render_battle_side(battle, 'p2')}"
     )
+    lines.append(
+        f"- Battle IDs: P1 {_render_card_list(battle.get('p1_card_ids', []))} [{_render_card_list(battle.get('p1_card_sources', []))}] "
+        f"/ P2 {_render_card_list(battle.get('p2_card_ids', []))} [{_render_card_list(battle.get('p2_card_sources', []))}]"
+    )
     lines.append(f"- Initiative: {_get_initiative_label(battle)}")
     lines.append(f"- Result: {RESULT_LABELS.get(battle.get('result'), battle.get('result', 'unknown'))}")
     if battle.get("actions"):
         for action in battle["actions"]:
             lines.append(
                 f"- Action: {PLAYER_LABELS.get(action['player_id'], action['player_id'])} {action.get('action_name', action.get('action_type'))} "
-                f"set={action.get('set_count', 0)} after={action.get('counts_after', {})}"
+                f"set={action.get('set_count', 0)} ids={action.get('set_card_ids', [])} sources={action.get('set_card_sources', [])} "
+                f"set_pass_candidates={action.get('set_pass_candidate_count')} after={action.get('counts_after', {})}"
             )
+            if action.get("debug"):
+                lines.append(f"- Debug: {action.get('debug')}")
     return lines
 
 
@@ -145,10 +159,15 @@ def _render_turn_markdown(turn: dict[str, Any]) -> list[str]:
         f"| Start Draw | {_render_start_info(turn_start.get('p1', {}))} | {_render_start_info(turn_start.get('p2', {}))} |",
         f"| Mulligan1 | {_render_card_list(phase1.get('p1_discarded', []))} | {_render_card_list(phase1.get('p2_discarded', []))} |",
         f"| Control | {_render_card_name(control.get('p1'))} | {_render_card_name(control.get('p2'))} |",
+        f"| Control IDs | {_render_card_name(control.get('ids', {}).get('p1'))} | {_render_card_name(control.get('ids', {}).get('p2'))} |",
+        f"| Control Sources | {_render_card_name(control.get('sources', {}).get('p1'))} | {_render_card_name(control.get('sources', {}).get('p2'))} |",
         f"| Mulligan2 | {_render_card_list(phase3.get('p1_discarded', []))} | {_render_card_list(phase3.get('p2_discarded', []))} |",
         f"| Battle Cards | {_render_played_cards(battle, 'p1')} | {_render_played_cards(battle, 'p2')} |",
+        f"| Battle Card IDs | {_render_card_list(battle.get('p1_card_ids', []))} | {_render_card_list(battle.get('p2_card_ids', []))} |",
+        f"| Battle Card Sources | {_render_card_list(battle.get('p1_card_sources', []))} | {_render_card_list(battle.get('p2_card_sources', []))} |",
         f"| Final Stats | {_render_battle_stats(battle, 'p1')} | {_render_battle_stats(battle, 'p2')} |",
         f"| Facedown Count | {battle.get('p1_facedown_count', '-')} | {battle.get('p2_facedown_count', '-')} |",
+        f"| Hand Count Flow | {_render_hand_flow(turn, 'p1')} | {_render_hand_flow(turn, 'p2')} |",
         "",
         f"- Starting Player: {PLAYER_LABELS.get(battle.get('starting_player'), PLAYER_LABELS.get(turn_start.get('starting_player'), '?'))}",
         f"- First Pass Player: {PLAYER_LABELS.get(battle.get('first_pass_player'), '-') if battle.get('first_pass_player') else '-'}",
@@ -167,12 +186,15 @@ def _render_turn_markdown(turn: dict[str, Any]) -> list[str]:
         lines.append(f"- Reveals: P1 {_render_card_list(reveals.get('p1', []))} / P2 {_render_card_list(reveals.get('p2', []))}")
 
     if battle.get("actions"):
-        lines.extend(["", "| Action Order | Type | Set Count | Counts After |", "|---|---|---:|---|"])
+        lines.extend(["", "| Action Order | Type | Set Count | Card IDs | Sources | set_pass Cand | Counts After |", "|---|---|---:|---|---|---:|---|"])
         for action in battle["actions"]:
             lines.append(
                 f"| {PLAYER_LABELS.get(action['player_id'], action['player_id'])} | {action.get('action_name', action.get('action_type'))} | "
-                f"{action.get('set_count', 0)} | P1={action.get('counts_after', {}).get('p1', '?')} / P2={action.get('counts_after', {}).get('p2', '?')} |"
+                f"{action.get('set_count', 0)} | {_render_card_list(action.get('set_card_ids', []))} | {_render_card_list(action.get('set_card_sources', []))} | "
+                f"{action.get('set_pass_candidate_count', '-')} | P1={action.get('counts_after', {}).get('p1', '?')} / P2={action.get('counts_after', {}).get('p2', '?')} |"
             )
+            if action.get("debug"):
+                lines.append(f"| Debug | `{str(action.get('debug'))}` | - | - | - | - | - |")
 
     return lines
 
@@ -186,6 +208,16 @@ def _render_start_info(info: dict[str, Any]) -> str:
     if info.get("draw_shortfall"):
         parts.append(f"short={info.get('draw_shortfall')}")
     return " / ".join(parts)
+
+
+def _render_hand_flow(turn: dict[str, Any], side: str) -> str:
+    return (
+        f"start={turn.get('turn_start', {}).get(side, {}).get('hand_count', '?')} / "
+        f"m1={turn.get('phase1_mulligan', {}).get('hand_counts', {}).get(side, '?')} / "
+        f"control={turn.get('control', {}).get('hand_counts', {}).get(side, '?')} / "
+        f"m2={turn.get('phase3_mulligan', {}).get('hand_counts', {}).get(side, '?')} / "
+        f"end={turn.get('battle', {}).get(f'{side}_hand_count_end', '?')}"
+    )
 
 
 def _get_initiative_label(battle: dict[str, Any]) -> str:

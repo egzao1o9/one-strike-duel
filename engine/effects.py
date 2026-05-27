@@ -14,6 +14,7 @@ class BattleSide:
     block: int
     speed: int
     block_limit: int | None = None
+    invalidated_card_indexes: set[int] = field(default_factory=set)
     applied_effects: list[str] = field(default_factory=list)
 
 
@@ -68,6 +69,13 @@ def apply_effect(effect: Effect, actor_id: str, sides: dict[str, BattleSide], qu
         opponent.block -= effect.value
     elif effect.kind == "modify_opponent_speed":
         opponent.speed -= effect.value
+    elif effect.kind == "negate_opponent_first_card":
+        if 0 not in opponent.invalidated_card_indexes and opponent.source_cards:
+            card = opponent.source_cards[0]
+            opponent.attack -= card.attack
+            opponent.block -= card.block
+            opponent.speed -= card.speed
+            opponent.invalidated_card_indexes.add(0)
     elif effect.kind == "set_self_block_limit":
         actor.block_limit = effect.value if actor.block_limit is None else min(actor.block_limit, effect.value)
     else:

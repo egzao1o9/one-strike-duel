@@ -30,8 +30,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--seed", type=int, default=131)
     parser.add_argument("--cards", default="data/cards.json")
     parser.add_argument("--pool", default="data/card_pool.json")
+    parser.add_argument("--draft-mode", choices=("simple", "full"), default="simple")
     parser.add_argument("--output-dir", default=None)
     parser.add_argument("--keep-match-logs", type=int, default=100)
+    parser.add_argument("--fast-report", action="store_true")
+    parser.add_argument("--lean-draft-logging", action="store_true")
+    parser.add_argument("--save-battle-logs", action="store_true")
     return parser.parse_args()
 
 
@@ -46,8 +50,12 @@ def main() -> None:
         args.seed,
         args.cards,
         args.pool,
+        args.draft_mode,
         args.output_dir,
         args.keep_match_logs,
+        args.fast_report,
+        args.lean_draft_logging,
+        args.save_battle_logs,
     )
     print(summary_md)
     print(f"matches={total_matches}")
@@ -62,29 +70,113 @@ def run_draft_report(
     seed: int,
     cards_path: str = "data/cards.json",
     pool_path: str = "data/card_pool.json",
+    draft_mode: str = "simple",
     output_dir_override: str | None = None,
     keep_match_logs: int = 100,
+    fast_report: bool = False,
+    lean_draft_logging: bool = False,
+    save_battle_logs: bool = False,
 ) -> tuple[Path, int]:
-    cards = load_cards(cards_path)
-    pool = load_card_pool(pool_path, cards)
     output_dir = Path(
         output_dir_override
         or f"logs/draft_report_{draft_bot1_name.lower()}_vs_{draft_bot2_name.lower()}_{bot1_name.lower()}_{bot2_name.lower()}_r{rounds}_seed{seed}"
     )
+    output_dir.mkdir(parents=True, exist_ok=True)
     matches_dir = output_dir / "matches"
-    matches_dir.mkdir(parents=True, exist_ok=True)
+    if not fast_report or save_battle_logs:
+        matches_dir.mkdir(parents=True, exist_ok=True)
+
+    chunk_result = run_draft_report_chunk(
+        draft_bot1_name=draft_bot1_name,
+        draft_bot2_name=draft_bot2_name,
+        bot1_name=bot1_name,
+        bot2_name=bot2_name,
+        round_start=1,
+        round_end=rounds,
+        seed=seed,
+        cards_path=cards_path,
+        pool_path=pool_path,
+        draft_mode=draft_mode,
+        output_dir=output_dir.as_posix(),
+        fast_report=fast_report,
+        lean_draft_logging=lean_draft_logging,
+        save_battle_logs=save_battle_logs,
+    )
+    cards = load_cards(cards_path)
+    pool = load_card_pool(pool_path, cards)
+    records = chunk_result["records"]
+    draft_records = chunk_result["draft_records"]
+    exported_match_records = sorted(chunk_result["exported_match_records"], key=lambda item: item["match_id"])
+
+    summary = build_draft_summary(records, cards, [draft_bot1_name, draft_bot2_name])
+    summary["config"] = {
+        "draft_bot1": draft_bot1_name,
+        "draft_bot2": draft_bot2_name,
+        "bot1": bot1_name,
+        "bot2": bot2_name,
+        "rounds": rounds,
+        "total_matches": len(records),
+        "seed": seed,
+        "pool_id": pool.id,
+        "pool_total_cards": pool.total_cards,
+        "pairing_mode": "mirrored seats per round",
+        "draft_mode": draft_mode,
+        "fast_report": fast_report,
+        "lean_draft_logging": lean_draft_logging,
+        "save_battle_logs": save_battle_logs,
+    }
+    if not lean_draft_logging:
+        summary["draft_records"] = draft_records
+
+    summary_json = output_dir / "summary.json"
+    summary_md = output_dir / "summary.md"
+    match_records_path = output_dir / "match_records.jsonl"
+    summary_json.write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
+    summary_md.write_text(render_draft_report_markdown(summary), encoding="utf-8")
+    match_records_path.write_text(
+        "\n".join(json.dumps(item, ensure_ascii=False) for item in exported_match_records) + ("\n" if exported_match_records else ""),
+        encoding="utf-8",
+    )
+    if not fast_report or save_battle_logs:
+        prune_match_logs(matches_dir, keep_match_logs)
+    return summary_md, len(records)
+
+
+def run_draft_report_chunk(
+    *,
+    draft_bot1_name: str,
+    draft_bot2_name: str,
+    bot1_name: str,
+    bot2_name: str,
+    round_start: int,
+    round_end: int,
+    seed: int,
+    cards_path: str = "data/cards.json",
+    pool_path: str = "data/card_pool.json",
+    draft_mode: str = "simple",
+    output_dir: str | None = None,
+    fast_report: bool = False,
+    lean_draft_logging: bool = False,
+    save_battle_logs: bool = False,
+) -> dict[str, Any]:
+    cards = load_cards(cards_path)
+    pool = load_card_pool(pool_path, cards)
+    output_dir_path = Path(output_dir) if output_dir is not None else None
+    matches_dir = output_dir_path / "matches" if output_dir_path is not None else None
+    if matches_dir is not None and (not fast_report or save_battle_logs):
+        matches_dir.mkdir(parents=True, exist_ok=True)
 
     records: list[dict[str, Any]] = []
     draft_records: list[dict[str, Any]] = []
     exported_match_records: list[dict[str, Any]] = []
-    match_index = 1
 
-    for round_index in range(1, rounds + 1):
+    for round_index in range(round_start, round_end + 1):
         seat_pairs = (
             (draft_bot1_name, draft_bot2_name, bot1_name, bot2_name),
             (draft_bot2_name, draft_bot1_name, bot2_name, bot1_name),
         )
         for seat_order, (p1_drafter_name, p2_drafter_name, p1_bot_name, p2_bot_name) in enumerate(seat_pairs):
+            match_index = (round_index - 1) * 2 + seat_order + 1
             match_seed = seed + round_index * 101 + seat_order * 11
             rng = random.Random(match_seed)
             draft = draft_with_bots(
@@ -94,9 +186,10 @@ def run_draft_report(
                 build_draft_bot(p1_drafter_name, match_seed),
                 build_draft_bot(p2_drafter_name, match_seed + 1),
                 deck_size=20,
-        deck1_id=f"draft_{match_index:04d}_p1",
-        deck2_id=f"draft_{match_index:04d}_p2",
-        deck1_name=f"{p1_drafter_name} Deck",
+                draft_mode=draft_mode,
+                deck1_id=f"draft_{match_index:04d}_p1",
+                deck2_id=f"draft_{match_index:04d}_p2",
+                deck1_name=f"{p1_drafter_name} Deck",
                 deck2_name=f"{p2_drafter_name} Deck",
             )
 
@@ -112,16 +205,22 @@ def run_draft_report(
             )
             result = runner.run()
 
-            json_path = matches_dir / f"match_{match_index:04d}_{p1_drafter_name}_vs_{p2_drafter_name}.json"
-            md_path = matches_dir / f"match_{match_index:04d}_{p1_drafter_name}_vs_{p2_drafter_name}.md"
-            wrapper = {
-                "draft": build_draft_payload(draft, cards, p1_drafter_name, p2_drafter_name),
-                "match": result.log,
-            }
-            json_path.write_text(json.dumps(wrapper, ensure_ascii=False, indent=2), encoding="utf-8")
-            md_path.write_text(render_draft_match_markdown(draft, cards, result.log), encoding="utf-8")
+            draft_payload = build_draft_payload(draft, cards, p1_drafter_name, p2_drafter_name)
+            wrapper = {"draft": draft_payload, "match": result.log}
+            markdown_rel_path = ""
+            if matches_dir is not None:
+                json_path = matches_dir / f"match_{match_index:04d}_{p1_drafter_name}_vs_{p2_drafter_name}.json"
+                md_path = matches_dir / f"match_{match_index:04d}_{p1_drafter_name}_vs_{p2_drafter_name}.md"
+                if not fast_report:
+                    json_path.write_text(json.dumps(wrapper, ensure_ascii=False, indent=2), encoding="utf-8")
+                    md_path.write_text(render_draft_match_markdown(draft, cards, result.log), encoding="utf-8")
+                    markdown_rel_path = md_path.relative_to(output_dir_path).as_posix() if output_dir_path else md_path.name
+                elif save_battle_logs:
+                    json_path.write_text(json.dumps(result.log, ensure_ascii=False, indent=2), encoding="utf-8")
+                    md_path.write_text(render_match_log_markdown(result.log), encoding="utf-8")
+                    markdown_rel_path = md_path.relative_to(output_dir_path).as_posix() if output_dir_path else md_path.name
 
-            record = build_match_record(result.log, md_path.relative_to(output_dir).as_posix())
+            record = build_match_record(result.log, markdown_rel_path)
             record["p1_drafter"] = p1_drafter_name
             record["p2_drafter"] = p2_drafter_name
             record["p1_play_bot"] = p1_bot_name
@@ -132,7 +231,8 @@ def run_draft_report(
             record["p1_deck_summary"] = summary_to_dict(summarize_deck(draft.deck1.all_cards, cards))
             record["p2_deck_summary"] = summary_to_dict(summarize_deck(draft.deck2.all_cards, cards))
             records.append(record)
-            draft_records.append(wrapper["draft"])
+            if not lean_draft_logging:
+                draft_records.append(draft_payload)
             exported_match_records.append(
                 {
                     "match_id": record["match_id"],
@@ -144,42 +244,37 @@ def run_draft_report(
                     "p1_play_bot": p1_bot_name,
                     "p2_play_bot": p2_bot_name,
                     "draft_first_player": draft.first_player,
-                    "markdown_path": md_path.relative_to(output_dir).as_posix(),
+                    "markdown_path": markdown_rel_path,
+                    "set_pass_candidate_count": record.get("set_pass_candidate_count", 0),
+                    "hand_count_trace": record.get("hand_count_trace", []),
+                    "side_usage_details": record.get("side_usage_details", {}),
+                    "winner_used_card_details": record.get("winner_used_card_details", []),
+                    "winner_decisive_card_details": record.get("winner_decisive_card_details", []),
                     "p1_public_cards": list(draft.deck1.public_cards),
                     "p1_hidden_cards": list(draft.deck1.hidden_cards),
+                    "p1_public_normal_cards": list(draft.deck1.metadata.get("public_normal_cards", [])),
+                    "p1_hidden_normal_cards": list(draft.deck1.metadata.get("hidden_normal_cards", [])),
+                    "p1_public_rare_cards": list(draft.deck1.metadata.get("public_rare_cards", [])),
+                    "p1_hidden_rare_cards": list(draft.deck1.metadata.get("hidden_rare_cards", [])),
                     "p2_public_cards": list(draft.deck2.public_cards),
                     "p2_hidden_cards": list(draft.deck2.hidden_cards),
-                    "picks": wrapper["draft"]["picks"],
+                    "p2_public_normal_cards": list(draft.deck2.metadata.get("public_normal_cards", [])),
+                    "p2_hidden_normal_cards": list(draft.deck2.metadata.get("hidden_normal_cards", [])),
+                    "p2_public_rare_cards": list(draft.deck2.metadata.get("public_rare_cards", [])),
+                    "p2_hidden_rare_cards": list(draft.deck2.metadata.get("hidden_rare_cards", [])),
+                    "p1_rarity_counts": dict(draft.deck1.metadata.get("final_rarity_counts", {})),
+                    "p2_rarity_counts": dict(draft.deck2.metadata.get("final_rarity_counts", {})),
+                    **({} if lean_draft_logging else {"picks": draft_payload["picks"]}),
                 }
             )
-            match_index += 1
 
-    summary = build_draft_summary(records, cards, [draft_bot1_name, draft_bot2_name])
-    summary["config"] = {
-        "draft_bot1": draft_bot1_name,
-        "draft_bot2": draft_bot2_name,
-        "bot1": bot1_name,
-        "bot2": bot2_name,
-        "rounds": rounds,
-        "total_matches": len(records),
-        "seed": seed,
+    return {
+        "records": records,
+        "draft_records": draft_records,
+        "exported_match_records": exported_match_records,
         "pool_id": pool.id,
         "pool_total_cards": pool.total_cards,
-        "pairing_mode": "mirrored seats per round",
     }
-    summary["draft_records"] = draft_records
-
-    summary_json = output_dir / "summary.json"
-    summary_md = output_dir / "summary.md"
-    match_records_path = output_dir / "match_records.jsonl"
-    summary_json.write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
-    summary_md.write_text(render_draft_report_markdown(summary), encoding="utf-8")
-    match_records_path.write_text(
-        "\n".join(json.dumps(item, ensure_ascii=False) for item in exported_match_records) + ("\n" if exported_match_records else ""),
-        encoding="utf-8",
-    )
-    prune_match_logs(matches_dir, keep_match_logs)
-    return summary_md, len(records)
 
 
 def summary_to_dict(summary) -> dict[str, Any]:
@@ -254,6 +349,7 @@ def build_draft_summary(records: list[dict[str, Any]], cards: dict[str, Any], dr
             "rarity_uncommon": [],
             "rarity_rare": [],
             "action_counts": Counter(),
+            "set_pass_candidate_total": 0,
             "first_pass_matches": 0,
             "first_pass_wins": 0,
             "starting_player_matches": 0,
@@ -295,6 +391,7 @@ def build_draft_summary(records: list[dict[str, Any]], cards: dict[str, Any], dr
                 stats["final_block"].append(record[f"{side}_final_stats"]["block"])
                 stats["final_speed"].append(record[f"{side}_final_stats"]["speed"])
             stats["action_counts"].update(record["action_counts"][side])
+            stats["set_pass_candidate_total"] += int(record.get("set_pass_candidate_count", 0))
             stats["battle_counts"].append(summary["battle_count"])
             stats["control_counts"].append(summary["control_count"])
             stats["role_red"].append(summary["role_counts"]["red"])
@@ -445,6 +542,8 @@ def finalize_drafter_stats(name: str, stats: dict[str, Any]) -> dict[str, Any]:
         "block_then_win_matches": stats["block_then_win_matches"],
         "block_then_win_rate": (stats["block_then_win_matches"] / wins) if wins else None,
         "action_counts": dict(stats["action_counts"]),
+        "set_pass_candidate_total": stats["set_pass_candidate_total"],
+        "set_pass_candidate_avg_per_match": round(stats["set_pass_candidate_total"] / matches, 2),
         "action_rates": {
             "set": stats["action_counts"].get("set", 0) / total_actions,
             "set_pass": stats["action_counts"].get("set_pass", 0) / total_actions,
@@ -484,7 +583,11 @@ def render_draft_report_markdown(summary: dict[str, Any]) -> str:
         f"- Seed: {config['seed']}",
         f"- Pool: `{config['pool_id']}` ({config['pool_total_cards']} copies)",
         f"- Pairing Mode: {config['pairing_mode']}",
-        "- Draft Flow: hidden 3->1, then public 5 with reverse-order picks",
+        f"- Draft Mode: `{config.get('draft_mode', 'unknown')}`",
+        f"- Fast Report: {'on' if config.get('fast_report') else 'off'}",
+        f"- Lean Draft Logging: {'on' if config.get('lean_draft_logging') else 'off'}",
+        f"- Save Battle Logs: {'on' if config.get('save_battle_logs') else 'off'}",
+        f"- Draft Flow: {'hidden 3->1 + public 5 rarity-balanced' if config.get('draft_mode') == 'simple' else 'normal public pack + normal hidden pack, then public rare + hidden rare, with order swapped in second half'}",
         "",
         "## Drafter Summary",
         "",
@@ -555,6 +658,7 @@ def render_draft_report_markdown(summary: dict[str, Any]) -> str:
                 f"- Lost With Speed Advantage: {stats['speed_advantage_losses']} ({format_rate(stats['speed_advantage_loss_rate'])})",
                 f"- Won After Blocking Faster Attack: {stats['block_then_win_matches']} ({format_optional_rate(stats['block_then_win_rate'])})",
                 f"- Action Rates: set={format_rate(stats['action_rates']['set'])}, set_pass={format_rate(stats['action_rates']['set_pass'])}, pass={format_rate(stats['action_rates']['pass'])}",
+                f"- set_pass Candidate Avg / Match: {fmt(stats['set_pass_candidate_avg_per_match'])}",
                 f"- Turns: min={fmt(stats['turns']['min'])}, avg={fmt(stats['turns']['avg'])}, max={fmt(stats['turns']['max'])}",
                 f"- Battle / Control: avg={fmt(stats['battle_count']['avg'])} / {fmt(stats['control_count']['avg'])}",
                 f"- Role Colors: red={fmt(stats['role_red']['avg'])}, blue={fmt(stats['role_blue']['avg'])}, green={fmt(stats['role_green']['avg'])}, white={fmt(stats['role_white']['avg'])}",

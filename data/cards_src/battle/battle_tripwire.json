@@ -1,0 +1,21 @@
+{
+  "id": "battle_tripwire",
+  "name": "Tripwire",
+  "type": "battle",
+  "rarity": "rare",
+  "attack": 0,
+  "block": -1,
+  "speed": 0,
+  "tags": [
+    "trick",
+    "speed"
+  ],
+  "effects": [
+    {
+      "timing": "battle",
+      "kind": "modify_opponent_speed",
+      "value": 3
+    }
+  ],
+  "notes": "Drops the opponent's speed sharply at the cost of guard."
+}

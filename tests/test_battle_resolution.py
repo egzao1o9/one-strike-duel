@@ -63,6 +63,19 @@ def test_multiple_battle_cards_are_summed() -> None:
     assert resolution.winner == "p1"
 
 
+def test_negate_opponent_first_card_removes_its_stats() -> None:
+    cards = load_cards("data/cards.json")
+    state = make_state()
+    state.players["p1"].current_control_card = cards["control_blank_first"]
+    state.players["p2"].set_cards = [cards["battle_all_in"], cards["battle_guard"]]
+
+    resolution = resolve_battle(state)
+
+    assert resolution.finals["p2"].attack == 0
+    assert resolution.finals["p2"].block == 1
+    assert resolution.finals["p2"].speed == 1
+
+
 def test_negative_speed_is_kept_and_compared_as_is() -> None:
     state = make_state()
     slow_card = Card(

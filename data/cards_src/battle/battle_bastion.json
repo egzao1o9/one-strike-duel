@@ -1,0 +1,15 @@
+{
+  "id": "battle_bastion",
+  "name": "Bastion",
+  "type": "battle",
+  "rarity": "uncommon",
+  "attack": -1,
+  "block": 3,
+  "speed": 0,
+  "tags": [
+    "defense",
+    "heavy"
+  ],
+  "effects": [],
+  "notes": "Heavy guard with a small attack loss."
+}

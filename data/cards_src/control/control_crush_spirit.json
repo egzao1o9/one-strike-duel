@@ -1,0 +1,20 @@
+{
+  "id": "control_crush_spirit",
+  "name": "Crush Spirit",
+  "type": "control",
+  "rarity": "rare",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": [
+    "debuff"
+  ],
+  "effects": [
+    {
+      "timing": "battle",
+      "kind": "modify_opponent_attack",
+      "value": 3
+    }
+  ],
+  "notes": "Reduces the opponent's attack by 3 this turn."
+}

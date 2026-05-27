@@ -1,0 +1,21 @@
+{
+  "id": "control_blank_first",
+  "name": "Blank First",
+  "type": "control",
+  "rarity": "uncommon",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": [
+    "debuff",
+    "trick"
+  ],
+  "effects": [
+    {
+      "timing": "battle",
+      "kind": "negate_opponent_first_card",
+      "value": 1
+    }
+  ],
+  "notes": "Negates the opponent's first set battle card this turn."
+}

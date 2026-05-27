@@ -11,9 +11,9 @@ from engine.deck import DeckDefinition
 
 
 RARITY_POOL_COUNTS = {
-    "common": 3,
+    "common": 5,
     "uncommon": 2,
-    "rare": 1,
+    "rare": 2,
 }
 
 
@@ -38,10 +38,12 @@ class CardPoolDefinition:
 class DraftPick:
     number: int
     player_id: str
-    card_id: str
+    card_id: str = ""
     visibility: str = "public"
     phase: str = "single"
     offer_card_ids: tuple[str, ...] = ()
+    offer_groups: tuple[tuple[str, ...], ...] = ()
+    selected_card_ids: tuple[str, ...] = ()
     pick_position: int = 1
     round_number: int = 1
 

@@ -19,3 +19,50 @@ def test_draft_bot_suite_generates_matchups_and_summary() -> None:
         assert len(payload["matchups"]) == 6
         assert set(payload["bots"]) == {"Standard", "Aggro", "Guard"}
         assert "overall_priority" in payload
+
+
+def test_draft_bot_suite_fast_mode_marks_summary() -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output = run_suite(
+            matches_per_matchup=4,
+            seed=602,
+            output_dir_override=tmpdir,
+            keep_match_logs=1,
+            fast_report=True,
+            workers=1,
+        )
+        payload = json.loads(Path(output["summary_path"]).read_text(encoding="utf-8"))
+        assert payload["config"]["fast_report"] is True
+        assert payload["config"]["workers"] == 1
+
+
+def test_draft_bot_suite_lean_logging_omits_priority() -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output = run_suite(
+            matches_per_matchup=4,
+            seed=603,
+            output_dir_override=tmpdir,
+            keep_match_logs=1,
+            fast_report=True,
+            lean_draft_logging=True,
+        )
+        payload = json.loads(Path(output["summary_path"]).read_text(encoding="utf-8"))
+        assert payload["config"]["lean_draft_logging"] is True
+        assert payload["overall_priority"] is None
+        first_bot = next(iter(payload["bots"].values()))
+        assert first_bot["priority"] is None
+
+
+def test_draft_bot_suite_parallel_workers_summary() -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output = run_suite(
+            matches_per_matchup=4,
+            seed=604,
+            output_dir_override=tmpdir,
+            keep_match_logs=0,
+            fast_report=True,
+            lean_draft_logging=True,
+            workers=2,
+        )
+        payload = json.loads(Path(output["summary_path"]).read_text(encoding="utf-8"))
+        assert payload["config"]["workers"] == 2

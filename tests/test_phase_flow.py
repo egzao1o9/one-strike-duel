@@ -54,6 +54,7 @@ def test_initial_hand_starts_at_four() -> None:
 
 def test_turn_start_refills_only_up_to_hand_limit_six() -> None:
     runner = MatchRunner(RandomBot(seed=1), RandomBot(seed=2), "starter_attack", "starter_defense", shuffle_decks=False, seed=3)
+    runner.state.turn = 2
     runner.state.players["p1"].hand = [runner.cards["battle_press"], runner.cards["control_focus"]]
     runner.state.players["p1"].draw_pile = [
         runner.cards["battle_break"],
@@ -67,6 +68,22 @@ def test_turn_start_refills_only_up_to_hand_limit_six() -> None:
 
     assert len(runner.state.players["p1"].hand) == 6
     assert payload["p1"]["draw_count"] == 4
+
+
+def test_first_turn_has_no_normal_draw() -> None:
+    runner = MatchRunner(RandomBot(seed=1), RandomBot(seed=2), "starter_attack", "starter_defense", shuffle_decks=False, seed=3)
+    runner.state.turn = 1
+    runner.state.players["p1"].hand = [runner.cards["battle_press"], runner.cards["control_focus"]]
+    runner.state.players["p1"].draw_pile = [
+        runner.cards["battle_break"],
+        runner.cards["battle_guard"],
+        runner.cards["battle_counter"],
+    ]
+
+    payload = runner._start_turn()
+
+    assert len(runner.state.players["p1"].hand) == 2
+    assert payload["p1"]["draw_count"] == 0
 
 
 def test_turn_start_discards_overflow_before_drawing() -> None:
@@ -216,6 +233,7 @@ def test_simultaneous_attack_is_a_draw() -> None:
 
 def test_reshuffle_happens_only_during_turn_start_draw() -> None:
     runner = MatchRunner(RandomBot(seed=1), RandomBot(seed=2), "starter_attack", "starter_defense", shuffle_decks=False, seed=3)
+    runner.state.turn = 2
     runner.state.players["p1"].hand = [runner.cards["battle_press"], runner.cards["control_focus"]]
     runner.state.players["p1"].draw_pile = []
     runner.state.players["p1"].discard_pile = [runner.cards["battle_break"], runner.cards["battle_guard"]]
@@ -224,7 +242,7 @@ def test_reshuffle_happens_only_during_turn_start_draw() -> None:
 
     assert payload["p1"]["reshuffled"] is True
     assert runner.state.players["p1"].reshuffle_count == 1
-    assert runner.state.players["p1"].reshuffle_turns == [1]
+    assert runner.state.players["p1"].reshuffle_turns == [2]
 
 
 def test_mulligan_draw_does_not_reshuffle_discard_pile() -> None:

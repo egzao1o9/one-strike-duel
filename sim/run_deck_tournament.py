@@ -111,9 +111,17 @@ def build_match_record(payload: dict[str, Any], markdown_path: str) -> dict[str,
         "p1": collect_used_cards(payload, "p1"),
         "p2": collect_used_cards(payload, "p2"),
     }
+    side_usage_details = {
+        "p1": collect_used_card_details(payload, "p1"),
+        "p2": collect_used_card_details(payload, "p2"),
+    }
     decisive_cards = {
         "p1": list(battle.get("p1_cards", [])),
         "p2": list(battle.get("p2_cards", [])),
+    }
+    decisive_card_details = {
+        "p1": collect_decisive_card_details(battle, "p1"),
+        "p2": collect_decisive_card_details(battle, "p2"),
     }
     action_counts = {
         "p1": collect_action_counts(payload, "p1"),
@@ -145,8 +153,12 @@ def build_match_record(payload: dict[str, Any], markdown_path: str) -> dict[str,
         "battle_result": battle.get("result"),
         "battle": battle,
         "side_usage": side_usage,
+        "side_usage_details": side_usage_details,
         "decisive_cards": decisive_cards,
+        "decisive_card_details": decisive_card_details,
         "action_counts": action_counts,
+        "set_pass_candidate_count": collect_set_pass_candidate_count(payload),
+        "hand_count_trace": collect_hand_count_trace(payload),
         "p1_final_stats": final_stats["p1"],
         "p2_final_stats": final_stats["p2"],
         "starting_player": battle.get("starting_player"),
@@ -167,11 +179,15 @@ def build_match_record(payload: dict[str, Any], markdown_path: str) -> dict[str,
     if winner_side:
         record["winner_final_stats"] = battle[f"{winner_side}_final"]
         record["winner_decisive_cards"] = decisive_cards[winner_side]
+        record["winner_decisive_card_details"] = decisive_card_details[winner_side]
         record["winner_used_cards"] = side_usage[winner_side]
+        record["winner_used_card_details"] = side_usage_details[winner_side]
     else:
         record["winner_final_stats"] = None
         record["winner_decisive_cards"] = []
+        record["winner_decisive_card_details"] = []
         record["winner_used_cards"] = []
+        record["winner_used_card_details"] = []
     return record
 
 
@@ -216,6 +232,84 @@ def collect_used_cards(payload: dict[str, Any], side: str) -> list[str]:
         battle_cards = turn.get("battle", {}).get(f"{side}_cards", [])
         cards.extend(battle_cards)
     return cards
+
+
+def collect_used_card_details(payload: dict[str, Any], side: str) -> list[dict[str, Any]]:
+    cards: list[dict[str, Any]] = []
+    for turn in payload.get("turns", []):
+        control = turn.get("control", {})
+        control_name = control.get(side)
+        control_id = control.get("ids", {}).get(side)
+        control_source = control.get("sources", {}).get(side)
+        if control_name:
+            cards.append(
+                {
+                    "name": control_name,
+                    "id": control_id,
+                    "source": control_source,
+                    "phase": "control",
+                }
+            )
+        battle = turn.get("battle", {})
+        battle_names = battle.get(f"{side}_cards", [])
+        battle_ids = battle.get(f"{side}_card_ids", [])
+        battle_sources = battle.get(f"{side}_card_sources", [])
+        for index, name in enumerate(battle_names):
+            cards.append(
+                {
+                    "name": name,
+                    "id": battle_ids[index] if index < len(battle_ids) else None,
+                    "source": battle_sources[index] if index < len(battle_sources) else None,
+                    "phase": "battle",
+                }
+            )
+    return cards
+
+
+def collect_decisive_card_details(battle: dict[str, Any], side: str) -> list[dict[str, Any]]:
+    names = battle.get(f"{side}_cards", [])
+    ids = battle.get(f"{side}_card_ids", [])
+    sources = battle.get(f"{side}_card_sources", [])
+    return [
+        {
+            "name": name,
+            "id": ids[index] if index < len(ids) else None,
+            "source": sources[index] if index < len(sources) else None,
+        }
+        for index, name in enumerate(names)
+    ]
+
+
+def collect_set_pass_candidate_count(payload: dict[str, Any]) -> int:
+    total = 0
+    for turn in payload.get("turns", []):
+        for action in turn.get("battle", {}).get("actions", []):
+            count = action.get("set_pass_candidate_count")
+            if isinstance(count, int):
+                total += count
+    return total
+
+
+def collect_hand_count_trace(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    trace: list[dict[str, Any]] = []
+    for turn in payload.get("turns", []):
+        trace.append(
+            {
+                "turn": turn.get("turn"),
+                "turn_start": {
+                    "p1": turn.get("turn_start", {}).get("p1", {}).get("hand_count"),
+                    "p2": turn.get("turn_start", {}).get("p2", {}).get("hand_count"),
+                },
+                "phase1_mulligan": turn.get("phase1_mulligan", {}).get("hand_counts", {}),
+                "control": turn.get("control", {}).get("hand_counts", {}),
+                "phase3_mulligan": turn.get("phase3_mulligan", {}).get("hand_counts", {}),
+                "battle_end": {
+                    "p1": turn.get("battle", {}).get("p1_hand_count_end"),
+                    "p2": turn.get("battle", {}).get("p2_hand_count_end"),
+                },
+            }
+        )
+    return trace
 
 
 def collect_action_counts(payload: dict[str, Any], side: str) -> Counter[str]:

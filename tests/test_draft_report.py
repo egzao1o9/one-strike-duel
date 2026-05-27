@@ -40,3 +40,49 @@ def test_draft_report_generates_outputs() -> None:
         remaining = list(matches_dir.iterdir())
         assert any(path.suffix == ".md" for path in remaining)
         assert len({path.name.split("_", 2)[1] for path in remaining}) <= 2
+
+
+def test_draft_report_fast_mode_skips_match_files() -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        summary_md, total_matches = run_draft_report(
+            "RoleBalanceDraftBot",
+            "RandomDraftBot",
+            "GreedyBot",
+            "GreedyBot",
+            rounds=2,
+            seed=152,
+            output_dir_override=tmpdir,
+            keep_match_logs=2,
+            fast_report=True,
+        )
+        assert total_matches == 4
+        assert summary_md.exists()
+        payload = json.loads((Path(tmpdir) / "summary.json").read_text(encoding="utf-8"))
+        assert payload["config"]["fast_report"] is True
+        assert payload["config"]["lean_draft_logging"] is False
+        assert not (Path(tmpdir) / "matches").exists()
+        match_records = (Path(tmpdir) / "match_records.jsonl").read_text(encoding="utf-8").splitlines()
+        assert len(match_records) == 4
+
+
+def test_draft_report_lean_logging_omits_pick_history() -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        summary_md, total_matches = run_draft_report(
+            "RoleBalanceDraftBot",
+            "RandomDraftBot",
+            "GreedyBot",
+            "GreedyBot",
+            rounds=2,
+            seed=153,
+            output_dir_override=tmpdir,
+            keep_match_logs=2,
+            fast_report=True,
+            lean_draft_logging=True,
+        )
+        assert total_matches == 4
+        assert summary_md.exists()
+        payload = json.loads((Path(tmpdir) / "summary.json").read_text(encoding="utf-8"))
+        assert payload["config"]["lean_draft_logging"] is True
+        assert "draft_records" not in payload
+        first_record = json.loads((Path(tmpdir) / "match_records.jsonl").read_text(encoding="utf-8").splitlines()[0])
+        assert "picks" not in first_record

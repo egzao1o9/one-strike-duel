@@ -34,7 +34,9 @@ def resolve_battle(state: GameState) -> BattleResolution:
         if player.current_control_card:
             for effect in player.current_control_card.effects:
                 apply_effect(effect, player_id, sides, queued_next_turn)
-        for card in player.set_cards:
+        for index, card in enumerate(player.set_cards):
+            if index in sides[player_id].invalidated_card_indexes:
+                continue
             for effect in card.effects:
                 apply_effect(effect, player_id, sides, queued_next_turn)
 
