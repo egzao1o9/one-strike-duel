@@ -65,7 +65,7 @@ export interface DraftSession {
   pendingCpuTurn: boolean;
 }
 
-export type BattlePhase = "mulligan" | "control" | "battle_select" | "blessing_prompt" | "result";
+export type BattlePhase = "mulligan" | "control" | "battle_select" | "trigger_prompt" | "blessing_prompt" | "result";
 export type BattleActionType = "set" | "set_pass" | "pass";
 export type DebugBattlePreset = "draw" | "no_damage" | "p1_win" | "p2_win";
 
@@ -104,6 +104,7 @@ export interface BattlePlayerState {
   activeTurnModifiers: ActiveTurnModifier[];
   setCards: BattleSetCard[];
   battlePassed: boolean;
+  revealFirstSetThisTurn: boolean;
 }
 
 export interface BattleLogEntry {
@@ -141,6 +142,18 @@ export interface PendingBlessingChoice {
   previewLines: Record<PlayerId, BattleFinalLine>;
 }
 
+export interface PendingTriggerChoice {
+  playerId: PlayerId;
+  blessingCardId: string;
+  blessingName: string;
+  promptText: string;
+  mode: "confirm_use" | "choose_set_card";
+  choices?: Array<{
+    setIndex: number;
+    label: string;
+  }>;
+}
+
 export interface BattleSession {
   seed: number;
   turn: number;
@@ -156,6 +169,10 @@ export interface BattleSession {
   logs: BattleLogEntry[];
   effectLogs: BattleEffectLogEntry[];
   pendingBlessingChoice: PendingBlessingChoice | null;
+  pendingTriggerChoice: PendingTriggerChoice | null;
+  pendingTriggerContinuation: {
+    nextActor: PlayerId | null;
+  } | null;
 }
 
 export interface PrototypeState {

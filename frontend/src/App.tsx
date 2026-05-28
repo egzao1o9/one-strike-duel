@@ -673,6 +673,9 @@ export default function App() {
           onBattleAction={(actionType, handIndexes) =>
             dispatch({ type: "choose_battle_action", actionType, handIndexes })
           }
+          onResolveTriggerChoice={(useTrigger, setIndex) =>
+            dispatch({ type: "resolve_trigger_choice", useTrigger, setIndex })
+          }
           onResolveBlessingChoice={(useBlessing) =>
             dispatch({ type: "resolve_blessing_choice", useBlessing })
           }

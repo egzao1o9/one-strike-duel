@@ -129,6 +129,7 @@ function buildBattlePlayerState(deck: DraftDeckState, seed: number): BattlePlaye
     activeTurnModifiers: [],
     setCards: [],
     battlePassed: false,
+    revealFirstSetThisTurn: false,
   };
 }
 
@@ -166,6 +167,7 @@ function clonePlayerState(player: BattlePlayerState): BattlePlayerState {
     activeTurnModifiers: player.activeTurnModifiers.map((modifier) => ({ ...modifier })),
     setCards: player.setCards.map(cloneSetCard),
     battlePassed: player.battlePassed,
+    revealFirstSetThisTurn: player.revealFirstSetThisTurn,
   };
 }
 
@@ -188,6 +190,15 @@ function cloneBattleSession(session: BattleSession): BattleSession {
             p2: { ...session.pendingBlessingChoice.previewLines.p2 },
           },
         }
+      : null,
+    pendingTriggerChoice: session.pendingTriggerChoice
+      ? {
+          ...session.pendingTriggerChoice,
+          choices: session.pendingTriggerChoice.choices?.map((choice) => ({ ...choice })),
+        }
+      : null,
+    pendingTriggerContinuation: session.pendingTriggerContinuation
+      ? { ...session.pendingTriggerContinuation }
       : null,
   };
 }
@@ -233,16 +244,16 @@ function applyStatEffect(modifier: ActiveTurnModifier, effect: CardEffect) {
   if (kind === "modify_self_attack") modifier.attack += value;
   if (kind === "modify_self_block") modifier.block += value;
   if (kind === "modify_self_speed") modifier.speed += value;
-  if (kind === "modify_opponent_attack") modifier.opponentAttack += value;
-  if (kind === "modify_opponent_block") modifier.opponentBlock += value;
-  if (kind === "modify_opponent_speed") modifier.opponentSpeed += value;
+  if (kind === "modify_opponent_attack") modifier.opponentAttack -= value;
+  if (kind === "modify_opponent_block") modifier.opponentBlock -= value;
+  if (kind === "modify_opponent_speed") modifier.opponentSpeed -= value;
   if (effect.effect_type === "modify_total_stat") {
     if (effect.target === "self_total" && effect.stat === "attack") modifier.attack += value;
     if (effect.target === "self_total" && effect.stat === "block") modifier.block += value;
     if (effect.target === "self_total" && effect.stat === "speed") modifier.speed += value;
-    if (effect.target === "opponent_total" && effect.stat === "attack") modifier.opponentAttack += value;
-    if (effect.target === "opponent_total" && effect.stat === "block") modifier.opponentBlock += value;
-    if (effect.target === "opponent_total" && effect.stat === "speed") modifier.opponentSpeed += value;
+    if (effect.target === "opponent_total" && effect.stat === "attack") modifier.opponentAttack -= value;
+    if (effect.target === "opponent_total" && effect.stat === "block") modifier.opponentBlock -= value;
+    if (effect.target === "opponent_total" && effect.stat === "speed") modifier.opponentSpeed -= value;
   }
 }
 
@@ -429,6 +440,15 @@ function applyControlCustom(session: BattleSession, playerId: PlayerId, card: Ca
         pushLog(session, `${playerLabel(playerId)}は相手の手札に干渉した。`);
       }
       break;
+    case "control_opening_read":
+      opponent.revealFirstSetThisTurn = true;
+      pushLog(session, `${playerLabel(playerId)} enables opponent first-set reveal this turn.`);
+      break;
+    case "control_opening_expose":
+      player.revealFirstSetThisTurn = true;
+      opponent.revealFirstSetThisTurn = true;
+      pushLog(session, `${playerLabel(playerId)} enables both players' first-set reveal this turn.`);
+      break;
   }
 }
 
@@ -606,12 +626,95 @@ function applyBattleAction(session: BattleSession, playerId: PlayerId, actionTyp
     return;
   }
 
-  player.setCards.push(...chosen.map((card) => ({ card, revealed: false })));
+  const shouldRevealFirstSet = player.revealFirstSetThisTurn && player.setCards.length === 0;
+  player.setCards.push(
+    ...chosen.map((card, index) => ({
+      card,
+      revealed: shouldRevealFirstSet && index === 0,
+    })),
+  );
+  if (shouldRevealFirstSet) {
+    player.revealFirstSetThisTurn = false;
+  }
   pushLog(session, `${playerLabel(playerId)}は${chosen.length}枚伏せた。`);
   if (actionType === "set_pass") {
     player.battlePassed = true;
     pushLog(session, `${playerLabel(playerId)}は伏せてパスした。`);
   }
+}
+
+function applySetTriggeredBlessing(
+  session: BattleSession,
+  reactingPlayerId: PlayerId,
+  actingPlayerId: PlayerId,
+  nextActor: PlayerId | null,
+) {
+  const reactingPlayer = session.players[reactingPlayerId];
+  const actingPlayer = session.players[actingPlayerId];
+  const blessing = reactingPlayer.blessingZone;
+
+  if (!blessing || !reactingPlayer.blessingFaceUp || reactingPlayer.blessingLockedThisTurn) {
+    return false;
+  }
+
+  if (blessing.id === "blessing_insight") {
+    const hiddenChoices = actingPlayer.setCards
+      .map((item, index) => (!item.revealed ? { setIndex: index, label: `Set ${index + 1}` } : null))
+      .filter((value): value is { setIndex: number; label: string } => value !== null);
+
+    if (hiddenChoices.length === 0) {
+      return false;
+    }
+
+    if (reactingPlayerId === "p1") {
+      session.phase = "trigger_prompt";
+      session.pendingTriggerChoice = {
+        playerId: reactingPlayerId,
+        blessingCardId: blessing.id,
+        blessingName: blessing.name || blessing.id,
+        promptText: blessing.effect_text || "Reveal one opponent set card.",
+        mode: "choose_set_card",
+        choices: hiddenChoices,
+      };
+      session.pendingTriggerContinuation = { nextActor };
+      return true;
+    }
+
+    const choice = hiddenChoices[0];
+    actingPlayer.setCards[choice.setIndex].revealed = true;
+    reactingPlayer.blessingFaceUp = false;
+    pushEffectLog(session, reactingPlayerId, blessing, blessing.effect_text || "Reveal one opponent set card.");
+    return false;
+  }
+
+  if (blessing.id === "blessing_range" && actingPlayer.setCards.length >= 4) {
+    if (reactingPlayerId === "p1") {
+      session.phase = "trigger_prompt";
+      session.pendingTriggerChoice = {
+        playerId: reactingPlayerId,
+        blessingCardId: blessing.id,
+        blessingName: blessing.name || blessing.id,
+        promptText: blessing.effect_text || "Opponent speed -2 this battle.",
+        mode: "confirm_use",
+      };
+      session.pendingTriggerContinuation = { nextActor };
+      return true;
+    }
+
+    reactingPlayer.activeTurnModifiers.push({
+      sourceId: blessing.id,
+      attack: 0,
+      block: 0,
+      speed: 0,
+      opponentAttack: 0,
+      opponentBlock: 0,
+      opponentSpeed: -2,
+    });
+    reactingPlayer.blessingFaceUp = false;
+    pushEffectLog(session, reactingPlayerId, blessing, blessing.effect_text || "Opponent speed -2 this battle.");
+  }
+
+  return false;
 }
 
 function sumBattleCards(setCards: BattleSetCard[]) {
@@ -936,7 +1039,7 @@ function resolveBattleV2(session: BattleSession) {
         continue;
       }
       if (effect.effect_type === "modify_card_stat" && effect.target === "opponent_card" && effect.stat === "attack") {
-        lines[otherPlayer(ownerId)].attack += effect.value ?? 0;
+        lines[otherPlayer(ownerId)].attack -= effect.value ?? 0;
         pushEffectLog(session, ownerId, item.card, describeEffect(effect));
         continue;
       }
@@ -1073,6 +1176,7 @@ function endTurnAndAdvance(session: BattleSession) {
     player.battlePassed = false;
     player.activeTurnModifiers = [];
     player.blessingLockedThisTurn = false;
+    player.revealFirstSetThisTurn = false;
   }
   session.turn += 1;
   session.battleStartingPlayer = otherPlayer(session.battleStartingPlayer);
@@ -1118,6 +1222,9 @@ export function applyDebugBattlePreset(session: BattleSession, preset: DebugBatt
   next.endReason = null;
   next.finalLines = null;
   next.revealSteps = [];
+  next.pendingBlessingChoice = null;
+  next.pendingTriggerChoice = null;
+  next.pendingTriggerContinuation = null;
 
   for (const playerId of ["p1", "p2"] as PlayerId[]) {
     const player = next.players[playerId];
@@ -1166,6 +1273,9 @@ function advanceCpuBattleLoop(session: BattleSession) {
     const choice = chooseCpuBattleAction(session, "p2");
     applyBattleAction(session, "p2", choice.actionType, choice.cardIds);
     const nextActor = nextBattleActor(session, "p2");
+    if (applySetTriggeredBlessing(session, "p1", "p2", nextActor)) {
+      return;
+    }
     if (nextActor === null) {
       resolveBattleV2(session);
       return;
@@ -1202,6 +1312,8 @@ export function createBattleSessionFromDraft(session: DraftSession): BattleSessi
     ],
     effectLogs: [],
     pendingBlessingChoice: null,
+    pendingTriggerChoice: null,
+    pendingTriggerContinuation: null,
   };
 }
 
@@ -1255,12 +1367,65 @@ export function applyPlayerBattleAction(session: BattleSession, actionType: Batt
     .filter((value): value is string => Boolean(value));
   applyBattleAction(next, "p1", actionType, cardIds);
   const nextActor = nextBattleActor(next, "p1");
+  if (applySetTriggeredBlessing(next, "p2", "p1", nextActor)) {
+    return next;
+  }
   if (nextActor === null) {
     resolveBattleV2(next);
     continueIfDrawnBattle(next);
     return next;
   }
   next.actingPlayer = nextActor;
+  if (next.actingPlayer === "p2") {
+    advanceCpuBattleLoop(next);
+  }
+  continueIfDrawnBattle(next);
+  return next;
+}
+
+export function applyPlayerTriggerChoice(session: BattleSession, useTrigger: boolean, setIndex: number | null = null) {
+  const next = cloneBattleSession(session);
+  const pending = next.pendingTriggerChoice;
+  if (next.phase !== "trigger_prompt" || !pending || pending.playerId !== "p1") {
+    return next;
+  }
+
+  const blessing = next.players.p1.blessingZone;
+  if (useTrigger && blessing) {
+    if (pending.blessingCardId === "blessing_insight" && setIndex !== null) {
+      const target = next.players.p2.setCards[setIndex];
+      if (target) {
+        target.revealed = true;
+      }
+      next.players.p1.blessingFaceUp = false;
+      pushEffectLog(next, "p1", blessing, pending.promptText);
+    } else if (pending.blessingCardId === "blessing_range") {
+      next.players.p1.activeTurnModifiers.push({
+        sourceId: blessing.id,
+        attack: 0,
+        block: 0,
+        speed: 0,
+        opponentAttack: 0,
+        opponentBlock: 0,
+        opponentSpeed: -2,
+      });
+      next.players.p1.blessingFaceUp = false;
+      pushEffectLog(next, "p1", blessing, pending.promptText);
+    }
+  }
+
+  const continuation = next.pendingTriggerContinuation;
+  next.pendingTriggerChoice = null;
+  next.pendingTriggerContinuation = null;
+  next.phase = "battle_select";
+
+  if (!continuation || continuation.nextActor === null) {
+    resolveBattleV2(next);
+    continueIfDrawnBattle(next);
+    return next;
+  }
+
+  next.actingPlayer = continuation.nextActor;
   if (next.actingPlayer === "p2") {
     advanceCpuBattleLoop(next);
   }
