@@ -218,6 +218,12 @@ h1 {
   gap: 12px;
 }
 
+.battle-debug-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .battle-log-button {
   border: 0;
   border-radius: 999px;
@@ -278,87 +284,84 @@ h1 {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.battle-table {
+.battle-layout {
   display: grid;
+  grid-template-columns: minmax(320px, 1fr);
   gap: 18px;
   margin-top: 20px;
 }
 
-.battle-lane {
+.battle-side,
+.battle-mid {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 
-.battle-lane--center {
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  min-height: 140px;
-}
-
-.battle-lane__header {
+.battle-side__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
 }
 
-.battle-emblem {
-  width: 72px;
-  height: 72px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  background: linear-gradient(180deg, rgba(182, 95, 38, 0.92), rgba(127, 66, 32, 0.96));
-  color: #fffaf4;
-  font-size: 1.8rem;
-  font-weight: 800;
-  box-shadow: 0 16px 30px rgba(120, 70, 32, 0.22);
-}
-
-.battle-zone-row {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.battle-zone-card {
-  min-height: 52px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 12px;
-  border-radius: 14px;
-  background: rgba(31, 39, 62, 0.05);
-  border: 1px solid rgba(31, 39, 62, 0.08);
-  color: #334055;
-  text-align: center;
-}
-
-.battle-zone-card--hidden {
-  background: linear-gradient(180deg, rgba(154, 160, 173, 0.3), rgba(121, 128, 141, 0.42));
-}
-
 .battle-opponent-hand,
-.battle-hand-row {
+.battle-hand-row,
+.battle-set-row,
+.battle-zone-mini-row {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+  justify-content: center;
 }
 
-.battle-opponent-hand-slot {
-  width: 38px;
-  height: 54px;
-  border-radius: 10px;
+.battle-opponent-hand-slot,
+.battle-hidden-mini {
+  width: 72px;
+  height: 74px;
+  border-radius: 14px;
   border: 1px solid rgba(31, 39, 62, 0.14);
   background: linear-gradient(180deg, rgba(172, 179, 191, 0.55), rgba(141, 149, 163, 0.7));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f7f9fc;
+  font-size: 1.2rem;
+  font-weight: 800;
 }
 
-.battle-hand-card {
+.battle-empty-mini {
+  width: 72px;
+  height: 74px;
+  border-radius: 14px;
+  border: 1px dashed rgba(31, 39, 62, 0.16);
+  background: rgba(31, 39, 62, 0.02);
+}
+
+.battle-hand-card,
+.battle-zone-mini-card {
+  position: relative;
   width: 124px;
   transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.battle-hand-order-badge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 2;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(31, 39, 62, 0.88);
+  color: #fffdf8;
+  font-size: 0.76rem;
+  font-weight: 800;
+  box-shadow: 0 8px 16px rgba(31, 39, 62, 0.18);
 }
 
 .battle-hand-card--selected {
@@ -370,6 +373,83 @@ h1 {
 .battle-hand-card--selected .card-mini {
   border-color: rgba(63, 103, 172, 0.6);
   box-shadow: inset 0 0 0 2px rgba(63, 103, 172, 0.2);
+}
+
+.battle-hand-preview-button {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(31, 39, 62, 0.76);
+  color: #fffdf8;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  box-shadow: 0 10px 18px rgba(31, 39, 62, 0.18);
+}
+
+.battle-zone-grid {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.battle-zone-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  width: 124px;
+}
+
+.battle-zone-panel__label,
+.battle-arena__label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #5a6475;
+}
+
+.battle-mid {
+  padding: 18px;
+}
+
+.battle-mid__status {
+  align-self: flex-end;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(31, 39, 62, 0.06);
+  border: 1px solid rgba(31, 39, 62, 0.08);
+}
+
+.battle-mid__turn {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #1f273e;
+}
+
+.battle-mid__phase {
+  font-size: 0.84rem;
+  color: #516074;
+}
+
+.battle-arena {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.battle-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(31, 39, 62, 0.14), transparent);
 }
 
 .battle-action-panel {
@@ -419,6 +499,12 @@ h1 {
   border-radius: 14px;
   background: rgba(31, 39, 62, 0.05);
   border: 1px solid rgba(31, 39, 62, 0.08);
+}
+
+.battle-result-card em {
+  font-style: normal;
+  font-weight: 800;
+  color: #1f273e;
 }
 
 .battle-log-overlay {
@@ -1090,6 +1176,33 @@ h1 {
   cursor: pointer;
 }
 
+.battle-summary-debug {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
+.debug-card-picker-overlay {
+  width: min(680px, calc(100vw - 28px));
+}
+
+.debug-card-picker-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: min(70vh, 560px);
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.debug-card-picker-item {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
 @media (max-width: 920px) {
   .draft-workbench {
     grid-template-columns: 1fr;
@@ -1099,7 +1212,7 @@ h1 {
     grid-template-columns: 1fr;
   }
 
-  .battle-zone-row {
+  .battle-zone-grid {
     grid-template-columns: 1fr;
   }
 

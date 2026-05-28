@@ -668,8 +668,18 @@ export default function App() {
         <PlayableBattlePanel
           battleSession={state.activeBattle}
           onSelectCard={setSelectedCard}
-          onChooseControl={(cardId) => dispatch({ type: "choose_control", cardId })}
-          onBattleAction={(actionType, cardIds) => dispatch({ type: "choose_battle_action", actionType, cardIds })}
+          onChooseMulligan={(handIndexes) => dispatch({ type: "choose_mulligan", handIndexes })}
+          onChooseControl={(handIndex) => dispatch({ type: "choose_control", handIndex })}
+          onBattleAction={(actionType, handIndexes) =>
+            dispatch({ type: "choose_battle_action", actionType, handIndexes })
+          }
+          onResolveBlessingChoice={(useBlessing) =>
+            dispatch({ type: "resolve_blessing_choice", useBlessing })
+          }
+          onDebugAddCardToHand={(drawPileIndex) =>
+            dispatch({ type: "debug_add_card_to_hand", drawPileIndex })
+          }
+          onDebugSetup={(preset) => dispatch({ type: "debug_battle_preset", preset })}
         />
       ) : (
         <section className="dashboard-panel">

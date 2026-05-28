@@ -65,8 +65,9 @@ export interface DraftSession {
   pendingCpuTurn: boolean;
 }
 
-export type BattlePhase = "control" | "battle_select" | "result";
+export type BattlePhase = "mulligan" | "control" | "battle_select" | "blessing_prompt" | "result";
 export type BattleActionType = "set" | "set_pass" | "pass";
+export type DebugBattlePreset = "draw" | "no_damage" | "p1_win" | "p2_win";
 
 export interface BattleSetCard {
   card: CardDefinition;
@@ -95,6 +96,11 @@ export interface BattlePlayerState {
   blessingFaceUp: boolean;
   blessingLockedThisTurn: boolean;
   queuedNextTurnDrawDelta: number;
+  queuedNextTurnStatDelta: {
+    attack: number;
+    block: number;
+    speed: number;
+  };
   activeTurnModifiers: ActiveTurnModifier[];
   setCards: BattleSetCard[];
   battlePassed: boolean;
@@ -102,6 +108,14 @@ export interface BattlePlayerState {
 
 export interface BattleLogEntry {
   id: string;
+  text: string;
+}
+
+export interface BattleEffectLogEntry {
+  id: string;
+  playerId: PlayerId;
+  sourceCardId: string;
+  sourceCardName: string;
   text: string;
 }
 
@@ -119,6 +133,14 @@ export interface BattleFinalLine {
   speed: number;
 }
 
+export interface PendingBlessingChoice {
+  playerId: PlayerId;
+  blessingCardId: string;
+  blessingName: string;
+  promptText: string;
+  previewLines: Record<PlayerId, BattleFinalLine>;
+}
+
 export interface BattleSession {
   seed: number;
   turn: number;
@@ -132,6 +154,8 @@ export interface BattleSession {
   winner: PlayerId | null;
   endReason: string | null;
   logs: BattleLogEntry[];
+  effectLogs: BattleEffectLogEntry[];
+  pendingBlessingChoice: PendingBlessingChoice | null;
 }
 
 export interface PrototypeState {

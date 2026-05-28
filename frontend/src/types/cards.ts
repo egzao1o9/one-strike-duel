@@ -14,6 +14,13 @@ export interface CardEffect {
   target?: string;
   stat?: string;
   priority?: number;
+  trigger?: string;
+  keyword?: string;
+  display_text?: string;
+  effect_text?: string;
+  condition?: string;
+  duration?: string;
+  active_zone?: string;
 }
 
 export interface CardDefinition {

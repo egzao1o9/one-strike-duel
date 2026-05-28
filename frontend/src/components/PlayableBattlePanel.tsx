@@ -1,70 +1,152 @@
 import { useEffect, useState } from "react";
 import { CardMini } from "./CardMini";
+import { CardStrip } from "./CardStrip";
 import type { CardDefinition } from "../types/cards";
-import type { BattleSession } from "../types/prototype";
+import type { BattleSession, BattleSetCard, DebugBattlePreset } from "../types/prototype";
 
 function playerLabel(playerId: "p1" | "p2") {
   return playerId === "p1" ? "プレイヤー" : "CPU";
 }
 
-function zoneLabel(card: CardDefinition | null, empty: string) {
-  return card ? card.name || card.id : empty;
+function HiddenMiniCard() {
+  return (
+    <div className="battle-hidden-mini">
+      <span>?</span>
+    </div>
+  );
+}
+
+function EmptyZoneMini() {
+  return <div className="battle-empty-mini" />;
+}
+
+function ZoneMiniCard({
+  card,
+  onPreview,
+}: {
+  card: CardDefinition;
+  onPreview: (card: CardDefinition) => void;
+}) {
+  return (
+    <div className="battle-zone-mini-card">
+      <CardMini card={card} onClick={onPreview} />
+    </div>
+  );
+}
+
+function SetMiniCard({
+  item,
+  onPreview,
+}: {
+  item: BattleSetCard;
+  onPreview: (card: CardDefinition) => void;
+}) {
+  if (!item.revealed) {
+    return <HiddenMiniCard />;
+  }
+  return <ZoneMiniCard card={item.card} onPreview={onPreview} />;
 }
 
 interface PlayableBattlePanelProps {
   battleSession: BattleSession;
   onSelectCard: (card: CardDefinition) => void;
-  onChooseControl: (cardId: string | null) => void;
-  onBattleAction: (actionType: "set" | "set_pass" | "pass", cardIds: string[]) => void;
+  onChooseMulligan: (handIndexes: number[]) => void;
+  onChooseControl: (handIndex: number | null) => void;
+  onBattleAction: (actionType: "set" | "set_pass" | "pass", handIndexes: number[]) => void;
+  onResolveBlessingChoice: (useBlessing: boolean) => void;
+  onDebugAddCardToHand: (drawPileIndex: number) => void;
+  onDebugSetup: (preset: DebugBattlePreset) => void;
 }
 
 export function PlayableBattlePanel({
   battleSession,
   onSelectCard,
+  onChooseMulligan,
   onChooseControl,
   onBattleAction,
+  onResolveBlessingChoice,
+  onDebugAddCardToHand,
+  onDebugSetup,
 }: PlayableBattlePanelProps) {
   const [showLog, setShowLog] = useState(false);
-  const [selectedHandIds, setSelectedHandIds] = useState<string[]>([]);
+  const [showDebugCardPicker, setShowDebugCardPicker] = useState(false);
+  const [selectedHandIndexes, setSelectedHandIndexes] = useState<number[]>([]);
+
   const p1 = battleSession.players.p1;
   const p2 = battleSession.players.p2;
-  const selectableControlCards = p1.hand.filter((card) => card.card_type === "control" || (card.card_type === "blessing" && !p1.blessingZone));
-  const selectableBattleCards = p1.hand.filter((card) => card.card_type === "battle" || card.card_type === "control");
-  const selectedControlCard = selectableControlCards.find((card) => selectedHandIds.includes(card.id)) ?? null;
-  const selectedBattleCards = selectableBattleCards.filter((card) => selectedHandIds.includes(card.id));
+
+  const selectableControlIndexes = p1.hand
+    .map((card, index) => ({ card, index }))
+    .filter(
+      ({ card }) =>
+        card.card_type === "control" || (card.card_type === "blessing" && !p1.blessingZone),
+    );
+
+  const selectableBattleIndexes = p1.hand
+    .map((card, index) => ({ card, index }))
+    .filter(({ card }) => card.card_type === "battle" || card.card_type === "control");
+
+  const selectedControlCard =
+    selectableControlIndexes.find(({ index }) => selectedHandIndexes.includes(index))?.card ?? null;
+  const selectedBattleCards = selectableBattleIndexes
+    .filter(({ index }) => selectedHandIndexes.includes(index))
+    .map(({ card }) => card);
+
+  const maxSelectableBattleCards = Math.min(
+    2,
+    Math.max(0, p2.setCards.length + 1 - p1.setCards.length),
+  );
+  const canSetCards = maxSelectableBattleCards > 0 && selectableBattleIndexes.length > 0;
+
+  const playerOutcome =
+    battleSession.winner === null ? "Draw" : battleSession.winner === "p1" ? "Win" : "Lose";
+  const cpuOutcome =
+    battleSession.winner === null ? "Draw" : battleSession.winner === "p2" ? "Win" : "Lose";
 
   useEffect(() => {
-    setSelectedHandIds([]);
+    setSelectedHandIndexes([]);
   }, [battleSession.phase, battleSession.turn, p1.hand.length]);
 
-  function toggleHandCard(card: CardDefinition) {
+  function toggleHandCard(card: CardDefinition, handIndex: number) {
     if (battleSession.phase === "control") {
       if (!(card.card_type === "control" || (card.card_type === "blessing" && !p1.blessingZone))) {
-        onSelectCard(card);
         return;
       }
-      setSelectedHandIds((current) => (current[0] === card.id ? [] : [card.id]));
+      setSelectedHandIndexes((current) => (current[0] === handIndex ? [] : [handIndex]));
       return;
     }
 
-    if (battleSession.phase === "battle_select") {
-      if (!(card.card_type === "battle" || card.card_type === "control")) {
-        onSelectCard(card);
-        return;
-      }
-      setSelectedHandIds((current) => {
-        if (current.includes(card.id)) {
-          return current.filter((id) => id !== card.id);
+    if (battleSession.phase === "mulligan") {
+      setSelectedHandIndexes((current) => {
+        if (current.includes(handIndex)) {
+          return current.filter((index) => index !== handIndex);
         }
-        if (current.length >= 2) {
-          return [current[1], card.id];
-        }
-        return [...current, card.id];
+        return [...current, handIndex];
       });
       return;
     }
 
-    onSelectCard(card);
+    if (battleSession.phase === "battle_select") {
+      if (maxSelectableBattleCards <= 0) {
+        return;
+      }
+      if (!(card.card_type === "battle" || card.card_type === "control")) {
+        return;
+      }
+
+      setSelectedHandIndexes((current) => {
+        if (current.includes(handIndex)) {
+          return current.filter((index) => index !== handIndex);
+        }
+        if (current.length >= maxSelectableBattleCards) {
+          if (maxSelectableBattleCards <= 1) {
+            return [handIndex];
+          }
+          return [current[1], handIndex];
+        }
+        return [...current, handIndex];
+      });
+    }
   }
 
   return (
@@ -75,8 +157,24 @@ export function PlayableBattlePanel({
           <h2>対戦画面</h2>
         </div>
         <div className="battle-toolbar">
-          <p className="section-note">対戦処理の最小版です。まずは control と battle の入力を最後まで通せる状態を目指しています。</p>
-          <button type="button" className="battle-log-button" onClick={() => setShowLog(true)} aria-label="対戦ログを開く">
+          <p className="section-note">
+            マリガン、control、battle、加護確認をこの画面で進めます。
+          </p>
+          <div className="battle-debug-actions">
+            <button type="button" className="secondary-button" onClick={() => onDebugSetup("draw")}>
+              Debug Draw
+            </button>
+            <button type="button" className="secondary-button" onClick={() => onDebugSetup("no_damage")}>
+              Debug No Damage
+            </button>
+            <button type="button" className="secondary-button" onClick={() => onDebugSetup("p1_win")}>
+              Debug P1 Win
+            </button>
+            <button type="button" className="secondary-button" onClick={() => onDebugSetup("p2_win")}>
+              Debug P2 Win
+            </button>
+          </div>
+          <button type="button" className="battle-log-button" onClick={() => setShowLog(true)} aria-label="ログを開く">
             Log
           </button>
         </div>
@@ -92,65 +190,155 @@ export function PlayableBattlePanel({
         </div>
         <div className="summary-card">
           <h2>プレイヤー</h2>
+          <div className="battle-summary-debug">
+            <button type="button" className="secondary-button" onClick={() => setShowDebugCardPicker(true)}>
+              Debug Deck
+            </button>
+          </div>
           <p>手札 {p1.hand.length} / 山札 {p1.drawPile.length}</p>
           <p>捨て札 {p1.discardPile.length} / 使用済み {p1.usedCards.length}</p>
-          <p>加護: {p1.blessingZone ? `${p1.blessingZone.name || p1.blessingZone.id}${p1.blessingFaceUp ? " 表" : " 裏"}` : "なし"}</p>
+          <p>
+            加護:{" "}
+            {p1.blessingZone
+              ? `${p1.blessingZone.name || p1.blessingZone.id}${p1.blessingFaceUp ? " 表" : " 裏"}`
+              : "なし"}
+          </p>
         </div>
         <div className="summary-card">
           <h2>CPU</h2>
           <p>手札 {p2.hand.length} / 山札 {p2.drawPile.length}</p>
           <p>捨て札 {p2.discardPile.length} / 使用済み {p2.usedCards.length}</p>
-          <p>加護: {p2.blessingZone ? `${p2.blessingFaceUp ? "表向き" : "裏向き"} 1枚` : "なし"}</p>
+          <p>
+            加護: {p2.blessingZone ? `${p2.blessingZone.name || p2.blessingZone.id}${p2.blessingFaceUp ? " 表" : " 裏"}` : "なし"}
+          </p>
         </div>
       </div>
 
-      <div className="battle-table">
-        <section className="summary-card battle-lane battle-lane--opponent">
-          <div className="battle-lane__header">
-            <h2>CPU</h2>
-            <span>手札 {p2.hand.length}</span>
+      <div className="battle-layout">
+        <section className="summary-card battle-side battle-side--opponent">
+          <div className="battle-side__header">
+            <h2>CPU 手札</h2>
+            <span>{p2.hand.length} 枚</span>
           </div>
           <div className="battle-opponent-hand">
             {Array.from({ length: p2.hand.length }, (_, index) => (
               <div key={`cpu-hand-${index}`} className="battle-opponent-hand-slot" />
             ))}
           </div>
-          <div className="battle-zone-row">
-            <div className="battle-zone-card battle-zone-card--hidden">{p2.setCards.length > 0 ? `${p2.setCards.length} set` : "set なし"}</div>
-            <div className="battle-zone-card">{zoneLabel(p2.currentControlCard, "control なし")}</div>
-            <div className="battle-zone-card">{zoneLabel(p2.blessingZone, "加護 なし")}</div>
+
+          <div className="battle-zone-grid">
+            <div className="battle-zone-panel">
+              <div className="battle-zone-panel__label">加護ゾーン</div>
+              <div className="battle-zone-mini-row">
+                {p2.blessingZone ? <ZoneMiniCard card={p2.blessingZone} onPreview={onSelectCard} /> : <EmptyZoneMini />}
+              </div>
+            </div>
+            <div className="battle-zone-panel">
+              <div className="battle-zone-panel__label">コントロールゾーン</div>
+              <div className="battle-zone-mini-row">
+                {p2.currentControlCard ? <ZoneMiniCard card={p2.currentControlCard} onPreview={onSelectCard} /> : <EmptyZoneMini />}
+              </div>
+            </div>
           </div>
         </section>
 
-        <section className="summary-card battle-lane battle-lane--center">
-          <div className="battle-emblem">{battleSession.turn}</div>
-          <p>Turn</p>
-          <p>{playerLabel(battleSession.actingPlayer)} の行動中</p>
+        <section className="summary-card battle-mid">
+          <div className="battle-mid__status">
+            <div className="battle-mid__turn">T{battleSession.turn}</div>
+            <div className="battle-mid__phase">{battleSession.phase}</div>
+          </div>
+
+          <div className="battle-arena battle-arena--opponent">
+            <div className="battle-arena__label">CPU バトルゾーン</div>
+            <div className="battle-set-row">
+              {p2.setCards.length > 0
+                ? p2.setCards.map((item, index) => (
+                    <SetMiniCard key={`cpu-set-${index}-${item.card.id}`} item={item} onPreview={onSelectCard} />
+                  ))
+                : null}
+            </div>
+          </div>
+
+          <div className="battle-divider" />
+
+          <div className="battle-arena battle-arena--player">
+            <div className="battle-arena__label">プレイヤー バトルゾーン</div>
+            <div className="battle-set-row">
+              {p1.setCards.length > 0
+                ? p1.setCards.map((item, index) => (
+                    <SetMiniCard key={`p1-set-${index}-${item.card.id}`} item={item} onPreview={onSelectCard} />
+                  ))
+                : null}
+            </div>
+          </div>
         </section>
 
-        <section className="summary-card battle-lane battle-lane--player">
-          <div className="battle-lane__header">
+        <section className="summary-card battle-side battle-side--player">
+          <div className="battle-zone-grid">
+            <div className="battle-zone-panel">
+              <div className="battle-zone-panel__label">コントロールゾーン</div>
+              <div className="battle-zone-mini-row">
+                {p1.currentControlCard ? <ZoneMiniCard card={p1.currentControlCard} onPreview={onSelectCard} /> : <EmptyZoneMini />}
+              </div>
+            </div>
+            <div className="battle-zone-panel">
+              <div className="battle-zone-panel__label">加護ゾーン</div>
+              <div className="battle-zone-mini-row">
+                {p1.blessingZone ? <ZoneMiniCard card={p1.blessingZone} onPreview={onSelectCard} /> : <EmptyZoneMini />}
+              </div>
+            </div>
+          </div>
+
+          <div className="battle-side__header">
             <h2>プレイヤー手札</h2>
             <span>{p1.hand.length} 枚</span>
           </div>
           <div className="battle-hand-row">
             {p1.hand.map((card, index) => (
-              <div key={`hand-${card.id}-${index}`} className={`battle-hand-card${selectedHandIds.includes(card.id) ? " battle-hand-card--selected" : ""}`}>
-                <CardMini card={card} onClick={toggleHandCard} />
+              <div
+                key={`hand-${card.id}-${index}`}
+                className={`battle-hand-card${selectedHandIndexes.includes(index) ? " battle-hand-card--selected" : ""}`}
+              >
+                {selectedHandIndexes.includes(index) ? (
+                  <div className="battle-hand-order-badge">{selectedHandIndexes.indexOf(index) + 1}</div>
+                ) : null}
+                <CardMini card={card} onClick={() => toggleHandCard(card, index)} />
+                <button
+                  type="button"
+                  className="battle-hand-preview-button"
+                  onClick={() => onSelectCard(card)}
+                  aria-label={`${card.name || card.id} を拡大表示`}
+                >
+                  👁
+                </button>
               </div>
             ))}
           </div>
-          <div className="battle-zone-row">
-            <div className="battle-zone-card">{p1.setCards.length > 0 ? `${p1.setCards.length} set` : "set なし"}</div>
-            <div className="battle-zone-card">{zoneLabel(p1.currentControlCard, "control なし")}</div>
-            <div className="battle-zone-card">{zoneLabel(p1.blessingZone, "加護 なし")}</div>
-          </div>
+
+          {battleSession.phase === "mulligan" ? (
+            <div className="battle-action-panel">
+              <p className="battle-action-caption">マリガン: 引き直したいカードを選んでください。</p>
+              <div className="battle-action-row">
+                <button type="button" className="primary-button" onClick={() => onChooseMulligan(selectedHandIndexes)}>
+                  選択カードをマリガン
+                </button>
+                <button type="button" className="secondary-button" onClick={() => onChooseMulligan([])}>
+                  このまま開始
+                </button>
+              </div>
+            </div>
+          ) : null}
 
           {battleSession.phase === "control" ? (
             <div className="battle-action-panel">
-              <p className="battle-action-caption">control フェーズ: control か blessing を1枚使うか、何もしないかを選びます。</p>
+              <p className="battle-action-caption">control フェーズ: control または blessing を使うか選びます。</p>
               <div className="battle-action-row">
-                <button type="button" className="primary-button" disabled={!selectedControlCard} onClick={() => onChooseControl(selectedControlCard?.id ?? null)}>
+                <button
+                  type="button"
+                  className="primary-button"
+                  disabled={!selectedControlCard}
+                  onClick={() => onChooseControl(selectedHandIndexes[0] ?? null)}
+                >
                   選択カードを使う
                 </button>
                 <button type="button" className="secondary-button" onClick={() => onChooseControl(null)}>
@@ -162,12 +350,26 @@ export function PlayableBattlePanel({
 
           {battleSession.phase === "battle_select" ? (
             <div className="battle-action-panel">
-              <p className="battle-action-caption">battle フェーズ: battle / control を0〜2枚選び、set / set_pass / pass を行います。</p>
+              <p className="battle-action-caption">battle フェーズ: battle / control を伏せて行動します。</p>
+              <p className="battle-action-caption">この場面で選べる枚数: 最大 {maxSelectableBattleCards} 枚</p>
+              {!canSetCards ? (
+                <p className="battle-action-caption">この場面では追加セットできません。pass のみ可能です。</p>
+              ) : null}
               <div className="battle-action-row">
-                <button type="button" className="primary-button" disabled={selectedBattleCards.length === 0} onClick={() => onBattleAction("set", selectedBattleCards.map((card) => card.id))}>
+                <button
+                  type="button"
+                  className="primary-button"
+                  disabled={selectedBattleCards.length === 0 || !canSetCards}
+                  onClick={() => onBattleAction("set", selectedHandIndexes)}
+                >
                   set
                 </button>
-                <button type="button" className="secondary-button" disabled={selectedBattleCards.length === 0} onClick={() => onBattleAction("set_pass", selectedBattleCards.map((card) => card.id).slice(0, 1))}>
+                <button
+                  type="button"
+                  className="secondary-button"
+                  disabled={selectedBattleCards.length === 0 || !canSetCards}
+                  onClick={() => onBattleAction("set_pass", selectedHandIndexes)}
+                >
                   set_pass
                 </button>
                 <button type="button" className="secondary-button" onClick={() => onBattleAction("pass", [])}>
@@ -179,16 +381,47 @@ export function PlayableBattlePanel({
 
           {battleSession.phase === "result" && battleSession.finalLines ? (
             <div className="battle-result-panel">
-              <p className="battle-result-headline">{battleSession.winner ? `${playerLabel(battleSession.winner)} の勝ち` : "引き分け"}</p>
+              <p className="battle-result-headline">
+                {battleSession.winner ? `${playerLabel(battleSession.winner)} の勝ち` : "引き分け"}
+              </p>
               <div className="battle-result-grid">
                 <div className="battle-result-card">
                   <strong>プレイヤー</strong>
+                  <em>{playerOutcome}</em>
                   <span>A {battleSession.finalLines.p1.attack} / B {battleSession.finalLines.p1.block} / S {battleSession.finalLines.p1.speed}</span>
                 </div>
                 <div className="battle-result-card">
                   <strong>CPU</strong>
+                  <em>{cpuOutcome}</em>
                   <span>A {battleSession.finalLines.p2.attack} / B {battleSession.finalLines.p2.block} / S {battleSession.finalLines.p2.speed}</span>
                 </div>
+              </div>
+            </div>
+          ) : null}
+
+          {battleSession.phase === "blessing_prompt" && battleSession.pendingBlessingChoice ? (
+            <div className="battle-action-panel">
+              <p className="battle-action-caption">加護確認: {battleSession.pendingBlessingChoice.blessingName}</p>
+              <p className="battle-action-caption">{battleSession.pendingBlessingChoice.promptText}</p>
+              <div className="battle-result-grid">
+                <div className="battle-result-card">
+                  <strong>現在</strong>
+                  <span>A {battleSession.finalLines?.p1.attack ?? 0} / B {battleSession.finalLines?.p1.block ?? 0} / S {battleSession.finalLines?.p1.speed ?? 0}</span>
+                  <span>CPU A {battleSession.finalLines?.p2.attack ?? 0} / B {battleSession.finalLines?.p2.block ?? 0} / S {battleSession.finalLines?.p2.speed ?? 0}</span>
+                </div>
+                <div className="battle-result-card">
+                  <strong>使用後</strong>
+                  <span>A {battleSession.pendingBlessingChoice.previewLines.p1.attack} / B {battleSession.pendingBlessingChoice.previewLines.p1.block} / S {battleSession.pendingBlessingChoice.previewLines.p1.speed}</span>
+                  <span>CPU A {battleSession.pendingBlessingChoice.previewLines.p2.attack} / B {battleSession.pendingBlessingChoice.previewLines.p2.block} / S {battleSession.pendingBlessingChoice.previewLines.p2.speed}</span>
+                </div>
+              </div>
+              <div className="battle-action-row">
+                <button type="button" className="primary-button" onClick={() => onResolveBlessingChoice(true)}>
+                  使う
+                </button>
+                <button type="button" className="secondary-button" onClick={() => onResolveBlessingChoice(false)}>
+                  使わない
+                </button>
               </div>
             </div>
           ) : null}
@@ -197,7 +430,13 @@ export function PlayableBattlePanel({
 
       {showLog ? (
         <div className="card-overlay-backdrop" onClick={() => setShowLog(false)} role="presentation">
-          <aside className="card-overlay battle-log-overlay" role="dialog" aria-modal="true" aria-label="対戦ログ" onClick={(event) => event.stopPropagation()}>
+          <aside
+            className="card-overlay battle-log-overlay"
+            role="dialog"
+            aria-modal="true"
+            aria-label="対戦ログ"
+            onClick={(event) => event.stopPropagation()}
+          >
             <div className="card-overlay__header">
               <p className="eyebrow">Battle Log</p>
               <button type="button" className="card-overlay__close" onClick={() => setShowLog(false)}>
@@ -209,6 +448,53 @@ export function PlayableBattlePanel({
                 <li key={entry.id}>{entry.text}</li>
               ))}
             </ol>
+            {battleSession.effectLogs.length > 0 ? (
+              <>
+                <p className="eyebrow">Effect Log</p>
+                <ol className="compact-list compact-list--logs">
+                  {battleSession.effectLogs.map((entry) => (
+                    <li key={entry.id}>
+                      {playerLabel(entry.playerId)} / {entry.sourceCardName}: {entry.text}
+                    </li>
+                  ))}
+                </ol>
+              </>
+            ) : null}
+          </aside>
+        </div>
+      ) : null}
+
+      {showDebugCardPicker ? (
+        <div className="card-overlay-backdrop" onClick={() => setShowDebugCardPicker(false)} role="presentation">
+          <aside
+            className="card-overlay battle-log-overlay debug-card-picker-overlay"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Debug card picker"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="card-overlay__header">
+              <p className="eyebrow">Debug</p>
+              <button type="button" className="card-overlay__close" onClick={() => setShowDebugCardPicker(false)}>
+                閉じる
+              </button>
+            </div>
+            <p className="battle-action-caption">カードを選ぶとプレイヤーの手札に追加します。</p>
+            <div className="debug-card-picker-list">
+              {p1.drawPile.map((card, index) => (
+                <button
+                  key={`debug-card-${card.id}-${index}`}
+                  type="button"
+                  className="debug-card-picker-item"
+                  onClick={() => {
+                    onDebugAddCardToHand(index);
+                    setShowDebugCardPicker(false);
+                  }}
+                >
+                  <CardStrip card={card} />
+                </button>
+              ))}
+            </div>
           </aside>
         </div>
       ) : null}

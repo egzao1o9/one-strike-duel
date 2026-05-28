@@ -1,8 +1,8 @@
 import { advanceDraftAfterAnimation, applyPlayerDraftPick, createInitialDraftSession } from "../lib/draftSession";
-import { applyPlayerBattleAction, applyPlayerControlChoice, createBattleSessionFromDraft } from "../lib/battleSession";
+import { applyDebugAddCardToHand, applyDebugBattlePreset, applyPlayerBattleAction, applyPlayerBlessingChoice, applyPlayerControlChoice, applyPlayerMulligan, createBattleSessionFromDraft } from "../lib/battleSession";
 import type { CardRarity } from "../types/cards";
 import type { BattleActionType } from "../types/prototype";
-import type { PrototypeState } from "../types/prototype";
+import type { DebugBattlePreset, PrototypeState } from "../types/prototype";
 
 export type PrototypeAction =
   | { type: "start_prototype"; seed?: number }
@@ -11,8 +11,12 @@ export type PrototypeAction =
   | { type: "take_topdeck"; rarity: CardRarity }
   | { type: "resolve_draft_animation" }
   | { type: "enter_battle" }
-  | { type: "choose_control"; cardId: string | null }
-  | { type: "choose_battle_action"; actionType: BattleActionType; cardIds: string[] };
+  | { type: "choose_mulligan"; handIndexes: number[] }
+  | { type: "choose_control"; handIndex: number | null }
+  | { type: "choose_battle_action"; actionType: BattleActionType; handIndexes: number[] }
+  | { type: "resolve_blessing_choice"; useBlessing: boolean }
+  | { type: "debug_add_card_to_hand"; drawPileIndex: number }
+  | { type: "debug_battle_preset"; preset: DebugBattlePreset };
 
 export const initialPrototypeState: PrototypeState = {
   screen: "title",
@@ -84,7 +88,15 @@ export function prototypeReducer(state: PrototypeState, action: PrototypeAction)
       }
       return {
         ...state,
-        activeBattle: applyPlayerControlChoice(state.activeBattle, action.cardId),
+        activeBattle: applyPlayerControlChoice(state.activeBattle, action.handIndex),
+      };
+    case "choose_mulligan":
+      if (!state.activeBattle) {
+        return state;
+      }
+      return {
+        ...state,
+        activeBattle: applyPlayerMulligan(state.activeBattle, action.handIndexes),
       };
     case "choose_battle_action":
       if (!state.activeBattle) {
@@ -92,7 +104,31 @@ export function prototypeReducer(state: PrototypeState, action: PrototypeAction)
       }
       return {
         ...state,
-        activeBattle: applyPlayerBattleAction(state.activeBattle, action.actionType, action.cardIds),
+        activeBattle: applyPlayerBattleAction(state.activeBattle, action.actionType, action.handIndexes),
+      };
+    case "resolve_blessing_choice":
+      if (!state.activeBattle) {
+        return state;
+      }
+      return {
+        ...state,
+        activeBattle: applyPlayerBlessingChoice(state.activeBattle, action.useBlessing),
+      };
+    case "debug_add_card_to_hand":
+      if (!state.activeBattle) {
+        return state;
+      }
+      return {
+        ...state,
+        activeBattle: applyDebugAddCardToHand(state.activeBattle, action.drawPileIndex),
+      };
+    case "debug_battle_preset":
+      if (!state.activeBattle) {
+        return state;
+      }
+      return {
+        ...state,
+        activeBattle: applyDebugBattlePreset(state.activeBattle, action.preset),
       };
     default:
       return state;
