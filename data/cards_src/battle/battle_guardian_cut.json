@@ -1,0 +1,12 @@
+{
+  "id": "battle_guardian_cut",
+  "name": "守護斬り",
+  "type": "battle",
+  "rarity": "rare",
+  "attack": 2,
+  "block": 3,
+  "speed": -1,
+  "tags": ["attack", "defense", "balanced"],
+  "effects": [],
+  "notes": "攻撃と防御を両立する安定した防御寄りレア。"
+}

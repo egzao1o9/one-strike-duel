@@ -25,19 +25,25 @@ ARCHETYPES = (
     {"label": "Standard", "draft_bot": "StandardDraftBot", "play_bot": "StandardBot"},
     {"label": "Aggro", "draft_bot": "AggroDraftBot", "play_bot": "AggroBot"},
     {"label": "Guard", "draft_bot": "GuardDraftBot", "play_bot": "GuardBot"},
+    {"label": "Control", "draft_bot": "ControlDraftBot", "play_bot": "ControlBot"},
+    {"label": "Blessing", "draft_bot": "BlessingDraftBot", "play_bot": "BlessingBot"},
 )
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run the public-info draft bot suite across all archetype pairings.")
+    archetype_labels = [item["label"] for item in ARCHETYPES]
     parser.add_argument("--matches-per-matchup", type=int, default=1000)
     parser.add_argument("--seed", type=int, default=541)
     parser.add_argument("--output-dir", default=None)
     parser.add_argument("--keep-match-logs", type=int, default=100)
     parser.add_argument("--fast-report", action="store_true")
-    parser.add_argument("--draft-mode", choices=("simple", "full"), default="simple")
+    parser.add_argument("--draft-mode", choices=("simple", "full", "market_12", "full_half", "full_12", "full_15", "full_18"), default="simple")
     parser.add_argument("--lean-draft-logging", action="store_true")
     parser.add_argument("--save-battle-logs", action="store_true")
+    parser.add_argument("--save-battle-logs-for", nargs="*", choices=archetype_labels, default=None)
+    parser.add_argument("--match-log-profile", choices=("minimal", "standard", "full"), default="standard")
+    parser.add_argument("--record-profile", choices=("minimal", "standard", "full"), default="standard")
     parser.add_argument("--workers", type=int, default=0)
     return parser.parse_args()
 
@@ -53,6 +59,9 @@ def main() -> None:
         draft_mode=args.draft_mode,
         lean_draft_logging=args.lean_draft_logging,
         save_battle_logs=args.save_battle_logs,
+        save_battle_logs_for=args.save_battle_logs_for,
+        match_log_profile=args.match_log_profile,
+        record_profile=args.record_profile,
         workers=args.workers,
     )
     print(output["index_path"])
@@ -69,6 +78,9 @@ def run_suite(
     draft_mode: str = "simple",
     lean_draft_logging: bool = False,
     save_battle_logs: bool = False,
+    save_battle_logs_for: list[str] | None = None,
+    match_log_profile: str = "standard",
+    record_profile: str = "standard",
     workers: int = 0,
 ) -> dict[str, Path]:
     if matches_per_matchup % 2 != 0:
@@ -78,6 +90,8 @@ def run_suite(
     output_dir = Path(output_dir_override or f"logs/draft_public_info_suite_x{matches_per_matchup}_seed{seed}")
     output_dir.mkdir(parents=True, exist_ok=True)
     cards = load_cards("data/cards.json")
+    save_battle_logs_for = sorted(set(save_battle_logs_for or []))
+    effective_save_battle_logs = bool(save_battle_logs or save_battle_logs_for)
 
     draft_to_label = {item["draft_bot"]: item["label"] for item in ARCHETYPES}
     label_to_meta = {item["label"]: item for item in ARCHETYPES}
@@ -91,6 +105,7 @@ def run_suite(
         matchup_tasks.append(
             {
                 "matchup_slug": matchup_slug,
+                "labels": (left["label"], right["label"]),
                 "matchup_dir": str(matchup_dir),
                 "draft_bot1": left["draft_bot"],
                 "draft_bot2": right["draft_bot"],
@@ -102,7 +117,13 @@ def run_suite(
                 "fast_report": fast_report,
                 "draft_mode": draft_mode,
                 "lean_draft_logging": lean_draft_logging,
-                "save_battle_logs": save_battle_logs,
+                "save_battle_logs": should_save_battle_logs_for_matchup(
+                    global_save=effective_save_battle_logs,
+                    filter_labels=save_battle_logs_for,
+                    matchup_labels=(left["label"], right["label"]),
+                ),
+                "match_log_profile": match_log_profile,
+                "record_profile": record_profile,
             }
         )
 
@@ -154,7 +175,10 @@ def run_suite(
             "draft_mode": draft_mode,
             "fast_report": fast_report,
             "lean_draft_logging": lean_draft_logging,
-            "save_battle_logs": save_battle_logs,
+            "save_battle_logs": effective_save_battle_logs,
+            "save_battle_logs_for": save_battle_logs_for,
+            "match_log_profile": match_log_profile,
+            "record_profile": record_profile,
         }
         if not lean_draft_logging:
             summary_payload["draft_records"] = merged_draft_records
@@ -187,7 +211,10 @@ def run_suite(
         fast_report=fast_report,
         draft_mode=draft_mode,
         lean_draft_logging=lean_draft_logging,
-        save_battle_logs=save_battle_logs,
+        save_battle_logs=effective_save_battle_logs,
+        save_battle_logs_for=save_battle_logs_for,
+        match_log_profile=match_log_profile,
+        record_profile=record_profile,
         workers=max_workers,
     )
     summary_path = output_dir / "summary.json"
@@ -245,8 +272,25 @@ def init_bot_aggregate(label_to_meta: dict[str, dict[str, str]]) -> dict[str, di
             },
             "matchups": defaultdict(lambda: {"matches": 0, "wins": 0, "losses": 0, "draws": 0}),
             "priority": init_priority_aggregate(),
+            "prediction_count": 0,
+            "prediction_hits": 0,
+            "prediction_style_counts": Counter(),
+            "prediction_style_hits": Counter(),
         }
     return aggregate
+
+
+def should_save_battle_logs_for_matchup(
+    *,
+    global_save: bool,
+    filter_labels: list[str] | None,
+    matchup_labels: tuple[str, str],
+) -> bool:
+    if not global_save and not filter_labels:
+        return False
+    if not filter_labels:
+        return global_save
+    return any(label in set(filter_labels) for label in matchup_labels)
 
 
 def _run_suite_chunk(task: dict[str, Any]) -> dict[str, Any]:
@@ -263,6 +307,8 @@ def _run_suite_chunk(task: dict[str, Any]) -> dict[str, Any]:
         fast_report=task["fast_report"],
         lean_draft_logging=task["lean_draft_logging"],
         save_battle_logs=task["save_battle_logs"],
+        match_log_profile=task["match_log_profile"],
+        record_profile=task["record_profile"],
     )
     return {
         "matchup_slug": task["matchup_slug"],
@@ -424,6 +470,12 @@ def fold_summary_into_bot_aggregate(
             blessing["decisive_count"] += item["decisive_count"]
             blessing["pre_reveal_count"] += item["pre_reveal_count"]
             blessing["passive_decisive_count"] += item["passive_decisive_count"]
+        aggregate["prediction_count"] += stats.get("prediction_count", 0)
+        aggregate["prediction_hits"] += int(round((stats.get("prediction_hit_rate") or 0) * stats.get("prediction_count", 0)))
+        aggregate["prediction_style_counts"].update(stats.get("prediction_style_counts", {}))
+        for style, rate in stats.get("prediction_style_hit_rates", {}).items():
+            count = stats.get("prediction_style_counts", {}).get(style, 0)
+            aggregate["prediction_style_hits"][style] += int(round((rate or 0) * count))
 
     if config["draft_bot1"] == config["draft_bot2"]:
         label = draft_to_label[config["draft_bot1"]]
@@ -501,6 +553,9 @@ def build_suite_summary(
     draft_mode: str,
     lean_draft_logging: bool,
     save_battle_logs: bool,
+    save_battle_logs_for: list[str] | None,
+    match_log_profile: str,
+    record_profile: str,
     workers: int,
 ) -> dict[str, Any]:
     ordered_matchups = sorted(
@@ -522,6 +577,9 @@ def build_suite_summary(
             "draft_mode": draft_mode,
             "lean_draft_logging": lean_draft_logging,
             "save_battle_logs": save_battle_logs,
+            "save_battle_logs_for": list(save_battle_logs_for or []),
+            "match_log_profile": match_log_profile,
+            "record_profile": record_profile,
             "workers": workers,
         },
         "matchups": ordered_matchups,
@@ -577,6 +635,12 @@ def finalize_bot_row(label: str, stats: dict[str, Any]) -> dict[str, Any]:
         "more_card_win_rate": round(stats["wins_with_more_cards"] / wins, 4) if wins else None,
         "set_pass_candidate_total": stats["set_pass_candidate_total"],
         "set_pass_candidate_avg_per_match": round(stats["set_pass_candidate_total"] / matches, 4),
+        "prediction_hit_rate": round(stats["prediction_hits"] / stats["prediction_count"], 4) if stats["prediction_count"] else None,
+        "prediction_style_counts": dict(stats["prediction_style_counts"]),
+        "prediction_style_hit_rates": {
+            style: round(stats["prediction_style_hits"].get(style, 0) / count, 4) if count else None
+            for style, count in stats["prediction_style_counts"].items()
+        },
         "action_counts": dict(stats["action_counts"]),
         "action_rates": {
             "set": round(stats["action_counts"].get("set", 0) / total_actions, 4),
@@ -644,6 +708,9 @@ def render_suite_markdown(summary: dict[str, Any]) -> str:
         f"- Draft Mode: `{config.get('draft_mode', 'unknown')}`",
         f"- Lean Draft Logging: {'on' if config.get('lean_draft_logging') else 'off'}",
         f"- Save Battle Logs: {'on' if config.get('save_battle_logs') else 'off'}",
+        f"- Save Battle Logs For: {', '.join(f'`{label}`' for label in config.get('save_battle_logs_for', [])) or '-'}",
+        f"- Match Log Profile: `{config.get('match_log_profile', 'standard')}`",
+        f"- Record Profile: `{config.get('record_profile', 'standard')}`",
         f"- Workers: {config.get('workers', 1)}",
         "- Archetypes: `Standard`, `Aggro`, `Guard`",
         "- Pairings: all combinations with replacement, mirrored by seat",
@@ -702,6 +769,7 @@ def render_suite_markdown(summary: dict[str, Any]) -> str:
                 f"- First Pass Win Rate: {format_optional_rate(stats['first_pass_win_rate'])}",
                 f"- Starting Player Win Rate: {format_optional_rate(stats['starting_player_win_rate'])}",
                 f"- Responding Player Win Rate: {format_optional_rate(stats['responding_player_win_rate'])}",
+                f"- Prediction Hit Rate: {format_optional_rate(stats['prediction_hit_rate'])}",
                 f"- Action Rates: set={format_optional_rate(stats['action_rates']['set'])}, set_pass={format_optional_rate(stats['action_rates']['set_pass'])}, pass={format_optional_rate(stats['action_rates']['pass'])}",
                 f"- set_pass Candidate Avg / Match: {stats['set_pass_candidate_avg_per_match']}",
                 "",
@@ -714,6 +782,20 @@ def render_suite_markdown(summary: dict[str, Any]) -> str:
                 f"| `{opponent}` | {row['matches']} | {row['wins']} | {row['losses']} | {row['draws']} | {format_optional_rate(row['win_rate'])} |"
             )
         lines.append("")
+        if stats.get("prediction_style_counts"):
+            lines.extend(
+                [
+                    "#### Prediction Accuracy",
+                    "",
+                    "| Predicted Style | Count | Hit Rate |",
+                    "|---|---:|---:|",
+                ]
+            )
+            for style, count in sorted(stats["prediction_style_counts"].items()):
+                lines.append(
+                    f"| `{style}` | {count} | {format_optional_rate(stats['prediction_style_hit_rates'].get(style))} |"
+                )
+            lines.append("")
         if stats["priority"] is not None:
             lines.extend(render_priority_table("Most Picked", stats["priority"]["most_picked"], count_only=True))
             lines.append("")

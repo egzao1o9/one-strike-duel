@@ -1,0 +1,19 @@
+{
+  "id": "battle_brake",
+  "name": "制動",
+  "type": "battle",
+  "rarity": "common",
+  "attack": 0,
+  "block": 1,
+  "speed": -1,
+  "tags": ["defense", "heavy"],
+  "public_text": "このバトル中、相手の素早さ-1。",
+  "effects": [
+    {
+      "timing": "battle",
+      "kind": "modify_opponent_speed",
+      "value": 1
+    }
+  ],
+  "notes": "自分は遅いが、相手も少し遅らせる。"
+}

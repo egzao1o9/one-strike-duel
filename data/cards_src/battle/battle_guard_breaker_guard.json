@@ -1,0 +1,19 @@
+{
+  "id": "battle_guard_breaker_guard",
+  "name": "受け崩し",
+  "type": "battle",
+  "rarity": "rare",
+  "attack": 1,
+  "block": 2,
+  "speed": 0,
+  "tags": ["attack", "defense", "debuff"],
+  "public_text": "このバトル中、相手の防御-1。",
+  "effects": [
+    {
+      "timing": "battle",
+      "kind": "modify_opponent_block",
+      "value": 1
+    }
+  ],
+  "notes": "防御しながら相手の防御を崩す防御寄りレア。"
+}

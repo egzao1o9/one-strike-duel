@@ -56,6 +56,15 @@ def build_draw_pile(
 
 
 def _build_source_labels(deck: DeckDefinition) -> list[str]:
+    starter_cards = tuple(deck.metadata.get("starter_cards", ()))
+    public_market = tuple(deck.metadata.get("public_market_cards", ()))
+    hidden_market = tuple(deck.metadata.get("hidden_market_cards", ()))
+    if starter_cards or public_market or hidden_market:
+        return (
+            ["starter"] * len(starter_cards)
+            + ["public"] * len(public_market)
+            + ["hidden"] * len(hidden_market)
+        )
     public_normal = tuple(deck.metadata.get("public_normal_cards", ()))
     hidden_normal = tuple(deck.metadata.get("hidden_normal_cards", ()))
     public_rare = tuple(deck.metadata.get("public_rare_cards", ()))

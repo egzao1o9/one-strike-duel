@@ -1,0 +1,12 @@
+{
+  "id": "battle_low_guard",
+  "name": "低構え",
+  "type": "battle",
+  "rarity": "common",
+  "attack": 0,
+  "block": 1,
+  "speed": 1,
+  "tags": ["defense", "speed"],
+  "effects": [],
+  "notes": "軽い防御カード。攻撃はできないが、速度を落とさず守れる。"
+}

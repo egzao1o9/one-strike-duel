@@ -152,6 +152,8 @@ class MatchRunner:
         remaining = min(max_draw, max(0, self.state.hand_limit - len(player.hand)))
         while remaining > 0:
             if not player.draw_pile:
+                player.deck_exhaustion_count += 1
+                player.deck_exhaustion_turns.append(self.state.turn)
                 if not player.discard_pile:
                     break
                 player.draw_pile = list(player.discard_pile)

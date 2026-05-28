@@ -149,6 +149,12 @@ def _render_turn(turn: dict[str, Any]) -> list[str]:
             )
             if action.get("face_up_card_names"):
                 lines.append(f"- Face Up: {_render_card_list(action.get('face_up_card_names', []))}")
+            prediction = action.get("prediction") or action.get("debug", {}).get("battle", {}).get("selected", {}).get("prediction")
+            if prediction:
+                lines.append(
+                    f"- Prediction: style={prediction.get('predicted_style')} line={prediction.get('predicted_line')} "
+                    f"closing={prediction.get('predicted_closing_style')} plan={prediction.get('response_plan')} mode={prediction.get('mode')}"
+                )
             if action.get("debug"):
                 lines.append(f"- Debug: {action.get('debug')}")
     if battle.get("reveal_steps"):
@@ -212,6 +218,11 @@ def _render_turn_markdown(turn: dict[str, Any]) -> list[str]:
             if action.get("face_up_card_names"):
                 lines.append(
                     f"| Open | {_render_card_list(action.get('face_up_card_names', []))} | - | - | - | - | - |"
+                )
+            prediction = action.get("prediction") or action.get("debug", {}).get("battle", {}).get("selected", {}).get("prediction")
+            if prediction:
+                lines.append(
+                    f"| Prediction | `{prediction.get('predicted_style')}` / `{prediction.get('predicted_line')}` / `{prediction.get('response_plan')}` | - | - | - | - | - |"
                 )
             if action.get("debug"):
                 lines.append(f"| Debug | `{str(action.get('debug'))}` | - | - | - | - | - |")

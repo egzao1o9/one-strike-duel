@@ -22,6 +22,7 @@ CARD_TOP_LEVEL_KEYS = {
     "effects",
     "notes",
     "public_text",
+    "effect_text",
     "text",
     "enabled",
     "play_zone",
@@ -256,6 +257,7 @@ class Card:
     tags: tuple[str, ...] = field(default_factory=tuple)
     effects: tuple[Effect, ...] = field(default_factory=tuple)
     public_text: str = ""
+    effect_text: str = ""
     enabled: bool = True
     play_zone: str = ""
     after_play_zone: str = ""
@@ -270,7 +272,11 @@ class Card:
 
     @property
     def text(self) -> str:
-        return self.public_text
+        return self.effect_text or self.public_text
+
+    @property
+    def rules_text(self) -> str:
+        return self.effect_text or self.public_text
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> "Card":
@@ -285,7 +291,8 @@ class Card:
             speed=_normalize_base_value(payload, "speed"),
             tags=tuple(payload.get("tags", [])),
             effects=tuple(Effect.from_dict(item) for item in payload.get("effects", [])),
-            public_text=str(payload.get("public_text") or payload.get("text") or ""),
+            public_text=str(payload.get("public_text") or payload.get("effect_text") or payload.get("text") or ""),
+            effect_text=str(payload.get("effect_text") or payload.get("public_text") or payload.get("text") or ""),
             enabled=bool(payload.get("enabled", True)),
             play_zone=_normalize_zone_value(payload, "play_zone", default_play_zone(card_type)),
             after_play_zone=_normalize_zone_value(payload, "after_play_zone", default_after_play_zone(card_type)),
@@ -372,9 +379,12 @@ def validate_card_payload(payload: dict[str, Any], *, source: str = "card") -> N
             raise ValueError(f"{source}: effect at index {index} must be an object")
         validate_effect_payload(effect_payload, source=f"{source} effect[{index}]")
 
-    public_text = payload.get("public_text", payload.get("text", ""))
+    public_text = payload.get("public_text", payload.get("effect_text", payload.get("text", "")))
     if not isinstance(public_text, str):
-        raise ValueError(f"{source}: public_text must be string")
+        raise ValueError(f"{source}: public_text/effect_text must be string")
+    effect_text = payload.get("effect_text", public_text)
+    if not isinstance(effect_text, str):
+        raise ValueError(f"{source}: effect_text must be string")
     if "enabled" in payload and not isinstance(payload["enabled"], bool):
         raise ValueError(f"{source}: enabled must be bool")
 

@@ -11,6 +11,7 @@ from bots.registry import BOT_REGISTRY, build_bot
 from engine.card import load_cards
 from engine.deck import load_decks
 from engine.log_formatter import render_match_log_markdown
+from engine.log_profiles import export_match_record, trim_match_log
 from engine.phase_runner import MatchRunner
 from sim.log_retention import prune_match_logs
 
@@ -22,6 +23,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--seed", type=int, default=31)
     parser.add_argument("--output-dir", default=None)
     parser.add_argument("--keep-match-logs", type=int, default=100)
+    parser.add_argument("--match-log-profile", choices=("minimal", "standard", "full"), default="standard")
+    parser.add_argument("--record-profile", choices=("minimal", "standard", "full"), default="standard")
     return parser.parse_args()
 
 
@@ -33,6 +36,8 @@ def main() -> None:
         args.seed,
         args.output_dir,
         args.keep_match_logs,
+        args.match_log_profile,
+        args.record_profile,
     )
     print(summary_md)
     print(f"matches={total_matches}")
@@ -44,6 +49,8 @@ def run_tournament(
     seed: int,
     output_dir_override: str | None = None,
     keep_match_logs: int = 100,
+    match_log_profile: str = "standard",
+    record_profile: str = "standard",
 ) -> tuple[Path, int]:
     cards = load_cards("data/cards.json")
     decks = load_decks("data/decks.json")
@@ -74,10 +81,11 @@ def run_tournament(
                         seed=match_seed,
                     )
                     result = runner.run()
+                    trimmed_log = trim_match_log(result.log, match_log_profile)
                     json_path = matches_dir / f"{match_id}_{p1_deck}_vs_{p2_deck}.json"
                     md_path = matches_dir / f"{match_id}_{p1_deck}_vs_{p2_deck}.md"
-                    runner.logger.write_json(json_path)
-                    md_path.write_text(render_match_log_markdown(result.log), encoding="utf-8")
+                    json_path.write_text(json.dumps(trimmed_log, ensure_ascii=False, indent=2), encoding="utf-8")
+                    md_path.write_text(render_match_log_markdown(trimmed_log), encoding="utf-8")
                     records.append(build_match_record(result.log, md_path.relative_to(output_dir).as_posix()))
                     match_index += 1
 
@@ -88,6 +96,8 @@ def run_tournament(
         "pairing_mode": "unordered pairings with mirrored seats",
         "total_matches": len(records),
         "seed": seed,
+        "match_log_profile": match_log_profile,
+        "record_profile": record_profile,
     }
 
     summary_json = output_dir / "summary.json"
@@ -128,6 +138,7 @@ def build_match_record(payload: dict[str, Any], markdown_path: str) -> dict[str,
         "p2": collect_action_counts(payload, "p2"),
     }
     blessing_analysis = collect_blessing_analysis(payload)
+    prediction_analysis = collect_prediction_analysis(payload)
     final_stats = {
         "p1": battle.get("p1_final"),
         "p2": battle.get("p2_final"),
@@ -159,6 +170,7 @@ def build_match_record(payload: dict[str, Any], markdown_path: str) -> dict[str,
         "decisive_card_details": decisive_card_details,
         "action_counts": action_counts,
         "blessing_analysis": blessing_analysis,
+        "prediction_analysis": prediction_analysis,
         "set_pass_candidate_count": collect_set_pass_candidate_count(payload),
         "hand_count_trace": collect_hand_count_trace(payload),
         "p1_final_stats": final_stats["p1"],
@@ -177,6 +189,14 @@ def build_match_record(payload: dict[str, Any], markdown_path: str) -> dict[str,
         "won_with_fewer_cards": bool(battle.get("won_with_fewer_cards")),
         "won_with_same_cards": bool(battle.get("won_with_same_cards")),
         "won_with_more_cards": bool(battle.get("won_with_more_cards")),
+        "p1_reshuffle_count": int(players["p1"].get("reshuffle_count", 0)),
+        "p2_reshuffle_count": int(players["p2"].get("reshuffle_count", 0)),
+        "p1_deck_exhaustion_count": int(players["p1"].get("deck_exhaustion_count", 0)),
+        "p2_deck_exhaustion_count": int(players["p2"].get("deck_exhaustion_count", 0)),
+        "p1_remaining_draw_pile_count": int(players["p1"].get("remaining_draw_pile_count", 0)),
+        "p2_remaining_draw_pile_count": int(players["p2"].get("remaining_draw_pile_count", 0)),
+        "p1_remaining_discard_pile_count": int(players["p1"].get("remaining_discard_pile_count", 0)),
+        "p2_remaining_discard_pile_count": int(players["p2"].get("remaining_discard_pile_count", 0)),
     }
     if winner_side:
         record["winner_final_stats"] = battle[f"{winner_side}_final"]
@@ -243,6 +263,132 @@ def collect_blessing_analysis(payload: dict[str, Any]) -> dict[str, dict[str, An
     for side in ("p1", "p2"):
         analysis[side]["event_types"] = dict(analysis[side]["event_types"])
     return analysis
+
+
+def collect_prediction_analysis(payload: dict[str, Any]) -> dict[str, Any]:
+    analysis: dict[str, Any] = {
+        "p1": {"events": [], "summary": _empty_prediction_summary()},
+        "p2": {"events": [], "summary": _empty_prediction_summary()},
+    }
+    for turn in payload.get("turns", []):
+        battle = turn.get("battle", {})
+        actual_lines = {
+            "p1": battle.get("p1_final"),
+            "p2": battle.get("p2_final"),
+        }
+        for action in battle.get("actions", []):
+            side = action.get("player_id")
+            if side not in analysis:
+                continue
+            debug = action.get("debug", {})
+            prediction = debug.get("battle", {}).get("selected", {}).get("prediction")
+            if not isinstance(prediction, dict):
+                continue
+            opponent_side = "p2" if side == "p1" else "p1"
+            actual_line = actual_lines.get(opponent_side) or {"attack": 0, "block": 0, "speed": 0}
+            predicted_line = dict(prediction.get("predicted_line", {}))
+            event = {
+                "turn": turn.get("turn"),
+                "action_type": action.get("action_type"),
+                "predicted_style": str(prediction.get("predicted_style", "unknown")),
+                "actual_style": classify_prediction_style(actual_line),
+                "predicted_line": {
+                    "attack": int(predicted_line.get("attack", 0)),
+                    "block": int(predicted_line.get("block", 0)),
+                    "speed": int(predicted_line.get("speed", 0)),
+                },
+                "actual_line": {
+                    "attack": int(actual_line.get("attack", 0)),
+                    "block": int(actual_line.get("block", 0)),
+                    "speed": int(actual_line.get("speed", 0)),
+                },
+                "response_plan": str(prediction.get("response_plan", "unknown")),
+                "mode": prediction.get("mode"),
+                "side_won_battle": payload.get("winner") == side,
+                "side_avoided_loss": payload.get("winner") != opponent_side,
+            }
+            event["hit"] = event["predicted_style"] == event["actual_style"]
+            event["attack_error"] = abs(event["predicted_line"]["attack"] - event["actual_line"]["attack"])
+            event["block_error"] = abs(event["predicted_line"]["block"] - event["actual_line"]["block"])
+            event["speed_error"] = abs(event["predicted_line"]["speed"] - event["actual_line"]["speed"])
+            event["plan_success"] = plan_success(event)
+            analysis[side]["events"].append(event)
+            fold_prediction_summary(analysis[side]["summary"], event)
+    for side in ("p1", "p2"):
+        finalize_prediction_summary(analysis[side]["summary"])
+    return analysis
+
+
+def classify_prediction_style(line: dict[str, Any]) -> str:
+    values = {
+        "attack": int(line.get("attack", 0)),
+        "defense": int(line.get("block", 0)),
+        "speed": int(line.get("speed", 0)),
+    }
+    highest = max(values.values())
+    if highest <= 0:
+        return "none"
+    leaders = [name for name, value in values.items() if value == highest]
+    if len(leaders) != 1:
+        return "balanced"
+    return leaders[0]
+
+
+def plan_success(event: dict[str, Any]) -> bool:
+    plan = event.get("response_plan")
+    if plan in {"attack_push", "pressure_with_cover", "speed_race"}:
+        return bool(event.get("side_won_battle"))
+    if plan in {"full_guard", "minimal_guard", "guard_and_counter", "probe"}:
+        return bool(event.get("side_avoided_loss"))
+    return False
+
+
+def _empty_prediction_summary() -> dict[str, Any]:
+    return {
+        "count": 0,
+        "hits": 0,
+        "style_counts": Counter(),
+        "style_hits": Counter(),
+        "plan_counts": Counter(),
+        "plan_successes": Counter(),
+        "attack_error_total": 0,
+        "block_error_total": 0,
+        "speed_error_total": 0,
+    }
+
+
+def fold_prediction_summary(summary: dict[str, Any], event: dict[str, Any]) -> None:
+    predicted_style = event["predicted_style"]
+    plan = event["response_plan"]
+    summary["count"] += 1
+    summary["hits"] += int(event["hit"])
+    summary["style_counts"][predicted_style] += 1
+    summary["style_hits"][predicted_style] += int(event["hit"])
+    summary["plan_counts"][plan] += 1
+    summary["plan_successes"][plan] += int(event["plan_success"])
+    summary["attack_error_total"] += int(event["attack_error"])
+    summary["block_error_total"] += int(event["block_error"])
+    summary["speed_error_total"] += int(event["speed_error"])
+
+
+def finalize_prediction_summary(summary: dict[str, Any]) -> None:
+    count = summary["count"]
+    summary["hit_rate"] = summary["hits"] / count if count else None
+    summary["avg_attack_error"] = round(summary["attack_error_total"] / count, 2) if count else None
+    summary["avg_block_error"] = round(summary["block_error_total"] / count, 2) if count else None
+    summary["avg_speed_error"] = round(summary["speed_error_total"] / count, 2) if count else None
+    summary["style_counts"] = dict(summary["style_counts"])
+    summary["style_hits"] = dict(summary["style_hits"])
+    summary["style_hit_rates"] = {
+        style: round(summary["style_hits"].get(style, 0) / style_count, 4) if style_count else None
+        for style, style_count in summary["style_counts"].items()
+    }
+    summary["plan_counts"] = dict(summary["plan_counts"])
+    summary["plan_successes"] = dict(summary["plan_successes"])
+    summary["plan_success_rates"] = {
+        plan: round(summary["plan_successes"].get(plan, 0) / plan_count, 4) if plan_count else None
+        for plan, plan_count in summary["plan_counts"].items()
+    }
 
 
 def _passive_blessing_changed_outcome(battle: dict[str, Any], side: str, blessing_id: str) -> bool:

@@ -1,0 +1,24 @@
+{
+  "id": "control_guard_read",
+  "name": "守り読み",
+  "type": "control",
+  "rarity": "rare",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": ["defense", "draw", "next_turn"],
+  "public_text": "このターン、自分の防御+1。次ターン開始時、追加で1枚引く。",
+  "effects": [
+    {
+      "timing": "battle",
+      "kind": "modify_self_block",
+      "value": 1
+    },
+    {
+      "timing": "next_turn",
+      "kind": "draw_cards",
+      "value": 1
+    }
+  ],
+  "notes": "今ターンを少し守り、次ターンの選択肢を増やす。"
+}

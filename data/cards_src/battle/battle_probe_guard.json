@@ -1,0 +1,12 @@
+{
+  "id": "battle_probe_guard",
+  "name": "探り受け",
+  "type": "battle",
+  "rarity": "common",
+  "attack": 1,
+  "block": 1,
+  "speed": 0,
+  "tags": ["attack", "defense"],
+  "effects": [],
+  "notes": "最低限の攻防を持つ標準カード。"
+}

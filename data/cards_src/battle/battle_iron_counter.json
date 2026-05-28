@@ -1,0 +1,19 @@
+{
+  "id": "battle_iron_counter",
+  "name": "鉄反し",
+  "type": "battle",
+  "rarity": "rare",
+  "attack": 0,
+  "block": 4,
+  "speed": -1,
+  "tags": ["defense", "counter", "heavy"],
+  "public_text": "このバトル中、自分の攻撃+1。",
+  "effects": [
+    {
+      "timing": "battle",
+      "kind": "modify_self_attack",
+      "value": 1
+    }
+  ],
+  "notes": "重防御カウンター。効果込みで実質攻撃2。"
+}

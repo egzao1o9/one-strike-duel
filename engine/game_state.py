@@ -38,6 +38,8 @@ class PlayerState:
     mulligan2_discarded: int = 0
     reshuffle_count: int = 0
     reshuffle_turns: list[int] = field(default_factory=list)
+    deck_exhaustion_count: int = 0
+    deck_exhaustion_turns: list[int] = field(default_factory=list)
     draw_shortfall_turns: list[int] = field(default_factory=list)
 
     def draw(self, count: int) -> list[Card]:

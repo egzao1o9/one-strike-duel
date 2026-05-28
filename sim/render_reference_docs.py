@@ -37,14 +37,14 @@ def render_cards_markdown(cards: dict[str, Card]) -> str:
         "",
         "## Card List",
         "",
-        "| ID | Name | Type | Rarity | Attack | Block | Speed | Tags | Text |",
-        "|---|---|---|---|---:|---:|---:|---|---|",
+        "| ID | Name | Type | Rarity | Attack | Block | Speed | Tags | Effect | Flavor |",
+        "|---|---|---|---|---:|---:|---:|---|---|---|",
     ]
 
     for card in sorted(cards.values(), key=lambda item: (item.type, item.id)):
         tags = ", ".join(card.tags) if card.tags else "-"
         lines.append(
-            f"| `{card.id}` | {card.name} | `{card.type}` | `{card.rarity}` | {card.attack} | {card.block} | {card.speed} | {tags} | {card.public_text or '-'} |"
+            f"| `{card.id}` | {card.name} | `{card.type}` | `{card.rarity}` | {card.attack} | {card.block} | {card.speed} | {tags} | {card.rules_text or '-'} | {card.flavor_text or '-'} |"
         )
 
     lines.extend(["", "## Details", ""])
@@ -66,7 +66,8 @@ def _render_card_detail(card: Card) -> list[str]:
         f"- Rarity: `{card.rarity}`",
         f"- Stats: `A={card.attack} / B={card.block} / S={card.speed}`",
         f"- Tags: {tags}",
-        f"- Text: {card.public_text or '-'}",
+        f"- Effect Text: {card.rules_text or '-'}",
+        f"- Flavor Text: {card.flavor_text or '-'}",
         f"- Zones: `play={card.play_zone} / after={card.after_play_zone} / slot={card.slot_type or '-'} `",
         f"- Notes: {card.notes or '-'}",
     ]

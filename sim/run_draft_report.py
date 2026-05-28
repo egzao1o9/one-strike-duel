@@ -14,10 +14,21 @@ from engine.card import load_cards
 from engine.card_pool import load_card_pool
 from engine.drafting import draft_with_bots, summarize_deck
 from engine.log_formatter import render_match_log_markdown
+from engine.log_profiles import export_match_record, trim_match_log
 from engine.phase_runner import MatchRunner
 from sim.log_retention import prune_match_logs
 from sim.run_deck_tournament import build_match_record, finalize_card_stats, summarize_numbers
 from sim.run_draft_match import build_draft_payload, render_draft_match_markdown
+
+
+def draft_mode_deck_size(draft_mode: str) -> int:
+    return {
+        "market_12": 12,
+        "full_half": 10,
+        "full_12": 12,
+        "full_15": 15,
+        "full_18": 18,
+    }.get(draft_mode, 20)
 
 
 def parse_args() -> argparse.Namespace:
@@ -30,12 +41,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--seed", type=int, default=131)
     parser.add_argument("--cards", default="data/cards.json")
     parser.add_argument("--pool", default="data/card_pool.json")
-    parser.add_argument("--draft-mode", choices=("simple", "full"), default="simple")
+    parser.add_argument("--draft-mode", choices=("simple", "full", "market_12", "full_half", "full_12", "full_15", "full_18"), default="simple")
     parser.add_argument("--output-dir", default=None)
     parser.add_argument("--keep-match-logs", type=int, default=100)
     parser.add_argument("--fast-report", action="store_true")
     parser.add_argument("--lean-draft-logging", action="store_true")
     parser.add_argument("--save-battle-logs", action="store_true")
+    parser.add_argument("--match-log-profile", choices=("minimal", "standard", "full"), default="standard")
+    parser.add_argument("--record-profile", choices=("minimal", "standard", "full"), default="standard")
     return parser.parse_args()
 
 
@@ -56,6 +69,8 @@ def main() -> None:
         args.fast_report,
         args.lean_draft_logging,
         args.save_battle_logs,
+        args.match_log_profile,
+        args.record_profile,
     )
     print(summary_md)
     print(f"matches={total_matches}")
@@ -76,6 +91,8 @@ def run_draft_report(
     fast_report: bool = False,
     lean_draft_logging: bool = False,
     save_battle_logs: bool = False,
+    match_log_profile: str = "standard",
+    record_profile: str = "standard",
 ) -> tuple[Path, int]:
     output_dir = Path(
         output_dir_override
@@ -101,6 +118,8 @@ def run_draft_report(
         fast_report=fast_report,
         lean_draft_logging=lean_draft_logging,
         save_battle_logs=save_battle_logs,
+        match_log_profile=match_log_profile,
+        record_profile=record_profile,
     )
     cards = load_cards(cards_path)
     pool = load_card_pool(pool_path, cards)
@@ -124,6 +143,8 @@ def run_draft_report(
         "fast_report": fast_report,
         "lean_draft_logging": lean_draft_logging,
         "save_battle_logs": save_battle_logs,
+        "match_log_profile": match_log_profile,
+        "record_profile": record_profile,
     }
     if not lean_draft_logging:
         summary["draft_records"] = draft_records
@@ -158,6 +179,8 @@ def run_draft_report_chunk(
     fast_report: bool = False,
     lean_draft_logging: bool = False,
     save_battle_logs: bool = False,
+    match_log_profile: str = "standard",
+    record_profile: str = "standard",
 ) -> dict[str, Any]:
     cards = load_cards(cards_path)
     pool = load_card_pool(pool_path, cards)
@@ -185,7 +208,7 @@ def run_draft_report_chunk(
                 rng,
                 build_draft_bot(p1_drafter_name, match_seed),
                 build_draft_bot(p2_drafter_name, match_seed + 1),
-                deck_size=20,
+                deck_size=draft_mode_deck_size(draft_mode),
                 draft_mode=draft_mode,
                 deck1_id=f"draft_{match_index:04d}_p1",
                 deck2_id=f"draft_{match_index:04d}_p2",
@@ -206,18 +229,19 @@ def run_draft_report_chunk(
             result = runner.run()
 
             draft_payload = build_draft_payload(draft, cards, p1_drafter_name, p2_drafter_name)
-            wrapper = {"draft": draft_payload, "match": result.log}
+            trimmed_match_log = trim_match_log(result.log, match_log_profile)
+            wrapper = {"draft": draft_payload, "match": trimmed_match_log}
             markdown_rel_path = ""
             if matches_dir is not None:
                 json_path = matches_dir / f"match_{match_index:04d}_{p1_drafter_name}_vs_{p2_drafter_name}.json"
                 md_path = matches_dir / f"match_{match_index:04d}_{p1_drafter_name}_vs_{p2_drafter_name}.md"
                 if not fast_report:
                     json_path.write_text(json.dumps(wrapper, ensure_ascii=False, indent=2), encoding="utf-8")
-                    md_path.write_text(render_draft_match_markdown(draft, cards, result.log), encoding="utf-8")
+                    md_path.write_text(render_draft_match_markdown(draft, cards, trimmed_match_log), encoding="utf-8")
                     markdown_rel_path = md_path.relative_to(output_dir_path).as_posix() if output_dir_path else md_path.name
                 elif save_battle_logs:
-                    json_path.write_text(json.dumps(result.log, ensure_ascii=False, indent=2), encoding="utf-8")
-                    md_path.write_text(render_match_log_markdown(result.log), encoding="utf-8")
+                    json_path.write_text(json.dumps(trimmed_match_log, ensure_ascii=False, indent=2), encoding="utf-8")
+                    md_path.write_text(render_match_log_markdown(trimmed_match_log), encoding="utf-8")
                     markdown_rel_path = md_path.relative_to(output_dir_path).as_posix() if output_dir_path else md_path.name
 
             record = build_match_record(result.log, markdown_rel_path)
@@ -234,7 +258,7 @@ def run_draft_report_chunk(
             if not lean_draft_logging:
                 draft_records.append(draft_payload)
             exported_match_records.append(
-                {
+                export_match_record({
                     "match_id": record["match_id"],
                     "winner_side": record["winner_side"],
                     "turn_count": record["turn_count"],
@@ -265,7 +289,7 @@ def run_draft_report_chunk(
                     "p1_rarity_counts": dict(draft.deck1.metadata.get("final_rarity_counts", {})),
                     "p2_rarity_counts": dict(draft.deck2.metadata.get("final_rarity_counts", {})),
                     **({} if lean_draft_logging else {"picks": draft_payload["picks"]}),
-                }
+                }, record_profile)
             )
 
     return {
@@ -274,6 +298,8 @@ def run_draft_report_chunk(
         "exported_match_records": exported_match_records,
         "pool_id": pool.id,
         "pool_total_cards": pool.total_cards,
+        "match_log_profile": match_log_profile,
+        "record_profile": record_profile,
     }
 
 
@@ -291,6 +317,18 @@ def summary_to_dict(summary) -> dict[str, Any]:
 def build_draft_summary(records: list[dict[str, Any]], cards: dict[str, Any], drafter_names: list[str]) -> dict[str, Any]:
     drafter_stats: dict[str, dict[str, Any]] = {}
     pair_stats: dict[str, dict[str, Any]] = {}
+    deck_metrics = {
+        "player_sides": 0,
+        "match_count": len(records),
+        "deck_exhaustion_total": 0,
+        "matches_with_any_deck_exhaustion": 0,
+        "player_sides_with_deck_exhaustion": 0,
+        "reshuffle_total": 0,
+        "matches_with_any_reshuffle": 0,
+        "player_sides_with_reshuffle": 0,
+        "remaining_draw_pile_counts": [],
+        "remaining_discard_pile_counts": [],
+    }
     blessing_card_ids = sorted(card.id for card in cards.values() if card.type == "blessing")
     overall_blessing_stats: dict[str, dict[str, Any]] = {
         blessing_id: init_blessing_stat(cards[blessing_id]) for blessing_id in blessing_card_ids
@@ -374,6 +412,15 @@ def build_draft_summary(records: list[dict[str, Any]], cards: dict[str, Any], dr
             "blessing_pressure_pass_actions": 0,
             "caused_opponent_blessing_use_matches": 0,
             "caused_opponent_blessing_use_wins": 0,
+            "prediction_count": 0,
+            "prediction_hits": 0,
+            "prediction_style_counts": Counter(),
+            "prediction_style_hits": Counter(),
+            "prediction_plan_counts": Counter(),
+            "prediction_plan_successes": Counter(),
+            "prediction_attack_error_total": 0,
+            "prediction_block_error_total": 0,
+            "prediction_speed_error_total": 0,
             "blessing_card_stats": {
                 blessing_id: init_blessing_stat(cards[blessing_id]) for blessing_id in blessing_card_ids
             },
@@ -381,6 +428,14 @@ def build_draft_summary(records: list[dict[str, Any]], cards: dict[str, Any], dr
         }
 
     for record in records:
+        p1_exhaustion = int(record.get("p1_deck_exhaustion_count", 0))
+        p2_exhaustion = int(record.get("p2_deck_exhaustion_count", 0))
+        p1_reshuffle = int(record.get("p1_reshuffle_count", 0))
+        p2_reshuffle = int(record.get("p2_reshuffle_count", 0))
+        if p1_exhaustion > 0 or p2_exhaustion > 0:
+            deck_metrics["matches_with_any_deck_exhaustion"] += 1
+        if p1_reshuffle > 0 or p2_reshuffle > 0:
+            deck_metrics["matches_with_any_reshuffle"] += 1
         pair_key = " vs ".join(sorted((record["p1_drafter"], record["p2_drafter"])))
         if pair_key not in pair_stats:
             pair_stats[pair_key] = {
@@ -397,6 +452,17 @@ def build_draft_summary(records: list[dict[str, Any]], cards: dict[str, Any], dr
             drafter_name = record[f"{side}_drafter"]
             summary = record[f"{side}_deck_summary"]
             stats = drafter_stats[drafter_name]
+            deck_metrics["player_sides"] += 1
+            side_exhaustion = int(record.get(f"{side}_deck_exhaustion_count", 0))
+            side_reshuffle = int(record.get(f"{side}_reshuffle_count", 0))
+            deck_metrics["deck_exhaustion_total"] += side_exhaustion
+            deck_metrics["reshuffle_total"] += side_reshuffle
+            if side_exhaustion > 0:
+                deck_metrics["player_sides_with_deck_exhaustion"] += 1
+            if side_reshuffle > 0:
+                deck_metrics["player_sides_with_reshuffle"] += 1
+            deck_metrics["remaining_draw_pile_counts"].append(int(record.get(f"{side}_remaining_draw_pile_count", 0)))
+            deck_metrics["remaining_discard_pile_counts"].append(int(record.get(f"{side}_remaining_discard_pile_count", 0)))
             stats["matches"] += 1
             stats["turn_counts"].append(record["turn_count"])
             stats["picked_cards"].update(cards[card_id].name for card_id in record[f"{side}_deck_cards"])
@@ -443,6 +509,16 @@ def build_draft_summary(records: list[dict[str, Any]], cards: dict[str, Any], dr
                 stats["caused_opponent_blessing_use_matches"] += 1
                 if record["winner_side"] == side:
                     stats["caused_opponent_blessing_use_wins"] += 1
+            prediction_summary = record.get("prediction_analysis", {}).get(side, {}).get("summary", {})
+            stats["prediction_count"] += int(prediction_summary.get("count", 0))
+            stats["prediction_hits"] += int(prediction_summary.get("hits", 0))
+            stats["prediction_style_counts"].update(prediction_summary.get("style_counts", {}))
+            stats["prediction_style_hits"].update(prediction_summary.get("style_hits", {}))
+            stats["prediction_plan_counts"].update(prediction_summary.get("plan_counts", {}))
+            stats["prediction_plan_successes"].update(prediction_summary.get("plan_successes", {}))
+            stats["prediction_attack_error_total"] += int(prediction_summary.get("attack_error_total", 0))
+            stats["prediction_block_error_total"] += int(prediction_summary.get("block_error_total", 0))
+            stats["prediction_speed_error_total"] += int(prediction_summary.get("speed_error_total", 0))
             for blessing_id in blessing_info.get("played_blessing_ids", []):
                 if blessing_id not in stats["blessing_card_stats"]:
                     continue
@@ -539,6 +615,26 @@ def build_draft_summary(records: list[dict[str, Any]], cards: dict[str, Any], dr
         "pairs": {key: finalize_pair_stats(key, stats) for key, stats in pair_stats.items()},
         "cards": finalize_card_stats(card_stats),
         "blessings": finalize_blessing_card_stats(overall_blessing_stats),
+        "deck_metrics": {
+            "match_count": deck_metrics["match_count"],
+            "player_side_count": deck_metrics["player_sides"],
+            "deck_exhaustion_total": deck_metrics["deck_exhaustion_total"],
+            "matches_with_any_deck_exhaustion": deck_metrics["matches_with_any_deck_exhaustion"],
+            "match_deck_exhaustion_rate": round(deck_metrics["matches_with_any_deck_exhaustion"] / max(deck_metrics["match_count"], 1), 4),
+            "player_sides_with_deck_exhaustion": deck_metrics["player_sides_with_deck_exhaustion"],
+            "player_side_deck_exhaustion_rate": round(deck_metrics["player_sides_with_deck_exhaustion"] / max(deck_metrics["player_sides"], 1), 4),
+            "deck_exhaustion_avg_per_match": round(deck_metrics["deck_exhaustion_total"] / max(deck_metrics["match_count"], 1), 2),
+            "deck_exhaustion_avg_per_side": round(deck_metrics["deck_exhaustion_total"] / max(deck_metrics["player_sides"], 1), 2),
+            "reshuffle_total": deck_metrics["reshuffle_total"],
+            "matches_with_any_reshuffle": deck_metrics["matches_with_any_reshuffle"],
+            "match_reshuffle_rate": round(deck_metrics["matches_with_any_reshuffle"] / max(deck_metrics["match_count"], 1), 4),
+            "player_sides_with_reshuffle": deck_metrics["player_sides_with_reshuffle"],
+            "player_side_reshuffle_rate": round(deck_metrics["player_sides_with_reshuffle"] / max(deck_metrics["player_sides"], 1), 4),
+            "reshuffle_avg_per_match": round(deck_metrics["reshuffle_total"] / max(deck_metrics["match_count"], 1), 2),
+            "reshuffle_avg_per_side": round(deck_metrics["reshuffle_total"] / max(deck_metrics["player_sides"], 1), 2),
+            "remaining_draw_pile": summarize_numbers(deck_metrics["remaining_draw_pile_counts"]),
+            "remaining_discard_pile": summarize_numbers(deck_metrics["remaining_discard_pile_counts"]),
+        },
     }
 
 
@@ -604,6 +700,27 @@ def finalize_drafter_stats(name: str, stats: dict[str, Any]) -> dict[str, Any]:
             if stats["caused_opponent_blessing_use_matches"]
             else None
         ),
+        "prediction_count": stats["prediction_count"],
+        "prediction_hit_rate": (stats["prediction_hits"] / stats["prediction_count"]) if stats["prediction_count"] else None,
+        "prediction_style_counts": dict(stats["prediction_style_counts"]),
+        "prediction_style_hit_rates": {
+            style: (stats["prediction_style_hits"].get(style, 0) / count) if count else None
+            for style, count in stats["prediction_style_counts"].items()
+        },
+        "prediction_plan_counts": dict(stats["prediction_plan_counts"]),
+        "prediction_plan_success_rates": {
+            plan: (stats["prediction_plan_successes"].get(plan, 0) / count) if count else None
+            for plan, count in stats["prediction_plan_counts"].items()
+        },
+        "prediction_attack_error_avg": round(stats["prediction_attack_error_total"] / stats["prediction_count"], 2)
+        if stats["prediction_count"]
+        else None,
+        "prediction_block_error_avg": round(stats["prediction_block_error_total"] / stats["prediction_count"], 2)
+        if stats["prediction_count"]
+        else None,
+        "prediction_speed_error_avg": round(stats["prediction_speed_error_total"] / stats["prediction_count"], 2)
+        if stats["prediction_count"]
+        else None,
         "action_counts": dict(stats["action_counts"]),
         "set_pass_candidate_total": stats["set_pass_candidate_total"],
         "set_pass_candidate_avg_per_match": round(stats["set_pass_candidate_total"] / matches, 2),
@@ -631,6 +748,22 @@ def finalize_pair_stats(pair_key: str, stats: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _draft_flow_label(draft_mode: str | None) -> str:
+    if draft_mode == "simple":
+        return "hidden 3->1 + public 5 rarity-balanced"
+    if draft_mode == "market_12":
+        return "starter 3 cards + open market rows (R/UC/C) + hidden rarity topdeck, 12-card deck (5/5/2)"
+    if draft_mode == "full_half":
+        return "normal public pack + normal hidden pack, then public rare + hidden rare (single half, 4/4/2 deck)"
+    if draft_mode == "full_12":
+        return "full draft 20-card flow, then trim to 12 cards (5/5/2)"
+    if draft_mode == "full_15":
+        return "full draft 20-card flow, then trim to 15 cards (6/6/3)"
+    if draft_mode == "full_18":
+        return "full draft 20-card flow, then trim to 18 cards (7/7/4)"
+    return "normal public pack + normal hidden pack, then public rare + hidden rare, with order swapped in second half"
+
+
 def render_draft_report_markdown(summary: dict[str, Any]) -> str:
     config = summary["config"]
     lines = [
@@ -651,7 +784,20 @@ def render_draft_report_markdown(summary: dict[str, Any]) -> str:
         f"- Fast Report: {'on' if config.get('fast_report') else 'off'}",
         f"- Lean Draft Logging: {'on' if config.get('lean_draft_logging') else 'off'}",
         f"- Save Battle Logs: {'on' if config.get('save_battle_logs') else 'off'}",
-        f"- Draft Flow: {'hidden 3->1 + public 5 rarity-balanced' if config.get('draft_mode') == 'simple' else 'normal public pack + normal hidden pack, then public rare + hidden rare, with order swapped in second half'}",
+        f"- Match Log Profile: `{config.get('match_log_profile', 'standard')}`",
+        f"- Record Profile: `{config.get('record_profile', 'standard')}`",
+        f"- Draft Flow: {_draft_flow_label(config.get('draft_mode'))}",
+        "",
+        "## Deck Recycling Metrics",
+        "",
+        f"- 山札切れ発生回数合計: {summary['deck_metrics']['deck_exhaustion_total']}",
+        f"- 山札切れ発生試合数: {summary['deck_metrics']['matches_with_any_deck_exhaustion']} ({format_rate(summary['deck_metrics']['match_deck_exhaustion_rate'])})",
+        f"- 山札切れ発生回数平均 / 試合: {fmt(summary['deck_metrics']['deck_exhaustion_avg_per_match'])}",
+        f"- 捨て札を山札に戻した回数合計: {summary['deck_metrics']['reshuffle_total']}",
+        f"- 捨て札再利用発生試合数: {summary['deck_metrics']['matches_with_any_reshuffle']} ({format_rate(summary['deck_metrics']['match_reshuffle_rate'])})",
+        f"- 捨て札再利用回数平均 / 試合: {fmt(summary['deck_metrics']['reshuffle_avg_per_match'])}",
+        f"- 決着時の残り山札: min={fmt(summary['deck_metrics']['remaining_draw_pile']['min'])}, avg={fmt(summary['deck_metrics']['remaining_draw_pile']['avg'])}, max={fmt(summary['deck_metrics']['remaining_draw_pile']['max'])}",
+        f"- 決着時の残り捨て札: min={fmt(summary['deck_metrics']['remaining_discard_pile']['min'])}, avg={fmt(summary['deck_metrics']['remaining_discard_pile']['avg'])}, max={fmt(summary['deck_metrics']['remaining_discard_pile']['max'])}",
         "",
         "## Drafter Summary",
         "",
@@ -727,6 +873,8 @@ def render_draft_report_markdown(summary: dict[str, Any]) -> str:
                 f"- Blessing Placed But Unused: {stats['blessing_placed_unused_matches']}",
                 f"- Opponent Pass / Set+Pass Into Face-Up Blessing: {stats['blessing_pressure_pass_actions']}",
                 f"- Win Rate When Forcing Opponent Blessing Use: {format_optional_rate(stats['caused_opponent_blessing_use_win_rate'])}",
+                f"- Prediction Hit Rate: {format_optional_rate(stats['prediction_hit_rate'])}",
+                f"- Prediction Error Avg: A={fmt(stats['prediction_attack_error_avg'])}, B={fmt(stats['prediction_block_error_avg'])}, S={fmt(stats['prediction_speed_error_avg'])}",
                 f"- Action Rates: set={format_rate(stats['action_rates']['set'])}, set_pass={format_rate(stats['action_rates']['set_pass'])}, pass={format_rate(stats['action_rates']['pass'])}",
                 f"- set_pass Candidate Avg / Match: {fmt(stats['set_pass_candidate_avg_per_match'])}",
                 f"- Turns: min={fmt(stats['turns']['min'])}, avg={fmt(stats['turns']['avg'])}, max={fmt(stats['turns']['max'])}",
@@ -736,6 +884,8 @@ def render_draft_report_markdown(summary: dict[str, Any]) -> str:
                 "",
             ]
         )
+        lines.extend(render_prediction_summary_table("Prediction Summary", stats))
+        lines.append("")
         lines.extend(render_rank_table("Most Picked Cards", stats["most_picked_cards"]))
         lines.append("")
         lines.extend(render_rank_table("Winning Deck Usage", stats["winning_picked_cards"]))
@@ -814,6 +964,27 @@ def render_blessing_table(title: str, items: list[dict[str, Any]]) -> list[str]:
         )
     if len(lines) == 4:
         lines.append("| - | - | 0 | - | 0 | 0 | 0 | 0 | 0 | 0 | 0 |")
+    return lines
+
+
+def render_prediction_summary_table(title: str, stats: dict[str, Any]) -> list[str]:
+    lines = [
+        f"### {title}",
+        "",
+        "| Type | Count | Hit Rate / Success Rate |",
+        "|---|---:|---:|",
+    ]
+    if not stats.get("prediction_style_counts"):
+        lines.append("| - | 0 | - |")
+        return lines
+    for style, count in sorted(stats["prediction_style_counts"].items()):
+        lines.append(
+            f"| predict:{style} | {count} | {format_optional_rate(stats['prediction_style_hit_rates'].get(style))} |"
+        )
+    for plan, count in sorted(stats["prediction_plan_counts"].items()):
+        lines.append(
+            f"| plan:{plan} | {count} | {format_optional_rate(stats['prediction_plan_success_rates'].get(plan))} |"
+        )
     return lines
 
 

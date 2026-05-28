@@ -22,6 +22,45 @@ from engine.card_pool import build_default_card_pool, load_card_pool
 from engine.drafting import infer_role_color
 from engine.game_state import PlayerView
 
+AGGRO_PRIORITY_CONTROL_IDS = {
+    "control_haste",
+    "control_momentum",
+    "control_overclock",
+    "control_all_in_focus",
+    "control_pressure",
+    "control_break_momentum",
+    "control_parry_window",
+}
+
+BLESSING_HATE_CONTROL_IDS = {
+    "control_blessing_flip",
+    "control_blessing_break",
+    "control_blessing_lock",
+    "control_defile",
+}
+
+CONTROL_FOCUS_IDS = {
+    "control_focus",
+    "control_cover",
+    "control_guard_read",
+    "control_opening_read",
+    "control_opening_expose",
+    "control_peek_hand",
+    "control_peek_opponent_top",
+    "control_peek_own_top",
+    "control_redraw_hand",
+    "control_topdeck_hand",
+    "control_hand_echo",
+}
+
+BLESSING_SUPPORT_CONTROL_IDS = {
+    "control_discard_facedown_blessing",
+    "control_blessing_flip",
+    "control_blessing_break",
+    "control_blessing_lock",
+    "control_defile",
+}
+
 
 @dataclass(frozen=True)
 class StyleProfile:
@@ -124,9 +163,11 @@ class PublicInfoBot(BaseBot):
         }
         scored.sort(key=lambda item: item[0], reverse=True)
         chosen = scored[0][1]
+        chosen_prediction = self._build_prediction_summary(view, chosen, mode)
         self._last_debug_info["battle"]["selected"] = {
             "action_type": chosen.action_type,
             "card_ids": list(chosen.card_ids),
+            "prediction": chosen_prediction,
         }
         return chosen
 
@@ -162,6 +203,7 @@ class PublicInfoBot(BaseBot):
                     score += 0.5
             else:
                 score = self._score_control_card(view, card, hand_profile, opponent_profile)
+            score += self._archetype_hand_bonus(view, card, hand_profile, opponent_profile)
             scored.append((card.id, round(score, 4)))
         scored.sort(key=lambda item: item[1], reverse=True)
         return scored
@@ -253,14 +295,21 @@ class PublicInfoBot(BaseBot):
             score += 0.7
         elif card.id in {"control_peek_opponent_top", "control_peek_own_top", "control_peek_hand"}:
             score += self.style.reveal_weight * 0.8
+        score += self._archetype_control_bonus(view, card, hand_profile, opponent_profile)
         return score
+
+    def _archetype_hand_bonus(self, view: PlayerView, card: Card, hand_profile: HandProfile, opponent_profile) -> float:
+        return 0.0
+
+    def _archetype_control_bonus(self, view: PlayerView, card: Card, hand_profile: HandProfile, opponent_profile) -> float:
+        return 0.0
 
     def _legal_actions(self, view: PlayerView) -> list[BattleAction]:
         battles = [card for card in view.hand if card.type in {"battle", "control"}]
         legal_slots = max(0, view.opponent_facedown_count + 1 - view.own_facedown_count)
-        actions = [BattleAction("pass")]
+        actions = [] if self._must_avoid_empty_or_control_only_pass(view) else [BattleAction("pass")]
         if legal_slots <= 0 or not battles:
-            return actions
+            return actions or [BattleAction("pass")]
         forbid_set_pass = self._should_forbid_opening_set_pass(view)
         for card in battles:
             if not forbid_set_pass:
@@ -337,7 +386,36 @@ class PublicInfoBot(BaseBot):
                 speed_margin,
                 future,
             )
+        score += self._archetype_action_bonus(
+            view,
+            action,
+            selected_cards,
+            mode,
+            own_line,
+            opponent_line,
+            closing_opponent_line,
+            attack_margin,
+            block_margin,
+            speed_margin,
+            future,
+        )
         return round(score, 4)
+
+    def _archetype_action_bonus(
+        self,
+        view: PlayerView,
+        action: BattleAction,
+        selected_cards: list[Card],
+        mode: str,
+        own_line: StatLine,
+        opponent_line: StatLine,
+        closing_opponent_line: StatLine,
+        attack_margin: float,
+        block_margin: float,
+        speed_margin: float,
+        future: HandProfile,
+    ) -> float:
+        return 0.0
 
     def _choose_battle_mode(self, view: PlayerView) -> str:
         if self._is_probe_state(view):
@@ -396,6 +474,78 @@ class PublicInfoBot(BaseBot):
             legal_slots = max(0, own_after + 1 - view.opponent_facedown_count)
             final_count = view.opponent_facedown_count + legal_slots
         return self._estimate_opponent_threat_line(view, opponent_profile, final_count)
+
+    def _build_prediction_summary(self, view: PlayerView, action: BattleAction, mode: str) -> dict[str, Any]:
+        selected_cards = [self.cards_by_id[card_id] for card_id in action.card_ids]
+        own_after = len(view.own_set_cards) + len(selected_cards)
+        opponent_profile = public_view_profile(view, self.cards_by_id, owner="opponent")
+        own_line, opp_delta = combined_battle_line(
+            list(view.own_set_cards) + selected_cards,
+            own_control=view.own_control_card,
+            opponent_control=view.opponent_control_card,
+        )
+        opponent_line = self._estimated_opponent_line(view, opponent_profile, own_after, action.action_type).add(opp_delta)
+        closing_line = self._estimated_closing_opponent_line(view, opponent_profile, own_after).add(opp_delta)
+        attack_margin = own_line.attack - opponent_line.block
+        block_margin = own_line.block - opponent_line.attack
+        speed_margin = own_line.speed - opponent_line.speed
+        return {
+            "predicted_style": self._classify_style(opponent_line),
+            "predicted_line": self._line_to_dict(opponent_line),
+            "predicted_closing_style": self._classify_style(closing_line),
+            "predicted_closing_line": self._line_to_dict(closing_line),
+            "public_profile_style": self._classify_profile(opponent_profile),
+            "response_plan": self._response_plan(mode, attack_margin, block_margin, speed_margin),
+            "mode": mode,
+            "own_line": self._line_to_dict(own_line),
+            "margins": {
+                "attack": round(attack_margin, 2),
+                "block": round(block_margin, 2),
+                "speed": round(speed_margin, 2),
+            },
+        }
+
+    def _classify_style(self, line: StatLine) -> str:
+        values = {"attack": line.attack, "defense": line.block, "speed": line.speed}
+        highest = max(values.values())
+        if highest <= 0:
+            return "none"
+        leaders = [name for name, value in values.items() if value == highest]
+        if len(leaders) != 1:
+            return "balanced"
+        return leaders[0]
+
+    def _classify_profile(self, profile) -> str:
+        values = {
+            "attack": profile.average_attack,
+            "defense": profile.average_block,
+            "speed": profile.average_speed,
+        }
+        highest = max(values.values())
+        if highest <= 0:
+            return "none"
+        leaders = [name for name, value in values.items() if value == highest]
+        if len(leaders) != 1:
+            return "balanced"
+        return leaders[0]
+
+    def _response_plan(self, mode: str, attack_margin: float, block_margin: float, speed_margin: float) -> str:
+        if mode == "probe":
+            return "probe"
+        if mode == "attack":
+            if attack_margin > 0 and speed_margin >= 0:
+                return "speed_race"
+            if attack_margin > 0 and block_margin >= 0:
+                return "pressure_with_cover"
+            return "attack_push"
+        if block_margin >= 0 and attack_margin > -1:
+            return "guard_and_counter"
+        if block_margin >= 0:
+            return "full_guard"
+        return "minimal_guard"
+
+    def _line_to_dict(self, line: StatLine) -> dict[str, int]:
+        return {"attack": line.attack, "block": line.block, "speed": line.speed}
 
     def _action_shape_bonus(
         self,
@@ -927,6 +1077,11 @@ class PublicInfoBot(BaseBot):
 class StandardBot(PublicInfoBot):
     name = "StandardBot"
 
+    def _archetype_control_bonus(self, view: PlayerView, card: Card, hand_profile: HandProfile, opponent_profile) -> float:
+        if card.id in BLESSING_HATE_CONTROL_IDS and view.opponent_blessing_zone is not None:
+            return 1.05 if view.opponent_blessing_face_up else 0.7
+        return 0.0
+
 
 class AggroBot(PublicInfoBot):
     name = "AggroBot"
@@ -941,6 +1096,96 @@ class AggroBot(PublicInfoBot):
         noise=0.28,
     )
 
+    def _choose_battle_mode(self, view: PlayerView) -> str:
+        mode = super()._choose_battle_mode(view)
+        if mode != "probe":
+            return mode
+        opponent_profile = public_view_profile(view, self.cards_by_id, owner="opponent")
+        current_cards = list(view.own_set_cards)
+        current_line, opp_delta = combined_battle_line(
+            current_cards,
+            own_control=view.own_control_card,
+            opponent_control=view.opponent_control_card,
+        )
+        current_opponent_line = self._estimated_opponent_line(view, opponent_profile, len(current_cards), "pass").add(opp_delta)
+        hand_profile = build_hand_profile(view.hand)
+        can_attack = current_line.attack + hand_profile.best_attack.attack > current_opponent_line.block
+        can_speed = current_line.speed + hand_profile.best_speed.speed >= current_opponent_line.speed - 1
+        if can_attack and (can_speed or hand_profile.best_attack.attack >= current_opponent_line.block + 1):
+            return "attack"
+        return mode
+
+    def _archetype_hand_bonus(self, view: PlayerView, card: Card, hand_profile: HandProfile, opponent_profile) -> float:
+        score = 0.0
+        if card.type == "control" and card.id in AGGRO_PRIORITY_CONTROL_IDS:
+            score += 1.1
+        if card.type == "control":
+            for effect in card.effects:
+                if effect.kind in {"modify_self_attack", "modify_self_speed", "modify_opponent_block"}:
+                    score += 0.7 + abs(effect.value) * 0.18
+        return score
+
+    def _archetype_control_bonus(self, view: PlayerView, card: Card, hand_profile: HandProfile, opponent_profile) -> float:
+        score = 0.0
+        if card.id in AGGRO_PRIORITY_CONTROL_IDS:
+            score += 1.25
+        for effect in card.effects:
+            if effect.kind in {"modify_self_attack", "modify_self_speed", "modify_opponent_block"}:
+                score += 0.95 + abs(effect.value) * 0.22
+            elif effect.kind == "modify_opponent_speed":
+                score += 0.35 + abs(effect.value) * 0.1
+        if card.id in BLESSING_HATE_CONTROL_IDS and view.opponent_blessing_zone is not None:
+            score += 0.45 if view.opponent_blessing_face_up else 0.25
+        return score
+
+    def _archetype_action_bonus(
+        self,
+        view: PlayerView,
+        action: BattleAction,
+        selected_cards: list[Card],
+        mode: str,
+        own_line: StatLine,
+        opponent_line: StatLine,
+        closing_opponent_line: StatLine,
+        attack_margin: float,
+        block_margin: float,
+        speed_margin: float,
+        future: HandProfile,
+    ) -> float:
+        score = 0.0
+        lethal_line = attack_margin > 0 and (speed_margin >= 0 or block_margin >= 0)
+        if mode == "attack":
+            score += max(speed_margin, 0) * 0.7
+            score += max(attack_margin, 0) * 0.6
+            score += max(own_line.speed, 0) * 0.2
+            if lethal_line:
+                score += 1.8
+                score += 0.7 / max(1, len(selected_cards))
+        elif mode == "probe" and action.action_type != "pass":
+            score += max(own_line.speed, 0) * 0.12
+        if any(card.type == "control" for card in selected_cards):
+            for card in selected_cards:
+                if card.type != "control":
+                    continue
+                if card.id in AGGRO_PRIORITY_CONTROL_IDS:
+                    score += 0.9
+                if any(effect.kind in {"modify_self_attack", "modify_self_speed", "modify_opponent_block"} for effect in card.effects):
+                    score += 0.8
+        if action.action_type == "set" and len(selected_cards) == 2 and mode == "attack":
+            score += 0.5
+        if action.action_type == "pass":
+            score -= 1.5
+            if mode in {"attack", "probe"}:
+                score -= 2.2
+            if view.own_facedown_count == 0 or self._control_only_set_cards(view):
+                score -= 2.8
+        if mode == "attack" and action.action_type in {"set", "set_pass"} and selected_cards:
+            fastest = max(card.speed for card in selected_cards)
+            strongest = sum(max(card.attack, 0) for card in selected_cards)
+            score += fastest * 0.35
+            score += strongest * 0.18
+        return score
+
 
 class GuardBot(PublicInfoBot):
     name = "GuardBot"
@@ -954,3 +1199,125 @@ class GuardBot(PublicInfoBot):
         continuation_weight=0.35,
         noise=0.18,
     )
+
+    def _archetype_control_bonus(self, view: PlayerView, card: Card, hand_profile: HandProfile, opponent_profile) -> float:
+        if card.id in BLESSING_HATE_CONTROL_IDS and view.opponent_blessing_zone is not None:
+            return 1.55 if view.opponent_blessing_face_up else 1.1
+        return 0.0
+
+
+class ControlBot(PublicInfoBot):
+    name = "ControlBot"
+    style = StyleProfile(
+        attack_weight=0.7,
+        block_weight=1.1,
+        speed_weight=0.9,
+        control_weight=1.45,
+        reveal_weight=1.15,
+        risk_penalty=0.75,
+        continuation_weight=0.6,
+        noise=0.16,
+    )
+
+    def _archetype_hand_bonus(self, view: PlayerView, card: Card, hand_profile: HandProfile, opponent_profile) -> float:
+        score = 0.0
+        if card.type == "control":
+            score += 0.9
+            if card.id in CONTROL_FOCUS_IDS:
+                score += 0.9
+        elif card.type == "battle":
+            if card.attack >= 4 and card.block <= 0:
+                score -= 0.8
+            if card.block >= 2 or card.speed >= 1:
+                score += 0.3
+        return score
+
+    def _archetype_control_bonus(self, view: PlayerView, card: Card, hand_profile: HandProfile, opponent_profile) -> float:
+        score = 0.0
+        if card.id in CONTROL_FOCUS_IDS:
+            score += 1.15
+        if card.id in BLESSING_HATE_CONTROL_IDS and view.opponent_blessing_zone is not None:
+            score += 1.0 if view.opponent_blessing_face_up else 0.7
+        if any(effect.kind in {"draw_cards", "reveal_opponent_hand_random"} for effect in card.effects):
+            score += 0.5
+        return score
+
+    def _archetype_action_bonus(
+        self,
+        view: PlayerView,
+        action: BattleAction,
+        selected_cards: list[Card],
+        mode: str,
+        own_line: StatLine,
+        opponent_line: StatLine,
+        closing_opponent_line: StatLine,
+        attack_margin: float,
+        block_margin: float,
+        speed_margin: float,
+        future: HandProfile,
+    ) -> float:
+        score = 0.0
+        battle_count = sum(1 for card in selected_cards if card.type == "battle")
+        control_count = sum(1 for card in selected_cards if card.type == "control")
+        if control_count > 0 and battle_count > 0:
+            score += 0.9
+        if control_count > 0 and battle_count == 0:
+            score -= 1.2
+        if mode == "defense" and control_count > 0:
+            score += 0.6
+        return score
+
+
+class BlessingBot(PublicInfoBot):
+    name = "BlessingBot"
+    style = StyleProfile(
+        attack_weight=0.8,
+        block_weight=1.0,
+        speed_weight=0.85,
+        control_weight=1.35,
+        reveal_weight=0.9,
+        risk_penalty=0.7,
+        continuation_weight=0.5,
+        noise=0.18,
+    )
+
+    def _archetype_hand_bonus(self, view: PlayerView, card: Card, hand_profile: HandProfile, opponent_profile) -> float:
+        score = 0.0
+        if card.type == "blessing":
+            score += 1.6 if view.own_blessing_zone is None else 0.35
+        if card.type == "control" and card.id in BLESSING_SUPPORT_CONTROL_IDS:
+            score += 1.1
+        return score
+
+    def _archetype_control_bonus(self, view: PlayerView, card: Card, hand_profile: HandProfile, opponent_profile) -> float:
+        score = 0.0
+        if card.type == "blessing":
+            score += 1.8 if view.own_blessing_zone is None else 0.2
+        if card.id in BLESSING_SUPPORT_CONTROL_IDS:
+            score += 1.45
+        if card.id in BLESSING_HATE_CONTROL_IDS and view.opponent_blessing_zone is not None:
+            score += 0.7 if view.opponent_blessing_face_up else 0.45
+        return score
+
+    def _archetype_action_bonus(
+        self,
+        view: PlayerView,
+        action: BattleAction,
+        selected_cards: list[Card],
+        mode: str,
+        own_line: StatLine,
+        opponent_line: StatLine,
+        closing_opponent_line: StatLine,
+        attack_margin: float,
+        block_margin: float,
+        speed_margin: float,
+        future: HandProfile,
+    ) -> float:
+        score = 0.0
+        battle_count = sum(1 for card in selected_cards if card.type == "battle")
+        control_count = sum(1 for card in selected_cards if card.type == "control")
+        if control_count > 0 and battle_count > 0:
+            score += 0.7
+        if control_count > 0 and battle_count == 0:
+            score -= 1.0
+        return score

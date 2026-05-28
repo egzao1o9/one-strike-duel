@@ -2,7 +2,7 @@ from pathlib import Path
 import json
 import tempfile
 
-from sim.run_draft_bot_suite import run_suite
+from sim.run_draft_bot_suite import run_suite, should_save_battle_logs_for_matchup
 
 
 def test_draft_bot_suite_generates_matchups_and_summary() -> None:
@@ -16,9 +16,11 @@ def test_draft_bot_suite_generates_matchups_and_summary() -> None:
         assert output["index_path"].exists()
         assert output["summary_path"].exists()
         payload = json.loads(Path(output["summary_path"]).read_text(encoding="utf-8"))
-        assert len(payload["matchups"]) == 6
-        assert set(payload["bots"]) == {"Standard", "Aggro", "Guard"}
+        assert len(payload["matchups"]) == 15
+        assert set(payload["bots"]) == {"Standard", "Aggro", "Guard", "Control", "Blessing"}
         assert "overall_priority" in payload
+        first_bot = next(iter(payload["bots"].values()))
+        assert "prediction_hit_rate" in first_bot
 
 
 def test_draft_bot_suite_fast_mode_marks_summary() -> None:
@@ -66,3 +68,10 @@ def test_draft_bot_suite_parallel_workers_summary() -> None:
         )
         payload = json.loads(Path(output["summary_path"]).read_text(encoding="utf-8"))
         assert payload["config"]["workers"] == 2
+
+
+def test_should_save_battle_logs_for_matchup_respects_filter() -> None:
+    assert should_save_battle_logs_for_matchup(global_save=False, filter_labels=None, matchup_labels=("Aggro", "Guard")) is False
+    assert should_save_battle_logs_for_matchup(global_save=True, filter_labels=None, matchup_labels=("Aggro", "Guard")) is True
+    assert should_save_battle_logs_for_matchup(global_save=False, filter_labels=["Aggro"], matchup_labels=("Aggro", "Guard")) is True
+    assert should_save_battle_logs_for_matchup(global_save=False, filter_labels=["Control"], matchup_labels=("Aggro", "Guard")) is False

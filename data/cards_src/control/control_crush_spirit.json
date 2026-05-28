@@ -16,5 +16,6 @@
       "value": 3
     }
   ],
-  "notes": "Reduces the opponent's attack by 3 this turn."
+  "effect_text": "このターン、相手の攻撃-3。",
+  "notes": "重い打点を大きく削ぐ。"
 }

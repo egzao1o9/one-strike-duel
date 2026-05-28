@@ -10,10 +10,11 @@ def test_card_pool_loads_with_expected_copy_rules() -> None:
     pool = load_card_pool("data/card_pool.json", cards)
     counts = {entry.card_id: entry.count for entry in pool.entries}
 
-    assert counts["control_focus"] == 5
+    assert counts["control_focus"] == 4
+    assert counts["control_haste"] == 3
     assert counts["battle_step_in"] == 2
     assert counts["battle_all_in"] == 2
-    assert counts["battle_bulwark"] == 2
+    assert counts["battle_bulwark"] == 3
 
 
 def test_default_pool_builder_matches_rarity_rules() -> None:
@@ -21,8 +22,8 @@ def test_default_pool_builder_matches_rarity_rules() -> None:
     pool = build_default_card_pool(cards)
     counts = {entry.card_id: entry.count for entry in pool.entries}
 
-    assert counts["control_focus"] == 5
-    assert counts["control_haste"] == 2
+    assert counts["control_focus"] == 4
+    assert counts["control_haste"] == 3
     assert counts["battle_heavy_swing"] == 2
 
 

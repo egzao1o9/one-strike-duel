@@ -35,6 +35,8 @@ def test_draft_report_generates_outputs() -> None:
         assert "block_then_win_matches" in first_drafter
         assert "picked_card_stats" in first_drafter
         assert "rarity_play_stats" in first_drafter
+        assert "prediction_hit_rate" in first_drafter
+        assert "prediction_style_counts" in first_drafter
         matches_dir = Path(tmpdir) / "matches"
         assert matches_dir.exists()
         remaining = list(matches_dir.iterdir())
@@ -86,3 +88,25 @@ def test_draft_report_lean_logging_omits_pick_history() -> None:
         assert "draft_records" not in payload
         first_record = json.loads((Path(tmpdir) / "match_records.jsonl").read_text(encoding="utf-8").splitlines()[0])
         assert "picks" not in first_record
+
+
+def test_draft_report_profiles_are_recorded_in_config() -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        summary_md, total_matches = run_draft_report(
+            "RoleBalanceDraftBot",
+            "RandomDraftBot",
+            "GreedyBot",
+            "GreedyBot",
+            rounds=2,
+            seed=154,
+            output_dir_override=tmpdir,
+            keep_match_logs=2,
+            fast_report=True,
+            save_battle_logs=True,
+            match_log_profile="minimal",
+            record_profile="minimal",
+        )
+        assert total_matches == 4
+        payload = json.loads((Path(tmpdir) / "summary.json").read_text(encoding="utf-8"))
+        assert payload["config"]["match_log_profile"] == "minimal"
+        assert payload["config"]["record_profile"] == "minimal"

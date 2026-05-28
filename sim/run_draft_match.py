@@ -12,6 +12,7 @@ from engine.card import Card, load_cards
 from engine.card_pool import DraftResult, load_card_pool
 from engine.drafting import draft_with_bots, summarize_deck
 from engine.log_formatter import render_match_log_markdown
+from engine.log_profiles import trim_match_log
 from engine.phase_runner import MatchRunner
 
 
@@ -24,10 +25,21 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--seed", type=int, default=71)
     parser.add_argument("--cards", default="data/cards.json")
     parser.add_argument("--pool", default="data/card_pool.json")
-    parser.add_argument("--draft-mode", choices=("simple", "full"), default="simple")
+    parser.add_argument("--draft-mode", choices=("simple", "full", "market_12", "full_half", "full_12", "full_15", "full_18"), default="simple")
     parser.add_argument("--log-path", default="logs/draft_match.json")
     parser.add_argument("--markdown-path", default="logs/draft_match.md")
+    parser.add_argument("--match-log-profile", choices=("minimal", "standard", "full"), default="standard")
     return parser.parse_args()
+
+
+def draft_mode_deck_size(draft_mode: str) -> int:
+    return {
+        "market_12": 12,
+        "full_half": 10,
+        "full_12": 12,
+        "full_15": 15,
+        "full_18": 18,
+    }.get(draft_mode, 20)
 
 
 def main() -> None:
@@ -43,7 +55,7 @@ def main() -> None:
         rng,
         draft_bot1,
         draft_bot2,
-        deck_size=20,
+        deck_size=draft_mode_deck_size(args.draft_mode),
         draft_mode=args.draft_mode,
     )
 
@@ -59,9 +71,10 @@ def main() -> None:
     )
     result = runner.run()
 
+    trimmed_match_log = trim_match_log(result.log, args.match_log_profile)
     payload = {
         "draft": build_draft_payload(draft, cards, args.draft_bot1, args.draft_bot2),
-        "match": result.log,
+        "match": trimmed_match_log,
     }
     log_path = Path(args.log_path)
     log_path.parent.mkdir(parents=True, exist_ok=True)
@@ -69,7 +82,7 @@ def main() -> None:
 
     markdown_path = Path(args.markdown_path)
     markdown_path.parent.mkdir(parents=True, exist_ok=True)
-    markdown_path.write_text(render_draft_match_markdown(draft, cards, result.log), encoding="utf-8")
+    markdown_path.write_text(render_draft_match_markdown(draft, cards, trimmed_match_log), encoding="utf-8")
 
     print(f"winner={result.state.winner} reason={result.state.end_reason} turns={result.log['turn_count']}")
     print(log_path)
@@ -96,12 +109,24 @@ def build_draft_payload(
         "deck1_hidden_normal": list(draft.deck1.metadata.get("hidden_normal_cards", [])),
         "deck1_public_rare": list(draft.deck1.metadata.get("public_rare_cards", [])),
         "deck1_hidden_rare": list(draft.deck1.metadata.get("hidden_rare_cards", [])),
+        "deck1_starter": list(draft.deck1.metadata.get("starter_cards", [])),
+        "deck1_public_market": list(draft.deck1.metadata.get("public_market_cards", [])),
+        "deck1_hidden_market": list(draft.deck1.metadata.get("hidden_market_cards", [])),
+        "deck1_common_slots": list(draft.deck1.metadata.get("common_slot_cards", [])),
+        "deck1_uncommon_slots": list(draft.deck1.metadata.get("uncommon_slot_cards", [])),
+        "deck1_rare_slots": list(draft.deck1.metadata.get("rare_slot_cards", [])),
         "deck2_public": list(draft.deck2.public_cards),
         "deck2_hidden": list(draft.deck2.hidden_cards),
         "deck2_public_normal": list(draft.deck2.metadata.get("public_normal_cards", [])),
         "deck2_hidden_normal": list(draft.deck2.metadata.get("hidden_normal_cards", [])),
         "deck2_public_rare": list(draft.deck2.metadata.get("public_rare_cards", [])),
         "deck2_hidden_rare": list(draft.deck2.metadata.get("hidden_rare_cards", [])),
+        "deck2_starter": list(draft.deck2.metadata.get("starter_cards", [])),
+        "deck2_public_market": list(draft.deck2.metadata.get("public_market_cards", [])),
+        "deck2_hidden_market": list(draft.deck2.metadata.get("hidden_market_cards", [])),
+        "deck2_common_slots": list(draft.deck2.metadata.get("common_slot_cards", [])),
+        "deck2_uncommon_slots": list(draft.deck2.metadata.get("uncommon_slot_cards", [])),
+        "deck2_rare_slots": list(draft.deck2.metadata.get("rare_slot_cards", [])),
         "deck1_rarity_counts": dict(draft.deck1.metadata.get("final_rarity_counts", {})),
         "deck2_rarity_counts": dict(draft.deck2.metadata.get("final_rarity_counts", {})),
         "picks": [
@@ -140,10 +165,6 @@ def render_draft_match_markdown(draft: DraftResult, cards: dict[str, Card], matc
         f"- Deck Size: {len(draft.deck1.all_cards)}",
         f"- P1 Public / Hidden: {len(draft.deck1.public_cards)} / {len(draft.deck1.hidden_cards)}",
         f"- P2 Public / Hidden: {len(draft.deck2.public_cards)} / {len(draft.deck2.hidden_cards)}",
-        f"- P1 Normal Public / Hidden: {len(draft.deck1.metadata.get('public_normal_cards', []))} / {len(draft.deck1.metadata.get('hidden_normal_cards', []))}",
-        f"- P1 Rare Public / Hidden: {len(draft.deck1.metadata.get('public_rare_cards', []))} / {len(draft.deck1.metadata.get('hidden_rare_cards', []))}",
-        f"- P2 Normal Public / Hidden: {len(draft.deck2.metadata.get('public_normal_cards', []))} / {len(draft.deck2.metadata.get('hidden_normal_cards', []))}",
-        f"- P2 Rare Public / Hidden: {len(draft.deck2.metadata.get('public_rare_cards', []))} / {len(draft.deck2.metadata.get('hidden_rare_cards', []))}",
         "",
         "## Role Balance",
         "",
@@ -155,22 +176,58 @@ def render_draft_match_markdown(draft: DraftResult, cards: dict[str, Card], matc
         "## Drafted Decks",
         "",
     ]
-    lines.extend(render_deck_table("P1 Public Normal", tuple(draft.deck1.metadata.get("public_normal_cards", [])), cards))
-    lines.append("")
-    lines.extend(render_deck_table("P1 Hidden Normal", tuple(draft.deck1.metadata.get("hidden_normal_cards", [])), cards))
-    lines.append("")
-    lines.extend(render_deck_table("P1 Public Rare", tuple(draft.deck1.metadata.get("public_rare_cards", [])), cards))
-    lines.append("")
-    lines.extend(render_deck_table("P1 Hidden Rare", tuple(draft.deck1.metadata.get("hidden_rare_cards", [])), cards))
-    lines.append("")
-    lines.extend(render_deck_table("P2 Public Normal", tuple(draft.deck2.metadata.get("public_normal_cards", [])), cards))
-    lines.append("")
-    lines.extend(render_deck_table("P2 Hidden Normal", tuple(draft.deck2.metadata.get("hidden_normal_cards", [])), cards))
-    lines.append("")
-    lines.extend(render_deck_table("P2 Public Rare", tuple(draft.deck2.metadata.get("public_rare_cards", [])), cards))
-    lines.append("")
-    lines.extend(render_deck_table("P2 Hidden Rare", tuple(draft.deck2.metadata.get("hidden_rare_cards", [])), cards))
-    lines.append("")
+    if draft.deck1.metadata.get("starter_cards"):
+        lines[8:8] = [
+            f"- P1 Starter / Public Market / Hidden Market: {len(draft.deck1.metadata.get('starter_cards', []))} / {len(draft.deck1.metadata.get('public_market_cards', []))} / {len(draft.deck1.metadata.get('hidden_market_cards', []))}",
+            f"- P2 Starter / Public Market / Hidden Market: {len(draft.deck2.metadata.get('starter_cards', []))} / {len(draft.deck2.metadata.get('public_market_cards', []))} / {len(draft.deck2.metadata.get('hidden_market_cards', []))}",
+        ]
+        lines.extend(render_deck_table("P1 Starter", tuple(draft.deck1.metadata.get("starter_cards", [])), cards))
+        lines.append("")
+        lines.extend(render_deck_table("P1 Public Market", tuple(draft.deck1.metadata.get("public_market_cards", [])), cards))
+        lines.append("")
+        lines.extend(render_deck_table("P1 Hidden Market", tuple(draft.deck1.metadata.get("hidden_market_cards", [])), cards))
+        lines.append("")
+        lines.extend(render_deck_table("P1 Common Slots", tuple(draft.deck1.metadata.get("common_slot_cards", [])), cards))
+        lines.append("")
+        lines.extend(render_deck_table("P1 Uncommon Slots", tuple(draft.deck1.metadata.get("uncommon_slot_cards", [])), cards))
+        lines.append("")
+        lines.extend(render_deck_table("P1 Rare Slots", tuple(draft.deck1.metadata.get("rare_slot_cards", [])), cards))
+        lines.append("")
+        lines.extend(render_deck_table("P2 Starter", tuple(draft.deck2.metadata.get("starter_cards", [])), cards))
+        lines.append("")
+        lines.extend(render_deck_table("P2 Public Market", tuple(draft.deck2.metadata.get("public_market_cards", [])), cards))
+        lines.append("")
+        lines.extend(render_deck_table("P2 Hidden Market", tuple(draft.deck2.metadata.get("hidden_market_cards", [])), cards))
+        lines.append("")
+        lines.extend(render_deck_table("P2 Common Slots", tuple(draft.deck2.metadata.get("common_slot_cards", [])), cards))
+        lines.append("")
+        lines.extend(render_deck_table("P2 Uncommon Slots", tuple(draft.deck2.metadata.get("uncommon_slot_cards", [])), cards))
+        lines.append("")
+        lines.extend(render_deck_table("P2 Rare Slots", tuple(draft.deck2.metadata.get("rare_slot_cards", [])), cards))
+        lines.append("")
+    else:
+        lines[8:8] = [
+            f"- P1 Normal Public / Hidden: {len(draft.deck1.metadata.get('public_normal_cards', []))} / {len(draft.deck1.metadata.get('hidden_normal_cards', []))}",
+            f"- P1 Rare Public / Hidden: {len(draft.deck1.metadata.get('public_rare_cards', []))} / {len(draft.deck1.metadata.get('hidden_rare_cards', []))}",
+            f"- P2 Normal Public / Hidden: {len(draft.deck2.metadata.get('public_normal_cards', []))} / {len(draft.deck2.metadata.get('hidden_normal_cards', []))}",
+            f"- P2 Rare Public / Hidden: {len(draft.deck2.metadata.get('public_rare_cards', []))} / {len(draft.deck2.metadata.get('hidden_rare_cards', []))}",
+        ]
+        lines.extend(render_deck_table("P1 Public Normal", tuple(draft.deck1.metadata.get("public_normal_cards", [])), cards))
+        lines.append("")
+        lines.extend(render_deck_table("P1 Hidden Normal", tuple(draft.deck1.metadata.get("hidden_normal_cards", [])), cards))
+        lines.append("")
+        lines.extend(render_deck_table("P1 Public Rare", tuple(draft.deck1.metadata.get("public_rare_cards", [])), cards))
+        lines.append("")
+        lines.extend(render_deck_table("P1 Hidden Rare", tuple(draft.deck1.metadata.get("hidden_rare_cards", [])), cards))
+        lines.append("")
+        lines.extend(render_deck_table("P2 Public Normal", tuple(draft.deck2.metadata.get("public_normal_cards", [])), cards))
+        lines.append("")
+        lines.extend(render_deck_table("P2 Hidden Normal", tuple(draft.deck2.metadata.get("hidden_normal_cards", [])), cards))
+        lines.append("")
+        lines.extend(render_deck_table("P2 Public Rare", tuple(draft.deck2.metadata.get("public_rare_cards", [])), cards))
+        lines.append("")
+        lines.extend(render_deck_table("P2 Hidden Rare", tuple(draft.deck2.metadata.get("hidden_rare_cards", [])), cards))
+        lines.append("")
     lines.extend(
         [
             "## Pick Order",

@@ -1,0 +1,12 @@
+{
+  "id": "battle_still_water",
+  "name": "静水",
+  "type": "battle",
+  "rarity": "rare",
+  "attack": 1,
+  "block": 3,
+  "speed": 1,
+  "tags": ["defense", "balanced"],
+  "effects": [],
+  "notes": "攻撃、防御、速度を最低限持つ防御寄りカード。"
+}

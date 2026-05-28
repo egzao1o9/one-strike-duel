@@ -1,0 +1,19 @@
+{
+  "id": "battle_deflect_thrust",
+  "name": "逸らし突き",
+  "type": "battle",
+  "rarity": "rare",
+  "attack": 1,
+  "block": 1,
+  "speed": 1,
+  "tags": ["attack", "defense", "trick"],
+  "public_text": "このバトル中、相手の攻撃-1。",
+  "effects": [
+    {
+      "timing": "battle",
+      "kind": "modify_opponent_attack",
+      "value": 1
+    }
+  ],
+  "notes": "攻防速のバランスが良く、相手の攻撃を少し逸らす。"
+}

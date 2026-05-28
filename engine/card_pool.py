@@ -11,8 +11,8 @@ from engine.deck import DeckDefinition
 
 
 RARITY_POOL_COUNTS = {
-    "common": 5,
-    "uncommon": 2,
+    "common": 4,
+    "uncommon": 3,
     "rare": 2,
 }
 

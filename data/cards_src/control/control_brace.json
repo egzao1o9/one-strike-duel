@@ -1,0 +1,19 @@
+{
+  "id": "control_brace",
+  "name": "踏み固め",
+  "type": "control",
+  "rarity": "common",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": ["buff", "defense"],
+  "public_text": "このターン、自分の防御+1。",
+  "effects": [
+    {
+      "timing": "battle",
+      "kind": "modify_self_block",
+      "value": 1
+    }
+  ],
+  "notes": "基本的な防御コントロール。"
+}

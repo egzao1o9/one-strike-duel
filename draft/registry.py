@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from engine.drafting import AggroDraftBot, GuardDraftBot, RandomDraftBot, RoleBalanceDraftBot, StandardDraftBot
+from engine.drafting import AggroDraftBot, BlessingDraftBot, ControlDraftBot, GuardDraftBot, RandomDraftBot, RoleBalanceDraftBot, StandardDraftBot
 
 
 DRAFT_BOT_REGISTRY = {
@@ -9,6 +9,8 @@ DRAFT_BOT_REGISTRY = {
     "StandardDraftBot": StandardDraftBot,
     "AggroDraftBot": AggroDraftBot,
     "GuardDraftBot": GuardDraftBot,
+    "ControlDraftBot": ControlDraftBot,
+    "BlessingDraftBot": BlessingDraftBot,
 }
 
 

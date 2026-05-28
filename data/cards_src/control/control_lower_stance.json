@@ -1,0 +1,19 @@
+{
+  "id": "control_lower_stance",
+  "name": "沈み込み",
+  "type": "control",
+  "rarity": "common",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": ["debuff", "defense"],
+  "public_text": "このターン、相手の攻撃-1。",
+  "effects": [
+    {
+      "timing": "battle",
+      "kind": "modify_opponent_attack",
+      "value": 1
+    }
+  ],
+  "notes": "相手攻撃-1の基本妨害。"
+}

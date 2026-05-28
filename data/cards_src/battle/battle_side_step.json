@@ -1,0 +1,12 @@
+{
+  "id": "battle_side_step",
+  "name": "横捌き",
+  "type": "battle",
+  "rarity": "rare",
+  "attack": 0,
+  "block": 1,
+  "speed": 2,
+  "tags": ["defense", "speed"],
+  "effects": [],
+  "notes": "攻撃できないが、素早く受けるカード。"
+}

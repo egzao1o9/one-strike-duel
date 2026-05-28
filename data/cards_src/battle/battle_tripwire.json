@@ -17,5 +17,6 @@
       "value": 3
     }
   ],
-  "notes": "Drops the opponent's speed sharply at the cost of guard."
+  "effect_text": "このバトル中、相手の素早さ-3。",
+  "notes": "相手の速度を大きく落とす搦め手。"
 }

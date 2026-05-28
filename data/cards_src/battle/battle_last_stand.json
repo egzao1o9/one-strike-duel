@@ -1,0 +1,12 @@
+{
+  "id": "battle_last_stand",
+  "name": "背水",
+  "type": "battle",
+  "rarity": "rare",
+  "attack": 3,
+  "block": 2,
+  "speed": -3,
+  "tags": ["attack", "defense", "heavy", "risk"],
+  "effects": [],
+  "notes": "攻防は高いが非常に遅い。受けながら殴れる重いカード。"
+}

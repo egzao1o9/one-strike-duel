@@ -10,12 +10,12 @@
     "tags": [
       "speed"
     ],
-    "public_text": "",
+    "effect_text": "",
     "enabled": true,
     "play_zone": "set",
     "after_play_zone": "discard",
     "slot_type": "",
-    "flavor_text": "",
+    "flavor_text": "残像だ",
     "effects": [],
     "notes": "極端に速いが打点は持たない。"
   },
@@ -31,7 +31,7 @@
       "attack",
       "finisher"
     ],
-    "public_text": "",
+    "effect_text": "このバトル中、自分は防御を得られない。",
     "enabled": true,
     "play_zone": "set",
     "after_play_zone": "discard",
@@ -50,7 +50,7 @@
         "count": 0
       }
     ],
-    "notes": "高火力だが無防備で遅い。"
+    "notes": "高打点だが守りを捨てた一撃。"
   },
   {
     "id": "battle_attack",
@@ -63,7 +63,7 @@
     "tags": [
       "attack"
     ],
-    "public_text": "",
+    "effect_text": "",
     "enabled": true,
     "play_zone": "set",
     "after_play_zone": "discard",
@@ -84,7 +84,7 @@
       "defense",
       "speed"
     ],
-    "public_text": "",
+    "effect_text": "",
     "enabled": true,
     "play_zone": "set",
     "after_play_zone": "discard",
@@ -105,7 +105,7 @@
       "defense",
       "heavy"
     ],
-    "public_text": "",
+    "effect_text": "",
     "enabled": true,
     "play_zone": "set",
     "after_play_zone": "discard",
@@ -113,6 +113,26 @@
     "flavor_text": "",
     "effects": [],
     "notes": "Heavy guard with a small attack loss."
+  },
+  {
+    "id": "battle_body_guard",
+    "name": "身構え",
+    "card_type": "battle",
+    "rarity": "common",
+    "attack": 0,
+    "block": 2,
+    "speed": -1,
+    "tags": [
+      "defense"
+    ],
+    "effect_text": "",
+    "enabled": true,
+    "play_zone": "set",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [],
+    "notes": "重めの基本防御カード。"
   },
   {
     "id": "battle_brace",
@@ -125,7 +145,7 @@
     "tags": [
       "balanced"
     ],
-    "public_text": "",
+    "effect_text": "",
     "enabled": true,
     "play_zone": "set",
     "after_play_zone": "discard",
@@ -133,6 +153,39 @@
     "flavor_text": "",
     "effects": [],
     "notes": "大きな弱点のない中継ぎ。"
+  },
+  {
+    "id": "battle_brake",
+    "name": "制動",
+    "card_type": "battle",
+    "rarity": "common",
+    "attack": 0,
+    "block": 1,
+    "speed": -1,
+    "tags": [
+      "defense",
+      "heavy"
+    ],
+    "effect_text": "このバトル中、相手の素早さ-1。",
+    "enabled": true,
+    "play_zone": "set",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [
+      {
+        "timing": "battle",
+        "kind": "modify_opponent_speed",
+        "value": 1,
+        "id": "battle_brake_01",
+        "seq": 1,
+        "enabled": true,
+        "priority": 100,
+        "value2": 0,
+        "count": 0
+      }
+    ],
+    "notes": "自分は遅いが、相手も少し遅らせる。"
   },
   {
     "id": "battle_break",
@@ -145,7 +198,7 @@
     "tags": [
       "attack"
     ],
-    "public_text": "",
+    "effect_text": "このバトル中、相手の防御-1。",
     "enabled": true,
     "play_zone": "set",
     "after_play_zone": "discard",
@@ -164,7 +217,7 @@
         "count": 0
       }
     ],
-    "notes": "相手の防御を崩す。"
+    "notes": "標準的な崩し札。"
   },
   {
     "id": "battle_bulwark",
@@ -177,7 +230,7 @@
     "tags": [
       "defense"
     ],
-    "public_text": "",
+    "effect_text": "",
     "enabled": true,
     "play_zone": "set",
     "after_play_zone": "discard",
@@ -185,6 +238,27 @@
     "flavor_text": "",
     "effects": [],
     "notes": "Plain defensive battle card."
+  },
+  {
+    "id": "battle_check_cut",
+    "name": "牽制斬り",
+    "card_type": "battle",
+    "rarity": "common",
+    "attack": 1,
+    "block": 1,
+    "speed": -1,
+    "tags": [
+      "attack",
+      "defense"
+    ],
+    "effect_text": "",
+    "enabled": true,
+    "play_zone": "set",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [],
+    "notes": "攻撃と防御を少しずつ持つが遅い。"
   },
   {
     "id": "battle_counter",
@@ -197,7 +271,7 @@
     "tags": [
       "balanced"
     ],
-    "public_text": "",
+    "effect_text": "",
     "enabled": true,
     "play_zone": "set",
     "after_play_zone": "discard",
@@ -218,7 +292,7 @@
       "defense",
       "speed"
     ],
-    "public_text": "",
+    "effect_text": "",
     "enabled": true,
     "play_zone": "set",
     "after_play_zone": "discard",
@@ -239,7 +313,7 @@
       "attack",
       "risk"
     ],
-    "public_text": "",
+    "effect_text": "",
     "enabled": true,
     "play_zone": "set",
     "after_play_zone": "discard",
@@ -260,7 +334,7 @@
       "risk",
       "speed"
     ],
-    "public_text": "",
+    "effect_text": "",
     "enabled": true,
     "play_zone": "set",
     "after_play_zone": "discard",
@@ -280,7 +354,7 @@
     "tags": [
       "defense"
     ],
-    "public_text": "",
+    "effect_text": "",
     "enabled": true,
     "play_zone": "set",
     "after_play_zone": "discard",
@@ -288,6 +362,40 @@
     "flavor_text": "",
     "effects": [],
     "notes": "標準的な防御カード。"
+  },
+  {
+    "id": "battle_deflect_thrust",
+    "name": "逸らし突き",
+    "card_type": "battle",
+    "rarity": "rare",
+    "attack": 1,
+    "block": 1,
+    "speed": 1,
+    "tags": [
+      "attack",
+      "defense",
+      "trick"
+    ],
+    "effect_text": "このバトル中、相手の攻撃-1。",
+    "enabled": true,
+    "play_zone": "set",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [
+      {
+        "timing": "battle",
+        "kind": "modify_opponent_attack",
+        "value": 1,
+        "id": "battle_deflect_thrust_01",
+        "seq": 1,
+        "enabled": true,
+        "priority": 100,
+        "value2": 0,
+        "count": 0
+      }
+    ],
+    "notes": "攻防速のバランスが良く、相手の攻撃を少し逸らす。"
   },
   {
     "id": "battle_feint",
@@ -301,7 +409,7 @@
       "speed",
       "trick"
     ],
-    "public_text": "",
+    "effect_text": "",
     "enabled": true,
     "play_zone": "set",
     "after_play_zone": "discard",
@@ -321,7 +429,7 @@
     "tags": [
       "defense"
     ],
-    "public_text": "",
+    "effect_text": "",
     "enabled": true,
     "play_zone": "set",
     "after_play_zone": "discard",
@@ -331,18 +439,95 @@
     "notes": "堅実な防御。"
   },
   {
+    "id": "battle_guard_breaker_guard",
+    "name": "受け崩し",
+    "card_type": "battle",
+    "rarity": "rare",
+    "attack": 1,
+    "block": 2,
+    "speed": 0,
+    "tags": [
+      "attack",
+      "defense",
+      "debuff"
+    ],
+    "effect_text": "このバトル中、相手の防御-1。",
+    "enabled": true,
+    "play_zone": "set",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [
+      {
+        "timing": "battle",
+        "kind": "modify_opponent_block",
+        "value": 1,
+        "id": "battle_guard_breaker_guard_01",
+        "seq": 1,
+        "enabled": true,
+        "priority": 100,
+        "value2": 0,
+        "count": 0
+      }
+    ],
+    "notes": "防御しながら相手の防御を崩す防御寄りレア。"
+  },
+  {
+    "id": "battle_guard_step",
+    "name": "受け足",
+    "card_type": "battle",
+    "rarity": "common",
+    "attack": -1,
+    "block": 2,
+    "speed": 1,
+    "tags": [
+      "defense",
+      "speed"
+    ],
+    "effect_text": "",
+    "enabled": true,
+    "play_zone": "set",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [],
+    "notes": "攻撃力を下げて、守りと速度を得るカード。"
+  },
+  {
+    "id": "battle_guardian_cut",
+    "name": "守護斬り",
+    "card_type": "battle",
+    "rarity": "rare",
+    "attack": 2,
+    "block": 3,
+    "speed": -1,
+    "tags": [
+      "attack",
+      "defense",
+      "balanced"
+    ],
+    "effect_text": "",
+    "enabled": true,
+    "play_zone": "set",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [],
+    "notes": "攻撃と防御を両立する安定した防御寄りレア。"
+  },
+  {
     "id": "battle_heavy_swing",
     "name": "大振り",
     "card_type": "battle",
     "rarity": "rare",
-    "attack": 5,
+    "attack": 6,
     "block": 0,
     "speed": -2,
     "tags": [
       "attack",
       "heavy"
     ],
-    "public_text": "",
+    "effect_text": "",
     "enabled": true,
     "play_zone": "set",
     "after_play_zone": "discard",
@@ -350,6 +535,106 @@
     "flavor_text": "",
     "effects": [],
     "notes": "威力は大きいがかなり遅い。"
+  },
+  {
+    "id": "battle_intercept",
+    "name": "迎撃",
+    "card_type": "battle",
+    "rarity": "rare",
+    "attack": 1,
+    "block": 2,
+    "speed": 2,
+    "tags": [
+      "defense",
+      "speed",
+      "counter"
+    ],
+    "effect_text": "",
+    "enabled": true,
+    "play_zone": "set",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [],
+    "notes": "攻撃力は低いが、速く守れる迎撃カード。"
+  },
+  {
+    "id": "battle_iron_counter",
+    "name": "鉄反し",
+    "card_type": "battle",
+    "rarity": "rare",
+    "attack": 0,
+    "block": 4,
+    "speed": -1,
+    "tags": [
+      "defense",
+      "counter",
+      "heavy"
+    ],
+    "effect_text": "このバトル中、自分の攻撃+1。",
+    "enabled": true,
+    "play_zone": "set",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [
+      {
+        "timing": "battle",
+        "kind": "modify_self_attack",
+        "value": 1,
+        "id": "battle_iron_counter_01",
+        "seq": 1,
+        "enabled": true,
+        "priority": 100,
+        "value2": 0,
+        "count": 0
+      }
+    ],
+    "notes": "重防御カウンター。効果込みで実質攻撃2。"
+  },
+  {
+    "id": "battle_last_stand",
+    "name": "背水",
+    "card_type": "battle",
+    "rarity": "rare",
+    "attack": 3,
+    "block": 2,
+    "speed": -3,
+    "tags": [
+      "attack",
+      "defense",
+      "heavy",
+      "risk"
+    ],
+    "effect_text": "",
+    "enabled": true,
+    "play_zone": "set",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [],
+    "notes": "攻防は高いが非常に遅い。受けながら殴れる重いカード。"
+  },
+  {
+    "id": "battle_low_guard",
+    "name": "低構え",
+    "card_type": "battle",
+    "rarity": "common",
+    "attack": 0,
+    "block": 1,
+    "speed": 1,
+    "tags": [
+      "defense",
+      "speed"
+    ],
+    "effect_text": "",
+    "enabled": true,
+    "play_zone": "set",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [],
+    "notes": "軽い防御カード。攻撃はできないが、速度を落とさず守れる。"
   },
   {
     "id": "battle_low_stance",
@@ -362,7 +647,7 @@
     "tags": [
       "defense"
     ],
-    "public_text": "",
+    "effect_text": "",
     "enabled": true,
     "play_zone": "set",
     "after_play_zone": "discard",
@@ -370,6 +655,27 @@
     "flavor_text": "",
     "effects": [],
     "notes": "守りやすいが主導権は取りづらい。"
+  },
+  {
+    "id": "battle_mirror_guard",
+    "name": "鏡受け",
+    "card_type": "battle",
+    "rarity": "rare",
+    "attack": 0,
+    "block": 4,
+    "speed": 1,
+    "tags": [
+      "defense",
+      "trick"
+    ],
+    "effect_text": "",
+    "enabled": true,
+    "play_zone": "set",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [],
+    "notes": "攻撃できないが、速めに厚く守れるカード。"
   },
   {
     "id": "battle_pierce",
@@ -382,7 +688,7 @@
     "tags": [
       "attack"
     ],
-    "public_text": "",
+    "effect_text": "このバトル中、相手の防御-1。",
     "enabled": true,
     "play_zone": "set",
     "after_play_zone": "discard",
@@ -401,7 +707,7 @@
         "count": 0
       }
     ],
-    "notes": "防御を削りながら通しにいく。"
+    "notes": "速度寄りの崩し札。"
   },
   {
     "id": "battle_power_attack",
@@ -414,7 +720,7 @@
     "tags": [
       "attack"
     ],
-    "public_text": "",
+    "effect_text": "",
     "enabled": true,
     "play_zone": "set",
     "after_play_zone": "discard",
@@ -434,7 +740,7 @@
     "tags": [
       "balanced"
     ],
-    "public_text": "",
+    "effect_text": "",
     "enabled": true,
     "play_zone": "set",
     "after_play_zone": "discard",
@@ -442,6 +748,69 @@
     "flavor_text": "",
     "effects": [],
     "notes": "標準的な攻防一体カード。"
+  },
+  {
+    "id": "battle_probe_guard",
+    "name": "探り受け",
+    "card_type": "battle",
+    "rarity": "common",
+    "attack": 1,
+    "block": 1,
+    "speed": 0,
+    "tags": [
+      "attack",
+      "defense"
+    ],
+    "effect_text": "",
+    "enabled": true,
+    "play_zone": "set",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [],
+    "notes": "最低限の攻防を持つ標準カード。"
+  },
+  {
+    "id": "battle_side_step",
+    "name": "横捌き",
+    "card_type": "battle",
+    "rarity": "rare",
+    "attack": 0,
+    "block": 1,
+    "speed": 2,
+    "tags": [
+      "defense",
+      "speed"
+    ],
+    "effect_text": "",
+    "enabled": true,
+    "play_zone": "set",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [],
+    "notes": "攻撃できないが、素早く受けるカード。"
+  },
+  {
+    "id": "battle_soft_guard",
+    "name": "柔受け",
+    "card_type": "battle",
+    "rarity": "common",
+    "attack": -1,
+    "block": 3,
+    "speed": -2,
+    "tags": [
+      "defense",
+      "heavy"
+    ],
+    "effect_text": "",
+    "enabled": true,
+    "play_zone": "set",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [],
+    "notes": "非常に硬いが、攻撃と速度を大きく失う。"
   },
   {
     "id": "battle_step",
@@ -454,7 +823,7 @@
     "tags": [
       "speed"
     ],
-    "public_text": "",
+    "effect_text": "",
     "enabled": true,
     "play_zone": "set",
     "after_play_zone": "discard",
@@ -475,7 +844,7 @@
       "attack",
       "risk"
     ],
-    "public_text": "",
+    "effect_text": "このバトル中、自分は防御を得られない。",
     "enabled": true,
     "play_zone": "set",
     "after_play_zone": "discard",
@@ -494,7 +863,28 @@
         "count": 0
       }
     ],
-    "notes": "このターン、自分はブロック値を得られない。"
+    "notes": "守りを捨てて踏み込む。"
+  },
+  {
+    "id": "battle_still_water",
+    "name": "静水",
+    "card_type": "battle",
+    "rarity": "rare",
+    "attack": 1,
+    "block": 3,
+    "speed": 1,
+    "tags": [
+      "defense",
+      "balanced"
+    ],
+    "effect_text": "",
+    "enabled": true,
+    "play_zone": "set",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [],
+    "notes": "攻撃、防御、速度を最低限持つ防御寄りカード。"
   },
   {
     "id": "battle_tripwire",
@@ -508,7 +898,7 @@
       "trick",
       "speed"
     ],
-    "public_text": "",
+    "effect_text": "このバトル中、相手の素早さ-3。",
     "enabled": true,
     "play_zone": "set",
     "after_play_zone": "discard",
@@ -527,7 +917,7 @@
         "count": 0
       }
     ],
-    "notes": "Drops the opponent's speed sharply at the cost of guard."
+    "notes": "相手の速度を大きく落とす搦め手。"
   },
   {
     "id": "battle_wall",
@@ -541,7 +931,7 @@
       "defense",
       "heavy"
     ],
-    "public_text": "",
+    "effect_text": "",
     "enabled": true,
     "play_zone": "set",
     "after_play_zone": "discard",
@@ -562,7 +952,7 @@
       "blessing",
       "attack"
     ],
-    "public_text": "バトル計算時、自分の攻撃+1。",
+    "effect_text": "バトル計算時、自分の攻撃+1。",
     "enabled": true,
     "play_zone": "blessing_zone",
     "after_play_zone": "blessing_zone",
@@ -601,7 +991,7 @@
       "defense",
       "burst"
     ],
-    "public_text": "任意のバトル計算時に使用する。自分の防御+2。使用後、この加護を裏向きにする。",
+    "effect_text": "任意のバトル計算時に使用する。自分の防御+2。使用後、この加護を裏向きにする。",
     "enabled": true,
     "play_zone": "blessing_zone",
     "after_play_zone": "blessing_zone",
@@ -640,7 +1030,7 @@
       "blessing",
       "defense"
     ],
-    "public_text": "任意のバトル計算時に使用する。自分の防御+1。使用後、この加護を裏向きにする。",
+    "effect_text": "任意のバトル計算時に使用する。自分の防御+1。使用後、この加護を裏向きにする。",
     "enabled": true,
     "play_zone": "blessing_zone",
     "after_play_zone": "blessing_zone",
@@ -679,7 +1069,7 @@
       "blessing",
       "draw"
     ],
-    "public_text": "場にある限り、通常ドロー+1。",
+    "effect_text": "場にある限り、通常ドロー+1。",
     "enabled": true,
     "play_zone": "blessing_zone",
     "after_play_zone": "blessing_zone",
@@ -718,7 +1108,7 @@
       "speed",
       "debuff"
     ],
-    "public_text": "任意のバトル計算時に使用する。相手の素早さ-1。使用後、この加護を裏向きにする。",
+    "effect_text": "任意のバトル計算時に使用する。相手の素早さ-1。使用後、この加護を裏向きにする。",
     "enabled": true,
     "play_zone": "blessing_zone",
     "after_play_zone": "blessing_zone",
@@ -757,7 +1147,7 @@
       "blessing",
       "defense"
     ],
-    "public_text": "バトル計算時、自分の防御+1。",
+    "effect_text": "バトル計算時、自分の防御+1。",
     "enabled": true,
     "play_zone": "blessing_zone",
     "after_play_zone": "blessing_zone",
@@ -796,7 +1186,7 @@
       "trick",
       "reveal"
     ],
-    "public_text": "相手がカードをセットした時に使用できる。相手の伏せカード1枚を選び表向きにする。使用後、この加護を裏向きにする。",
+    "effect_text": "相手がカードをセットした時に使用できる。相手の伏せカード1枚を選び表向きにする。使用後、この加護を裏向きにする。",
     "enabled": true,
     "play_zone": "blessing_zone",
     "after_play_zone": "blessing_zone",
@@ -831,7 +1221,7 @@
       "blessing",
       "defense"
     ],
-    "public_text": "自分がこのバトルに2枚以下しか伏せていない場合に使用できる。自分の防御+2。使用後、この加護を裏向きにする。",
+    "effect_text": "自分がこのバトルに2枚以下しか伏せていない場合に使用できる。自分の防御+2。使用後、この加護を裏向きにする。",
     "enabled": true,
     "play_zone": "blessing_zone",
     "after_play_zone": "blessing_zone",
@@ -871,7 +1261,7 @@
       "attack",
       "burst"
     ],
-    "public_text": "任意のバトル計算時に使用する。自分の攻撃+2。使用後、この加護を裏向きにする。",
+    "effect_text": "任意のバトル計算時に使用する。自分の攻撃+2。使用後、この加護を裏向きにする。",
     "enabled": true,
     "play_zone": "blessing_zone",
     "after_play_zone": "blessing_zone",
@@ -911,7 +1301,7 @@
       "defense",
       "counter"
     ],
-    "public_text": "相手の攻撃が自分の防御を1だけ上回っている時に使用できる。その攻撃を防ぐ。使用後、この加護を裏向きにする。",
+    "effect_text": "相手の攻撃が自分の防御を1だけ上回っている時に使用できる。その攻撃を防ぐ。使用後、この加護を裏向きにする。",
     "enabled": true,
     "play_zone": "blessing_zone",
     "after_play_zone": "blessing_zone",
@@ -951,7 +1341,7 @@
       "speed",
       "counter"
     ],
-    "public_text": "相手がこのバトルで4枚目のカードを伏せた時に使用できる。そのバトルで相手の素早さ-2。使用後、この加護を裏向きにする。",
+    "effect_text": "相手がこのバトルで4枚目のカードを伏せた時に使用できる。そのバトルで相手の素早さ-2。使用後、この加護を裏向きにする。",
     "enabled": true,
     "play_zone": "blessing_zone",
     "after_play_zone": "blessing_zone",
@@ -986,7 +1376,7 @@
       "blessing",
       "attack"
     ],
-    "public_text": "任意のバトル計算時に使用する。自分の攻撃+1。使用後、この加護を裏向きにする。",
+    "effect_text": "任意のバトル計算時に使用する。自分の攻撃+1。使用後、この加護を裏向きにする。",
     "enabled": true,
     "play_zone": "blessing_zone",
     "after_play_zone": "blessing_zone",
@@ -1026,7 +1416,7 @@
       "speed",
       "debuff"
     ],
-    "public_text": "任意のバトル計算時に使用する。相手の速度-2。使用後、この加護を裏向きにする。",
+    "effect_text": "任意のバトル計算時に使用する。相手の速度-2。使用後、この加護を裏向きにする。",
     "enabled": true,
     "play_zone": "blessing_zone",
     "after_play_zone": "blessing_zone",
@@ -1065,7 +1455,7 @@
       "blessing",
       "speed"
     ],
-    "public_text": "バトル計算時、自分の素早さ+1。",
+    "effect_text": "バトル計算時、自分の素早さ+1。",
     "enabled": true,
     "play_zone": "blessing_zone",
     "after_play_zone": "blessing_zone",
@@ -1104,7 +1494,7 @@
       "debuff",
       "control"
     ],
-    "public_text": "相手の攻撃力が5以上のカードを対象に使用できる。そのカードの攻撃-3。使用後、この加護を裏向きにする。",
+    "effect_text": "相手の攻撃力が5以上のカードを対象に使用できる。そのカードの攻撃-3。使用後、この加護を裏向きにする。",
     "enabled": true,
     "play_zone": "blessing_zone",
     "after_play_zone": "blessing_zone",
@@ -1143,7 +1533,7 @@
       "blessing",
       "speed"
     ],
-    "public_text": "任意のバトル計算時に使用する。自分の素早さ+1。使用後、この加護を裏向きにする。",
+    "effect_text": "任意のバトル計算時に使用する。自分の素早さ+1。使用後、この加護を裏向きにする。",
     "enabled": true,
     "play_zone": "blessing_zone",
     "after_play_zone": "blessing_zone",
@@ -1183,7 +1573,7 @@
       "debuff",
       "defense"
     ],
-    "public_text": "相手が3枚目以上のバトルカードがある場合にバトル計算時に使用できる。そのバトルで相手の攻撃-3。使用後、この加護を裏向きにする。",
+    "effect_text": "相手が3枚目以上のバトルカードがある場合にバトル計算時に使用できる。そのバトルで相手の攻撃-3。使用後、この加護を裏向きにする。",
     "enabled": true,
     "play_zone": "blessing_zone",
     "after_play_zone": "blessing_zone",
@@ -1223,7 +1613,7 @@
       "attack",
       "tempo"
     ],
-    "public_text": "自分のカードを1枚選ぶ。そのカードの攻撃値を+2する。次のターンのドロー枚数が1枚減る。",
+    "effect_text": "自分のカードを1枚選ぶ。そのカードの攻撃値を+2する。次のターンのドロー枚数が1枚減る。",
     "enabled": true,
     "play_zone": "instant",
     "after_play_zone": "discard",
@@ -1256,7 +1646,7 @@
     "tags": [
       "debuff"
     ],
-    "public_text": "",
+    "effect_text": "このターン、相手の素早さ-2。",
     "enabled": true,
     "play_zone": "instant",
     "after_play_zone": "discard",
@@ -1275,7 +1665,7 @@
         "count": 0
       }
     ],
-    "notes": "このターン、相手の素早さ-2。"
+    "notes": "相手の足を止める。"
   },
   {
     "id": "control_blank_first",
@@ -1289,7 +1679,7 @@
       "debuff",
       "trick"
     ],
-    "public_text": "",
+    "effect_text": "このターン、相手の場の1枚目のカードを無効化する。",
     "enabled": true,
     "play_zone": "instant",
     "after_play_zone": "discard",
@@ -1308,7 +1698,7 @@
         "count": 0
       }
     ],
-    "notes": "Negates the opponent's first set battle card this turn."
+    "notes": "相手の最初の1枚を空振りさせる。"
   },
   {
     "id": "control_blessing_break",
@@ -1322,7 +1712,7 @@
       "blessing",
       "removal"
     ],
-    "public_text": "場の加護カードを捨てる。",
+    "effect_text": "場の加護カードを捨てる。",
     "enabled": true,
     "play_zone": "instant",
     "after_play_zone": "discard",
@@ -1356,7 +1746,7 @@
       "blessing",
       "trick"
     ],
-    "public_text": "場の加護カードを裏返す。",
+    "effect_text": "場の加護カードを裏返す。",
     "enabled": true,
     "play_zone": "instant",
     "after_play_zone": "discard",
@@ -1390,7 +1780,7 @@
       "blessing",
       "lock"
     ],
-    "public_text": "このターン、相手は加護カードを使用できない。",
+    "effect_text": "このターン、相手は加護カードを使用できない。",
     "enabled": true,
     "play_zone": "instant",
     "after_play_zone": "discard",
@@ -1413,6 +1803,83 @@
     "notes": "Opponent cannot use blessing this turn."
   },
   {
+    "id": "control_brace",
+    "name": "踏み固め",
+    "card_type": "control",
+    "rarity": "common",
+    "attack": 0,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "buff",
+      "defense"
+    ],
+    "effect_text": "このターン、自分の防御+1。",
+    "enabled": true,
+    "play_zone": "instant",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [
+      {
+        "timing": "battle",
+        "kind": "modify_self_block",
+        "value": 1,
+        "id": "control_brace_01",
+        "seq": 1,
+        "enabled": true,
+        "priority": 100,
+        "value2": 0,
+        "count": 0
+      }
+    ],
+    "notes": "基本的な防御コントロール。"
+  },
+  {
+    "id": "control_break_momentum",
+    "name": "勢い殺し",
+    "card_type": "control",
+    "rarity": "rare",
+    "attack": 0,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "debuff",
+      "defense"
+    ],
+    "effect_text": "このターン、相手の攻撃-2、素早さ-1。",
+    "enabled": true,
+    "play_zone": "instant",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [
+      {
+        "timing": "battle",
+        "kind": "modify_opponent_attack",
+        "value": 2,
+        "id": "control_break_momentum_01",
+        "seq": 1,
+        "enabled": true,
+        "priority": 100,
+        "value2": 0,
+        "count": 0
+      },
+      {
+        "timing": "battle",
+        "kind": "modify_opponent_speed",
+        "value": 1,
+        "id": "control_break_momentum_02",
+        "seq": 2,
+        "enabled": true,
+        "priority": 100,
+        "value2": 0,
+        "count": 0
+      }
+    ],
+    "notes": "相手の高速高打点を止める防御寄り妨害。"
+  },
+  {
     "id": "control_cover",
     "name": "受け直し",
     "card_type": "control",
@@ -1423,7 +1890,7 @@
     "tags": [
       "buff"
     ],
-    "public_text": "",
+    "effect_text": "このターン、自分の防御+1、素早さ+1。",
     "enabled": true,
     "play_zone": "instant",
     "after_play_zone": "discard",
@@ -1453,7 +1920,7 @@
         "count": 0
       }
     ],
-    "notes": "このターン、ブロック+1、素早さ+1。"
+    "notes": "守り直しながら速度も補う。"
   },
   {
     "id": "control_crush_spirit",
@@ -1466,7 +1933,7 @@
     "tags": [
       "debuff"
     ],
-    "public_text": "",
+    "effect_text": "このターン、相手の攻撃-3。",
     "enabled": true,
     "play_zone": "instant",
     "after_play_zone": "discard",
@@ -1485,7 +1952,7 @@
         "count": 0
       }
     ],
-    "notes": "Reduces the opponent's attack by 3 this turn."
+    "notes": "重い打点を大きく削ぐ。"
   },
   {
     "id": "control_defile",
@@ -1499,7 +1966,7 @@
       "blessing",
       "debuff"
     ],
-    "public_text": "相手の加護カードを裏向きにする。",
+    "effect_text": "相手の加護カードを裏向きにする。",
     "enabled": true,
     "play_zone": "instant",
     "after_play_zone": "discard",
@@ -1533,7 +2000,7 @@
       "blessing",
       "support"
     ],
-    "public_text": "自分の裏向きの加護カードを捨てる。",
+    "effect_text": "自分の裏向きの加護カードを捨てる。",
     "enabled": true,
     "play_zone": "instant",
     "after_play_zone": "discard",
@@ -1566,7 +2033,7 @@
     "tags": [
       "debuff"
     ],
-    "public_text": "",
+    "effect_text": "このターン、相手の攻撃-1。",
     "enabled": true,
     "play_zone": "instant",
     "after_play_zone": "discard",
@@ -1585,7 +2052,7 @@
         "count": 0
       }
     ],
-    "notes": "このターン、相手の攻撃-1。"
+    "notes": "相手の勢いを少し削ぐ。"
   },
   {
     "id": "control_focus",
@@ -1599,7 +2066,7 @@
       "buff",
       "next_turn"
     ],
-    "public_text": "",
+    "effect_text": "次のターン、自分の攻撃+1。",
     "enabled": true,
     "play_zone": "instant",
     "after_play_zone": "discard",
@@ -1618,7 +2085,7 @@
         "count": 0
       }
     ],
-    "notes": "次ターン、自分の攻撃+1。"
+    "notes": "次の一撃に備える。"
   },
   {
     "id": "control_fortify",
@@ -1631,7 +2098,7 @@
     "tags": [
       "buff"
     ],
-    "public_text": "",
+    "effect_text": "このターン、自分の防御+2。",
     "enabled": true,
     "play_zone": "instant",
     "after_play_zone": "discard",
@@ -1650,7 +2117,40 @@
         "count": 0
       }
     ],
-    "notes": "このターン、自分のブロック+2。"
+    "notes": "厚く守る。"
+  },
+  {
+    "id": "control_full_guard",
+    "name": "全身防御",
+    "card_type": "control",
+    "rarity": "rare",
+    "attack": 0,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "buff",
+      "defense"
+    ],
+    "effect_text": "このターン、自分の防御+3。",
+    "enabled": true,
+    "play_zone": "instant",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [
+      {
+        "timing": "battle",
+        "kind": "modify_self_block",
+        "value": 3,
+        "id": "control_full_guard_01",
+        "seq": 1,
+        "enabled": true,
+        "priority": 100,
+        "value2": 0,
+        "count": 0
+      }
+    ],
+    "notes": "シンプルな強防御コントロール。"
   },
   {
     "id": "control_guard",
@@ -1663,7 +2163,7 @@
     "tags": [
       "buff"
     ],
-    "public_text": "",
+    "effect_text": "このターン、自分の防御+1。",
     "enabled": true,
     "play_zone": "instant",
     "after_play_zone": "discard",
@@ -1682,7 +2182,52 @@
         "count": 0
       }
     ],
-    "notes": "このターン、自分のブロック+1。"
+    "notes": "基本的な防御補助。"
+  },
+  {
+    "id": "control_guard_read",
+    "name": "守り読み",
+    "card_type": "control",
+    "rarity": "rare",
+    "attack": 0,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "defense",
+      "draw",
+      "next_turn"
+    ],
+    "effect_text": "このターン、自分の防御+1。次ターン開始時、追加で1枚引く。",
+    "enabled": true,
+    "play_zone": "instant",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [
+      {
+        "timing": "battle",
+        "kind": "modify_self_block",
+        "value": 1,
+        "id": "control_guard_read_01",
+        "seq": 1,
+        "enabled": true,
+        "priority": 100,
+        "value2": 0,
+        "count": 0
+      },
+      {
+        "timing": "next_turn",
+        "kind": "draw_cards",
+        "value": 1,
+        "id": "control_guard_read_02",
+        "seq": 2,
+        "enabled": true,
+        "priority": 100,
+        "value2": 0,
+        "count": 0
+      }
+    ],
+    "notes": "今ターンを少し守り、次ターンの選択肢を増やす。"
   },
   {
     "id": "control_hand_echo",
@@ -1696,7 +2241,7 @@
       "hand",
       "disrupt"
     ],
-    "public_text": "相手は手札を1枚捨てる。自分は相手の捨て札から1枚カードを選び、それを相手の手札に加える。",
+    "effect_text": "相手は手札を1枚捨てる。自分は相手の捨て札から1枚カードを選び、それを相手の手札に加える。",
     "enabled": true,
     "play_zone": "instant",
     "after_play_zone": "discard",
@@ -1729,7 +2274,7 @@
     "tags": [
       "buff"
     ],
-    "public_text": "",
+    "effect_text": "このターン、自分の素早さ+2。",
     "enabled": true,
     "play_zone": "instant",
     "after_play_zone": "discard",
@@ -1748,7 +2293,40 @@
         "count": 0
       }
     ],
-    "notes": "このターン、自分の素早さ+2。"
+    "notes": "一気に加速する。"
+  },
+  {
+    "id": "control_lower_stance",
+    "name": "沈み込み",
+    "card_type": "control",
+    "rarity": "common",
+    "attack": 0,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "debuff",
+      "defense"
+    ],
+    "effect_text": "このターン、相手の攻撃-1。",
+    "enabled": true,
+    "play_zone": "instant",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [
+      {
+        "timing": "battle",
+        "kind": "modify_opponent_attack",
+        "value": 1,
+        "id": "control_lower_stance_01",
+        "seq": 1,
+        "enabled": true,
+        "priority": 100,
+        "value2": 0,
+        "count": 0
+      }
+    ],
+    "notes": "相手攻撃-1の基本妨害。"
   },
   {
     "id": "control_momentum",
@@ -1761,7 +2339,7 @@
     "tags": [
       "next_turn"
     ],
-    "public_text": "",
+    "effect_text": "次のターン、自分の素早さ+2。",
     "enabled": true,
     "play_zone": "instant",
     "after_play_zone": "discard",
@@ -1780,7 +2358,7 @@
         "count": 0
       }
     ],
-    "notes": "次ターン、自分の素早さ+2。"
+    "notes": "次ターンの勢いを作る。"
   },
   {
     "id": "control_opening_expose",
@@ -1794,7 +2372,7 @@
       "reveal",
       "neutral"
     ],
-    "public_text": "このターンお互いのプレイヤーは1枚目のセットを表向きで行う。",
+    "effect_text": "このターンお互いのプレイヤーは1枚目のセットを表向きで行う。",
     "enabled": true,
     "play_zone": "instant",
     "after_play_zone": "discard",
@@ -1828,7 +2406,7 @@
       "reveal",
       "trick"
     ],
-    "public_text": "このターン相手のプレイヤーは1枚目のセットを表向きで行う。",
+    "effect_text": "このターン相手のプレイヤーは1枚目のセットを表向きで行う。",
     "enabled": true,
     "play_zone": "instant",
     "after_play_zone": "discard",
@@ -1862,7 +2440,7 @@
       "buff",
       "risk"
     ],
-    "public_text": "",
+    "effect_text": "このターン、自分の攻撃+1、素早さ+1。",
     "enabled": true,
     "play_zone": "instant",
     "after_play_zone": "discard",
@@ -1892,7 +2470,52 @@
         "count": 0
       }
     ],
-    "notes": "このターン、攻撃+1、素早さ+1。"
+    "notes": "前のめりに踏み込む。"
+  },
+  {
+    "id": "control_parry_window",
+    "name": "見切り構え",
+    "card_type": "control",
+    "rarity": "rare",
+    "attack": 0,
+    "block": 0,
+    "speed": 0,
+    "tags": [
+      "buff",
+      "defense",
+      "speed"
+    ],
+    "effect_text": "このターン、自分の防御+2、素早さ+1。",
+    "enabled": true,
+    "play_zone": "instant",
+    "after_play_zone": "discard",
+    "slot_type": "",
+    "flavor_text": "",
+    "effects": [
+      {
+        "timing": "battle",
+        "kind": "modify_self_block",
+        "value": 2,
+        "id": "control_parry_window_01",
+        "seq": 1,
+        "enabled": true,
+        "priority": 100,
+        "value2": 0,
+        "count": 0
+      },
+      {
+        "timing": "battle",
+        "kind": "modify_self_speed",
+        "value": 1,
+        "id": "control_parry_window_02",
+        "seq": 2,
+        "enabled": true,
+        "priority": 100,
+        "value2": 0,
+        "count": 0
+      }
+    ],
+    "notes": "防御しながら速度負けを避けるレアコントロール。"
   },
   {
     "id": "control_peek_hand",
@@ -1906,7 +2529,7 @@
       "reveal",
       "trick"
     ],
-    "public_text": "相手の手札をランダムで1枚見る。",
+    "effect_text": "相手の手札をランダムで1枚見る。",
     "enabled": true,
     "play_zone": "instant",
     "after_play_zone": "discard",
@@ -1941,7 +2564,7 @@
       "reveal",
       "deck"
     ],
-    "public_text": "相手の山札のトップを見る。",
+    "effect_text": "相手の山札のトップを見る。",
     "enabled": true,
     "play_zone": "instant",
     "after_play_zone": "discard",
@@ -1976,7 +2599,7 @@
       "reveal",
       "deck"
     ],
-    "public_text": "自分の山札のトップを見る。",
+    "effect_text": "自分の山札のトップを見る。",
     "enabled": true,
     "play_zone": "instant",
     "after_play_zone": "discard",
@@ -2010,7 +2633,7 @@
     "tags": [
       "debuff"
     ],
-    "public_text": "",
+    "effect_text": "このターン、相手の防御-1。",
     "enabled": true,
     "play_zone": "instant",
     "after_play_zone": "discard",
@@ -2029,7 +2652,7 @@
         "count": 0
       }
     ],
-    "notes": "このターン、相手のブロック-1。"
+    "notes": "相手の守りを崩す。"
   },
   {
     "id": "control_redraw_hand",
@@ -2043,7 +2666,7 @@
       "draw",
       "hand"
     ],
-    "public_text": "自分の手札をすべて捨て、同じ枚数山札から引く。",
+    "effect_text": "自分の手札をすべて捨て、同じ枚数山札から引く。",
     "enabled": true,
     "play_zone": "instant",
     "after_play_zone": "discard",
@@ -2076,7 +2699,7 @@
     "tags": [
       "next_turn"
     ],
-    "public_text": "",
+    "effect_text": "次のターン開始時、追加で1枚引く。",
     "enabled": true,
     "play_zone": "instant",
     "after_play_zone": "discard",
@@ -2095,7 +2718,7 @@
         "count": 0
       }
     ],
-    "notes": "次ターン開始時、追加で1枚引く。"
+    "notes": "次のターンに備えて手札を蓄える。"
   },
   {
     "id": "control_topdeck_hand",
@@ -2109,7 +2732,7 @@
       "draw",
       "trick"
     ],
-    "public_text": "自分の山札のトップを見る。そのカードはこのターン手札扱いとなる。",
+    "effect_text": "自分の山札のトップを見る。そのカードはこのターン手札扱いとなる。",
     "enabled": true,
     "play_zone": "instant",
     "after_play_zone": "discard",

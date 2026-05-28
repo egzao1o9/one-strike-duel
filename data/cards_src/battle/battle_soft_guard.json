@@ -1,0 +1,12 @@
+{
+  "id": "battle_soft_guard",
+  "name": "柔受け",
+  "type": "battle",
+  "rarity": "common",
+  "attack": -1,
+  "block": 3,
+  "speed": -2,
+  "tags": ["defense", "heavy"],
+  "effects": [],
+  "notes": "非常に硬いが、攻撃と速度を大きく失う。"
+}

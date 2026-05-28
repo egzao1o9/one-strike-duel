@@ -1,4 +1,4 @@
-from bots.public_info_bot import StandardBot
+from bots.public_info_bot import AggroBot, StandardBot
 from bots.random_bot import RandomBot
 from engine.phase_runner import MatchRunner
 from sim.run_draft_bot_suite import resolve_worker_count
@@ -36,6 +36,7 @@ def test_standard_bot_forbids_opening_set_pass_on_turn_one() -> None:
 
     assert all(action.action_type != "set_pass" for action in actions)
     assert any(action.action_type == "set" for action in actions)
+    assert all(action.action_type != "pass" for action in actions)
 
 
 def test_standard_bot_keeps_set_pass_as_closing_option() -> None:
@@ -195,6 +196,66 @@ def test_standard_bot_avoids_early_one_vs_two_pass() -> None:
     runner.state.players["p2"].hand = [
         runner.cards["battle_dash"],
         runner.cards["battle_break"],
+        runner.cards["control_focus"],
+        runner.cards["control_haste"],
+    ]
+
+    bot = runner.bot_map["p1"]
+    action = bot.choose_battle_action(runner.state.build_view("p1"))
+
+    assert action.action_type != "pass"
+
+
+def test_standard_bot_forbids_pass_with_control_only_set_when_playable() -> None:
+    runner = MatchRunner(
+        StandardBot(seed=64),
+        RandomBot(seed=65),
+        "starter_attack",
+        "starter_attack",
+        shuffle_decks=False,
+        seed=66,
+        max_turns=1,
+    )
+    runner.state.turn = 2
+    runner.state.phase = "battle_select"
+    runner.state.battle_starting_player = "p1"
+    runner.state.acting_player = "p1"
+    runner.state.players["p1"].set_cards = [runner.cards["control_focus"]]
+    runner.state.players["p2"].set_cards = [runner.cards["battle_counter"]]
+    runner.state.players["p1"].hand = [
+        runner.cards["battle_guard"],
+        runner.cards["control_haste"],
+    ]
+
+    bot = runner.bot_map["p1"]
+    actions = bot._legal_actions(runner.state.build_view("p1"))
+
+    assert all(action.action_type != "pass" for action in actions)
+
+
+def test_aggro_bot_does_not_open_with_empty_pass() -> None:
+    runner = MatchRunner(
+        AggroBot(seed=67),
+        RandomBot(seed=68),
+        "starter_attack",
+        "starter_attack",
+        shuffle_decks=False,
+        seed=69,
+        max_turns=1,
+    )
+    runner.state.turn = 1
+    runner.state.phase = "battle_select"
+    runner.state.battle_starting_player = "p1"
+    runner.state.acting_player = "p1"
+    runner.state.players["p1"].hand = [
+        runner.cards["battle_attack"],
+        runner.cards["battle_step"],
+        runner.cards["control_haste"],
+        runner.cards["control_pressure"],
+    ]
+    runner.state.players["p2"].hand = [
+        runner.cards["battle_guard"],
+        runner.cards["battle_counter"],
         runner.cards["control_focus"],
         runner.cards["control_haste"],
     ]

@@ -1,0 +1,12 @@
+{
+  "id": "battle_body_guard",
+  "name": "身構え",
+  "type": "battle",
+  "rarity": "common",
+  "attack": 0,
+  "block": 2,
+  "speed": -1,
+  "tags": ["defense"],
+  "effects": [],
+  "notes": "重めの基本防御カード。"
+}

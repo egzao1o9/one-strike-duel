@@ -1,0 +1,12 @@
+{
+  "id": "battle_guard_step",
+  "name": "受け足",
+  "type": "battle",
+  "rarity": "common",
+  "attack": -1,
+  "block": 2,
+  "speed": 1,
+  "tags": ["defense", "speed"],
+  "effects": [],
+  "notes": "攻撃力を下げて、守りと速度を得るカード。"
+}

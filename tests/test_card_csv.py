@@ -14,7 +14,7 @@ def test_export_cards_csv_writes_expected_headers() -> None:
             row = next(reader)
 
     assert "card_type" in reader.fieldnames
-    assert "public_text" in reader.fieldnames
+    assert "effect_text" in reader.fieldnames
     assert "play_zone" in reader.fieldnames
     assert row["id"]
     assert row["card_type"] in {"battle", "control", "blessing"}
@@ -63,7 +63,7 @@ def test_import_cards_csv_accepts_split_effect_rows() -> None:
                     "block",
                     "speed",
                     "tags",
-                    "public_text",
+                    "effect_text",
                     "enabled",
                     "play_zone",
                     "after_play_zone",
@@ -83,7 +83,7 @@ def test_import_cards_csv_accepts_split_effect_rows() -> None:
                     "block": "0",
                     "speed": "0",
                     "tags": "blessing,draw",
-                    "public_text": "場にある限り、通常ドロー+1。",
+                    "effect_text": "場にある限り、通常ドロー+1。",
                     "enabled": "true",
                     "play_zone": "blessing_zone",
                     "after_play_zone": "blessing_zone",

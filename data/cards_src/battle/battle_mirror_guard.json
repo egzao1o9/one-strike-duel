@@ -1,0 +1,12 @@
+{
+  "id": "battle_mirror_guard",
+  "name": "鏡受け",
+  "type": "battle",
+  "rarity": "rare",
+  "attack": 0,
+  "block": 4,
+  "speed": 1,
+  "tags": ["defense", "trick"],
+  "effects": [],
+  "notes": "攻撃できないが、速めに厚く守れるカード。"
+}

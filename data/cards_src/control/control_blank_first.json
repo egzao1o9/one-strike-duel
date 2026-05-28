@@ -17,5 +17,6 @@
       "value": 1
     }
   ],
-  "notes": "Negates the opponent's first set battle card this turn."
+  "effect_text": "このターン、相手の場の1枚目のカードを無効化する。",
+  "notes": "相手の最初の1枚を空振りさせる。"
 }

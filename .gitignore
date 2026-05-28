@@ -7,3 +7,5 @@ logs/**
 !logs/**/summary.md
 !logs/**/summary.json
 !logs/**/index.md
+frontend/node_modules/
+frontend/dist/

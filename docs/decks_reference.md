@@ -194,7 +194,7 @@
 |---:|---|---|---|---|---:|---:|---:|
 | 1 | 渾身 | `battle_all_in` | `battle` | `rare` | 5 | -1 | -1 |
 | 1 | 粉砕 | `battle_crush` | `battle` | `uncommon` | 3 | -1 | 0 |
-| 1 | 大振り | `battle_heavy_swing` | `battle` | `rare` | 5 | 0 | -2 |
+| 1 | 大振り | `battle_heavy_swing` | `battle` | `rare` | 6 | 0 | -2 |
 | 1 | 低姿勢 | `battle_low_stance` | `battle` | `uncommon` | 0 | 2 | -1 |
 | 1 | 鉄壁 | `battle_wall` | `battle` | `rare` | -1 | 5 | -1 |
 | 1 | 重心落とし | `control_anchor` | `control` | `uncommon` | 0 | 0 | 0 |
@@ -210,7 +210,7 @@
 | 1 | 踏ん張り | `battle_brace` | `battle` | `uncommon` | 1 | 2 | -1 |
 | 1 | 返し刃 | `battle_counter` | `battle` | `uncommon` | 1 | 1 | 1 |
 | 1 | 受け流し | `battle_guard` | `battle` | `uncommon` | 0 | 1 | 1 |
-| 1 | 大振り | `battle_heavy_swing` | `battle` | `rare` | 5 | 0 | -2 |
+| 1 | 大振り | `battle_heavy_swing` | `battle` | `rare` | 6 | 0 | -2 |
 | 1 | 鉄壁 | `battle_wall` | `battle` | `rare` | -1 | 5 | -1 |
 | 1 | 構え | `control_guard` | `control` | `common` | 0 | 0 | 0 |
 | 1 | 勢い溜め | `control_momentum` | `control` | `uncommon` | 0 | 0 | 0 |
@@ -226,7 +226,7 @@
 | 1 | 返し刃 | `battle_counter` | `battle` | `uncommon` | 1 | 1 | 1 |
 | 1 | 粉砕 | `battle_crush` | `battle` | `uncommon` | 3 | -1 | 0 |
 | 1 | 受け流し | `battle_guard` | `battle` | `uncommon` | 0 | 1 | 1 |
-| 2 | 大振り | `battle_heavy_swing` | `battle` | `rare` | 5 | 0 | -2 |
+| 2 | 大振り | `battle_heavy_swing` | `battle` | `rare` | 6 | 0 | -2 |
 | 1 | 低姿勢 | `battle_low_stance` | `battle` | `uncommon` | 0 | 2 | -1 |
 | 2 | 鉄壁 | `battle_wall` | `battle` | `rare` | -1 | 5 | -1 |
 | 1 | 重心落とし | `control_anchor` | `control` | `uncommon` | 0 | 0 | 0 |

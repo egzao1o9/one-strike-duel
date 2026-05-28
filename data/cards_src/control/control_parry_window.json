@@ -1,0 +1,24 @@
+{
+  "id": "control_parry_window",
+  "name": "見切り構え",
+  "type": "control",
+  "rarity": "rare",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": ["buff", "defense", "speed"],
+  "public_text": "このターン、自分の防御+2、素早さ+1。",
+  "effects": [
+    {
+      "timing": "battle",
+      "kind": "modify_self_block",
+      "value": 2
+    },
+    {
+      "timing": "battle",
+      "kind": "modify_self_speed",
+      "value": 1
+    }
+  ],
+  "notes": "防御しながら速度負けを避けるレアコントロール。"
+}

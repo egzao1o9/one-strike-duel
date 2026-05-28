@@ -1,0 +1,19 @@
+{
+  "id": "control_full_guard",
+  "name": "全身防御",
+  "type": "control",
+  "rarity": "rare",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": ["buff", "defense"],
+  "public_text": "このターン、自分の防御+3。",
+  "effects": [
+    {
+      "timing": "battle",
+      "kind": "modify_self_block",
+      "value": 3
+    }
+  ],
+  "notes": "シンプルな強防御コントロール。"
+}

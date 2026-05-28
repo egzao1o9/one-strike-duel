@@ -1,0 +1,12 @@
+{
+  "id": "battle_intercept",
+  "name": "迎撃",
+  "type": "battle",
+  "rarity": "rare",
+  "attack": 1,
+  "block": 2,
+  "speed": 2,
+  "tags": ["defense", "speed", "counter"],
+  "effects": [],
+  "notes": "攻撃力は低いが、速く守れる迎撃カード。"
+}

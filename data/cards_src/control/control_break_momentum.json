@@ -1,0 +1,24 @@
+{
+  "id": "control_break_momentum",
+  "name": "勢い殺し",
+  "type": "control",
+  "rarity": "rare",
+  "attack": 0,
+  "block": 0,
+  "speed": 0,
+  "tags": ["debuff", "defense"],
+  "public_text": "このターン、相手の攻撃-2、素早さ-1。",
+  "effects": [
+    {
+      "timing": "battle",
+      "kind": "modify_opponent_attack",
+      "value": 2
+    },
+    {
+      "timing": "battle",
+      "kind": "modify_opponent_speed",
+      "value": 1
+    }
+  ],
+  "notes": "相手の高速高打点を止める防御寄り妨害。"
+}

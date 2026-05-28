@@ -12,39 +12,51 @@
     },
     {
       "card_id": "battle_attack",
-      "count": 5
+      "count": 4
     },
     {
       "card_id": "battle_backstep",
-      "count": 2
+      "count": 3
     },
     {
       "card_id": "battle_bastion",
-      "count": 2
+      "count": 3
+    },
+    {
+      "card_id": "battle_body_guard",
+      "count": 4
     },
     {
       "card_id": "battle_brace",
-      "count": 2
+      "count": 3
+    },
+    {
+      "card_id": "battle_brake",
+      "count": 4
     },
     {
       "card_id": "battle_break",
-      "count": 2
+      "count": 3
     },
     {
       "card_id": "battle_bulwark",
-      "count": 2
+      "count": 3
+    },
+    {
+      "card_id": "battle_check_cut",
+      "count": 4
     },
     {
       "card_id": "battle_counter",
-      "count": 2
+      "count": 3
     },
     {
       "card_id": "battle_cross_guard",
-      "count": 2
+      "count": 3
     },
     {
       "card_id": "battle_crush",
-      "count": 2
+      "count": 3
     },
     {
       "card_id": "battle_dash",
@@ -52,14 +64,30 @@
     },
     {
       "card_id": "battle_defend",
-      "count": 5
+      "count": 4
     },
     {
-      "card_id": "battle_feint",
+      "card_id": "battle_deflect_thrust",
       "count": 2
     },
     {
+      "card_id": "battle_feint",
+      "count": 3
+    },
+    {
       "card_id": "battle_guard",
+      "count": 3
+    },
+    {
+      "card_id": "battle_guard_breaker_guard",
+      "count": 2
+    },
+    {
+      "card_id": "battle_guard_step",
+      "count": 4
+    },
+    {
+      "card_id": "battle_guardian_cut",
       "count": 2
     },
     {
@@ -67,27 +95,63 @@
       "count": 2
     },
     {
+      "card_id": "battle_intercept",
+      "count": 2
+    },
+    {
+      "card_id": "battle_iron_counter",
+      "count": 2
+    },
+    {
+      "card_id": "battle_last_stand",
+      "count": 2
+    },
+    {
+      "card_id": "battle_low_guard",
+      "count": 4
+    },
+    {
       "card_id": "battle_low_stance",
+      "count": 3
+    },
+    {
+      "card_id": "battle_mirror_guard",
       "count": 2
     },
     {
       "card_id": "battle_pierce",
-      "count": 2
+      "count": 3
     },
     {
       "card_id": "battle_power_attack",
-      "count": 2
+      "count": 3
     },
     {
       "card_id": "battle_press",
+      "count": 3
+    },
+    {
+      "card_id": "battle_probe_guard",
+      "count": 4
+    },
+    {
+      "card_id": "battle_side_step",
       "count": 2
     },
     {
+      "card_id": "battle_soft_guard",
+      "count": 4
+    },
+    {
       "card_id": "battle_step",
-      "count": 5
+      "count": 4
     },
     {
       "card_id": "battle_step_in",
+      "count": 2
+    },
+    {
+      "card_id": "battle_still_water",
       "count": 2
     },
     {
@@ -108,7 +172,7 @@
     },
     {
       "card_id": "blessing_buckler",
-      "count": 2
+      "count": 3
     },
     {
       "card_id": "blessing_draw",
@@ -116,7 +180,7 @@
     },
     {
       "card_id": "blessing_dullness",
-      "count": 2
+      "count": 3
     },
     {
       "card_id": "blessing_guard",
@@ -128,7 +192,7 @@
     },
     {
       "card_id": "blessing_laststand",
-      "count": 2
+      "count": 3
     },
     {
       "card_id": "blessing_offense",
@@ -136,15 +200,15 @@
     },
     {
       "card_id": "blessing_parry",
-      "count": 2
+      "count": 3
     },
     {
       "card_id": "blessing_range",
-      "count": 2
+      "count": 3
     },
     {
       "card_id": "blessing_shortblade",
-      "count": 2
+      "count": 3
     },
     {
       "card_id": "blessing_slow",
@@ -160,7 +224,7 @@
     },
     {
       "card_id": "blessing_tailwind",
-      "count": 2
+      "count": 3
     },
     {
       "card_id": "blessing_trap_web",
@@ -168,15 +232,15 @@
     },
     {
       "card_id": "control_all_in_focus",
-      "count": 2
+      "count": 3
     },
     {
       "card_id": "control_anchor",
-      "count": 2
+      "count": 3
     },
     {
       "card_id": "control_blank_first",
-      "count": 2
+      "count": 3
     },
     {
       "card_id": "control_blessing_break",
@@ -188,11 +252,19 @@
     },
     {
       "card_id": "control_blessing_lock",
+      "count": 3
+    },
+    {
+      "card_id": "control_brace",
+      "count": 4
+    },
+    {
+      "card_id": "control_break_momentum",
       "count": 2
     },
     {
       "card_id": "control_cover",
-      "count": 2
+      "count": 3
     },
     {
       "card_id": "control_crush_spirit",
@@ -200,71 +272,87 @@
     },
     {
       "card_id": "control_defile",
-      "count": 2
+      "count": 3
     },
     {
       "card_id": "control_discard_facedown_blessing",
-      "count": 2
+      "count": 3
     },
     {
       "card_id": "control_disrupt",
-      "count": 5
+      "count": 4
     },
     {
       "card_id": "control_focus",
-      "count": 5
+      "count": 4
     },
     {
       "card_id": "control_fortify",
+      "count": 3
+    },
+    {
+      "card_id": "control_full_guard",
       "count": 2
     },
     {
       "card_id": "control_guard",
-      "count": 5
+      "count": 4
+    },
+    {
+      "card_id": "control_guard_read",
+      "count": 2
     },
     {
       "card_id": "control_hand_echo",
-      "count": 2
+      "count": 3
     },
     {
       "card_id": "control_haste",
-      "count": 2
+      "count": 3
+    },
+    {
+      "card_id": "control_lower_stance",
+      "count": 4
     },
     {
       "card_id": "control_momentum",
-      "count": 2
+      "count": 3
     },
     {
       "card_id": "control_opening_expose",
-      "count": 5
+      "count": 4
     },
     {
       "card_id": "control_opening_read",
-      "count": 2
+      "count": 3
     },
     {
       "card_id": "control_overclock",
+      "count": 3
+    },
+    {
+      "card_id": "control_parry_window",
       "count": 2
     },
     {
       "card_id": "control_peek_hand",
-      "count": 2
+      "count": 3
     },
     {
       "card_id": "control_peek_opponent_top",
-      "count": 5
+      "count": 4
     },
     {
       "card_id": "control_peek_own_top",
-      "count": 5
+      "count": 4
     },
     {
       "card_id": "control_pressure",
-      "count": 5
+      "count": 4
     },
     {
       "card_id": "control_redraw_hand",
-      "count": 2
+      "count": 3
     },
     {
       "card_id": "control_reserve",
