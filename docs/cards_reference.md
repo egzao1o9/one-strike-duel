@@ -100,7 +100,7 @@
 | `control_pressure` | 圧迫 | `control` | `common` | 0 | 0 | 0 | debuff | このターン、相手の防御-1。 | - |
 | `control_redraw_hand` | 手繰り直し | `control` | `uncommon` | 0 | 0 | 0 | draw, hand | 自分の手札をすべて捨て、同じ枚数山札から引く。 | - |
 | `control_reserve` | 蓄え | `control` | `rare` | 0 | 0 | 0 | next_turn | 次のターン開始時、追加で1枚引く。 | - |
-| `control_topdeck_hand` | 先触れ | `control` | `rare` | 0 | 0 | 0 | draw, trick | 自分の山札のトップを見る。そのカードはこのターン手札扱いとなる。 | - |
+| `control_topdeck_hand` | 先触れ | `control` | `rare` | 0 | 0 | 0 | draw, trick | 山札のトップを公開する。そのカードはこのターン手札として使える。 | - |
 
 ## Details
 
@@ -1331,7 +1331,7 @@
 - Rarity: `rare`
 - Stats: `A=0 / B=0 / S=0`
 - Tags: draw, trick
-- Effect Text: 自分の山札のトップを見る。そのカードはこのターン手札扱いとなる。
+- Effect Text: 山札のトップを公開する。そのカードはこのターン手札として使える。
 - Flavor Text: -
 - Zones: `play=instant / after=discard / slot=- `
 - Notes: Treat the top card of your deck as hand for this turn.

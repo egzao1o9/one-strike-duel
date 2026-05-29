@@ -1,4 +1,4 @@
-import { createSeededRandom } from "./random";
+﻿import { createSeededRandom } from "./random";
 import { getAllCards } from "./cards";
 import type { CardDefinition, CardEffect } from "../types/cards";
 import type {
@@ -9,6 +9,7 @@ import type {
   BattleRevealStep,
   BattleSession,
   BattleSetCard,
+  DebugBattleZone,
   DebugBattlePreset,
   DraftDeckState,
   DraftSession,
@@ -114,6 +115,7 @@ function buildBattlePlayerState(deck: DraftDeckState, seed: number): BattlePlaye
   return {
     drawPile,
     hand,
+    topdeckAsHandCardId: null,
     discardPile: [],
     usedCards: [],
     currentControlCard: null,
@@ -156,6 +158,7 @@ function clonePlayerState(player: BattlePlayerState): BattlePlayerState {
   return {
     drawPile: player.drawPile.map(cloneCard),
     hand: player.hand.map(cloneCard),
+    topdeckAsHandCardId: player.topdeckAsHandCardId,
     discardPile: player.discardPile.map(cloneCard),
     usedCards: player.usedCards.map(cloneCard),
     currentControlCard: player.currentControlCard ? cloneCard(player.currentControlCard) : null,
@@ -199,6 +202,12 @@ function cloneBattleSession(session: BattleSession): BattleSession {
       : null,
     pendingTriggerContinuation: session.pendingTriggerContinuation
       ? { ...session.pendingTriggerContinuation }
+      : null,
+    pendingReveal: session.pendingReveal
+      ? {
+          nextIndex: session.pendingReveal.nextIndex,
+          steps: session.pendingReveal.steps.map((step) => ({ ...step })),
+        }
       : null,
   };
 }
@@ -261,6 +270,110 @@ function describeEffect(effect: CardEffect) {
   return effect.display_text || effect.effect_text || effect.kind || effect.effect_type || "effect";
 }
 
+function buildAcknowledgeChoices(cards: CardDefinition[], prefix: string) {
+  return cards.map((shownCard, index) => ({
+    id: `${prefix}:${index}`,
+    label: shownCard.name || shownCard.id,
+    card: shownCard,
+  }));
+}
+
+function buildDiscardCardChoices(playerId: PlayerId, cards: CardDefinition[], prefix = "discard") {
+  return cards.map((discardCard, index) => ({
+    id: `${prefix}:${index}`,
+    label: discardCard.name || discardCard.id,
+    card: discardCard,
+    payload: {
+      kind: "discard_card" as const,
+      playerId,
+      discardIndex: index,
+      cardId: discardCard.id,
+    },
+  }));
+}
+
+function buildSetCardChoices(
+  playerId: PlayerId,
+  setCards: BattleSetCard[],
+  options?: { revealedOnly?: boolean; hiddenOnly?: boolean; battleOnly?: boolean; prefix?: string },
+) {
+  const revealedOnly = options?.revealedOnly ?? false;
+  const hiddenOnly = options?.hiddenOnly ?? false;
+  const battleOnly = options?.battleOnly ?? false;
+  const prefix = options?.prefix ?? "set";
+
+  return setCards
+    .map((item, index) => ({ item, index }))
+    .filter(({ item }) => {
+      if (revealedOnly && !item.revealed) return false;
+      if (hiddenOnly && item.revealed) return false;
+      if (battleOnly && item.card.card_type !== "battle") return false;
+      return true;
+    })
+    .map(({ item, index }) => ({
+      id: `${prefix}:${index}`,
+      label: item.card.name || item.card.id,
+      card: item.revealed ? item.card : undefined,
+      payload: {
+        kind: "set_card" as const,
+        playerId,
+        setIndex: index,
+        cardId: item.card.id,
+      },
+    }));
+}
+
+function buildHandCardChoices(
+  playerId: PlayerId,
+  cards: CardDefinition[],
+  options?: { battleOnly?: boolean; prefix?: string },
+) {
+  const battleOnly = options?.battleOnly ?? false;
+  const prefix = options?.prefix ?? "hand";
+  return cards
+    .map((card, index) => ({ card, index }))
+    .filter(({ card }) => (!battleOnly ? true : card.card_type === "battle"))
+    .map(({ card, index }) => ({
+      id: `${prefix}:${index}`,
+      label: card.name || card.id,
+      card,
+      payload: {
+        kind: "hand_card" as const,
+        playerId,
+        handIndex: index,
+        cardId: card.id,
+      },
+    }));
+}
+
+export function buildDrawPileCardChoices(playerId: PlayerId, cards: CardDefinition[], count: number, prefix = "draw") {
+  return cards.slice(0, count).map((card, index) => ({
+    id: `${prefix}:${index}`,
+    label: card.name || card.id,
+    card,
+    payload: {
+      kind: "draw_pile_card" as const,
+      playerId,
+      drawPileIndex: index,
+      cardId: card.id,
+    },
+  }));
+}
+
+export function buildUsedCardChoices(playerId: PlayerId, cards: CardDefinition[], prefix = "used") {
+  return cards.map((card, index) => ({
+    id: `${prefix}:${index}`,
+    label: card.name || card.id,
+    card,
+    payload: {
+      kind: "used_card" as const,
+      playerId,
+      usedIndex: index,
+      cardId: card.id,
+    },
+  }));
+}
+
 function applyImmediateControlEffect(session: BattleSession, playerId: PlayerId, card: CardDefinition, effect: CardEffect) {
   const player = session.players[playerId];
   const opponent = session.players[otherPlayer(playerId)];
@@ -283,7 +396,7 @@ function applyImmediateControlEffect(session: BattleSession, playerId: PlayerId,
 
   if (effectKey === "draw_cards") {
     const drawn = drawCards(player, effect.value ?? effect.count ?? 0);
-    pushLog(session, `${playerLabel(playerId)}は${drawn.length}枚引いた。`);
+    pushLog(session, playerLabel(playerId) + "は" + drawn.length + "枚引いた。");
     return;
   }
 
@@ -295,13 +408,13 @@ function applyImmediateControlEffect(session: BattleSession, playerId: PlayerId,
   if (effect.effect_type === "reveal_cards") {
     if (effect.target === "opponent_hand" && opponent.hand.length > 0) {
       const shown = opponent.hand[0];
-      pushLog(session, `${playerLabel(playerId)}は相手の手札を見た: ${shown.name || shown.id}`);
+      pushLog(session, playerLabel(playerId) + "は相手の手札を見た: " + (shown.name || shown.id));
     } else if (effect.target === "opponent_deck" && opponent.drawPile.length > 0) {
       const shown = opponent.drawPile[0];
-      pushLog(session, `${playerLabel(playerId)}は相手の山札トップを見た: ${shown.name || shown.id}`);
+      pushLog(session, playerLabel(playerId) + "は相手の山札トップを見た: " + (shown.name || shown.id));
     } else if (effect.target === "self_deck" && player.drawPile.length > 0) {
       const shown = player.drawPile[0];
-      pushLog(session, `${playerLabel(playerId)}は自分の山札トップを見た: ${shown.name || shown.id}`);
+      pushLog(session, playerLabel(playerId) + "は自分の山札トップを見た: " + (shown.name || shown.id));
     }
   }
 }
@@ -364,15 +477,38 @@ function applyImmediateControlEffectV2(session: BattleSession, playerId: PlayerI
   }
 
   if (effect.effect_type === "reveal_cards") {
+    const shownCards: CardDefinition[] = [];
     if (effect.target === "opponent_hand" && opponent.hand.length > 0) {
-      const shown = opponent.hand[0];
-      pushLog(session, `${playerLabel(playerId)} sees ${shown.name || shown.id}`);
+      const randomIndex = Math.abs(session.seed + session.turn + opponent.hand.length) % opponent.hand.length;
+      const shown = opponent.hand[randomIndex];
+      if (shown) {
+        shownCards.push(shown);
+        pushLog(session, playerLabel(playerId) + "は相手の手札を見た: " + (shown.name || shown.id));
+      }
     } else if (effect.target === "opponent_deck" && opponent.drawPile.length > 0) {
       const shown = opponent.drawPile[0];
-      pushLog(session, `${playerLabel(playerId)} sees ${shown.name || shown.id}`);
+      if (shown) {
+        shownCards.push(shown);
+        pushLog(session, playerLabel(playerId) + "は相手の山札トップを見た: " + (shown.name || shown.id));
+      }
     } else if (effect.target === "self_deck" && player.drawPile.length > 0) {
       const shown = player.drawPile[0];
-      pushLog(session, `${playerLabel(playerId)} sees ${shown.name || shown.id}`);
+      if (shown) {
+        shownCards.push(shown);
+        pushLog(session, playerLabel(playerId) + "は自分の山札トップを見た: " + (shown.name || shown.id));
+      }
+    }
+    if (playerId === "p1" && shownCards.length > 0) {
+      session.phase = "trigger_prompt";
+      session.pendingTriggerChoice = {
+        playerId,
+        blessingCardId: card.id,
+        blessingName: card.name || card.id,
+        promptText: describeEffect(effect),
+        mode: "acknowledge",
+        choices: buildAcknowledgeChoices(shownCards, "reveal"),
+      };
+      session.pendingTriggerContinuation = { nextActor: null, resume: "control_after_player" };
     }
     pushEffectLog(session, playerId, card, describeEffect(effect));
   }
@@ -386,10 +522,10 @@ function applyControlCustom(session: BattleSession, playerId: PlayerId, card: Ca
     case "control_blessing_flip":
       if (opponent.blessingZone && opponent.blessingFaceUp) {
         opponent.blessingFaceUp = false;
-        pushLog(session, `${playerLabel(playerId)}は相手の加護を裏向きにした。`);
+        pushEffectLog(session, playerId, card, "相手の加護を裏向きにした。");
       } else if (player.blessingZone && !player.blessingFaceUp) {
         player.blessingFaceUp = true;
-        pushLog(session, `${playerLabel(playerId)}は自分の加護を表向きに戻した。`);
+        pushEffectLog(session, playerId, card, "自分の裏向き加護を表に戻した。");
       }
       break;
     case "control_blessing_break":
@@ -397,17 +533,17 @@ function applyControlCustom(session: BattleSession, playerId: PlayerId, card: Ca
         opponent.discardPile.push(opponent.blessingZone);
         opponent.blessingZone = null;
         opponent.blessingFaceUp = true;
-        pushLog(session, `${playerLabel(playerId)}は相手の加護を捨てさせた。`);
+        pushEffectLog(session, playerId, card, "相手の加護を捨てた。");
       }
       break;
     case "control_blessing_lock":
       opponent.blessingLockedThisTurn = true;
-      pushLog(session, `${playerLabel(playerId)}は相手の加護をこのターン封じた。`);
+      pushEffectLog(session, playerId, card, "このターン相手は加護を使えない。");
       break;
     case "control_defile":
       if (opponent.blessingZone && opponent.blessingFaceUp) {
         opponent.blessingFaceUp = false;
-        pushLog(session, `${playerLabel(playerId)}は相手の加護を穢した。`);
+        pushEffectLog(session, playerId, card, "相手の加護を裏向きにした。");
       }
       break;
     case "control_redraw_hand": {
@@ -415,13 +551,17 @@ function applyControlCustom(session: BattleSession, playerId: PlayerId, card: Ca
       player.discardPile.push(...player.hand);
       player.hand = [];
       drawCards(player, redrawCount);
-      pushLog(session, `${playerLabel(playerId)}は手札を引き直した。`);
+      pushEffectLog(session, playerId, card, "手札を引き直した。(" + redrawCount + "枚)");
       break;
     }
     case "control_topdeck_hand": {
-      const drawn = drawCards(player, 1);
-      if (drawn.length > 0) {
-        pushLog(session, `${playerLabel(playerId)}は山札トップを手札に加えた。`);
+      if (player.drawPile.length > 0) {
+        const shown = player.drawPile[0];
+        if (shown) {
+          player.hand.push(cloneCard(shown));
+          player.topdeckAsHandCardId = shown.id;
+          pushEffectLog(session, playerId, card, "山札トップを公開し、このターン手札として使える: " + (shown.name || shown.id));
+        }
       }
       break;
     }
@@ -430,24 +570,79 @@ function applyControlCustom(session: BattleSession, playerId: PlayerId, card: Ca
         player.discardPile.push(player.blessingZone);
         player.blessingZone = null;
         player.blessingFaceUp = true;
-        pushLog(session, `${playerLabel(playerId)}は裏向きの加護を捨てた。`);
+        pushEffectLog(session, playerId, card, "自分の裏向き加護を捨てた。");
       }
       break;
-    case "control_hand_echo":
+    case "control_hand_echo": {
       if (opponent.hand.length > 0) {
-        const discarded = opponent.hand.shift()!;
+        const discardIndex = session.seed % opponent.hand.length;
+        const discarded = opponent.hand.splice(discardIndex, 1)[0]!;
         opponent.discardPile.push(discarded);
-        pushLog(session, `${playerLabel(playerId)}は相手の手札に干渉した。`);
+        const choices = buildDiscardCardChoices(otherPlayer(playerId), opponent.discardPile);
+        if (playerId === "p1") {
+          if (choices.length > 0) {
+            session.phase = "trigger_prompt";
+            session.pendingTriggerChoice = {
+              playerId,
+              blessingCardId: card.id,
+              blessingName: card.name || card.id,
+              promptText: "相手の捨て札から1枚選び、相手の手札に戻します。",
+              mode: "choose_option",
+              choices,
+            };
+            session.pendingTriggerContinuation = { nextActor: null, resume: "control_after_player" };
+            pushEffectLog(session, playerId, card, "相手に1枚捨てさせた。戻すカードを選ぶ。");
+          } else {
+            pushEffectLog(session, playerId, card, "相手に1枚捨てさせたが、戻すカードがない。");
+          }
+        } else {
+          const returned = opponent.discardPile.pop();
+          if (returned) {
+            opponent.hand.push(returned);
+          }
+          pushEffectLog(session, playerId, card, "相手に1枚捨てさせ、" + (returned?.name || returned?.id || "1枚") + "を手札に戻した。");
+        }
       }
+      break;
+    }
+    case "control_all_in_focus":
+      if (playerId === "p1") {
+        const choices = buildHandCardChoices(playerId, player.hand, { battleOnly: true });
+        if (choices.length > 0) {
+          session.phase = "trigger_prompt";
+          session.pendingTriggerChoice = {
+            playerId,
+            blessingCardId: card.id,
+            blessingName: card.name || card.id,
+            promptText: "攻撃を上げる自分のバトルカードを1枚選ぶ。",
+            mode: "choose_option",
+            choices,
+          };
+          session.pendingTriggerContinuation = { nextActor: null, resume: "control_after_player" };
+          pushEffectLog(session, playerId, card, "攻撃を上げる自分のカードを選ぶ。");
+          break;
+        }
+      } else {
+        const battleCards = player.hand.filter((handCard) => handCard.card_type === "battle");
+        const target = [...battleCards].sort((left, right) => (right.attack + right.speed) - (left.attack + left.speed))[0];
+        if (target) {
+          target.attack += 2;
+          player.queuedNextTurnDrawDelta -= 1;
+          pushEffectLog(session, playerId, card, (target.name || target.id) + "の攻撃を+2し、次のターンのドロー-1。");
+          break;
+        }
+      }
+      player.queuedNextTurnDrawDelta -= 1;
+      pushEffectLog(session, playerId, card, "次のターンのドロー-1。");
       break;
     case "control_opening_read":
       opponent.revealFirstSetThisTurn = true;
-      pushLog(session, `${playerLabel(playerId)} enables opponent first-set reveal this turn.`);
+      pushEffectLog(session, playerId, card, "このターン相手の1枚目のセットを公開にした。");
       break;
     case "control_opening_expose":
       player.revealFirstSetThisTurn = true;
       opponent.revealFirstSetThisTurn = true;
-      pushLog(session, `${playerLabel(playerId)} enables both players' first-set reveal this turn.`);
+      pushEffectLog(session, playerId, card, "このターンお互いの1枚目のセットを公開にした。");
       break;
   }
 }
@@ -480,6 +675,12 @@ function chooseCpuControlCard(session: BattleSession, playerId: PlayerId): strin
       if (card.id === "control_blessing_break" && opponent.blessingZone) score += 2.2;
       if (card.id === "control_blessing_lock" && opponent.blessingZone && opponent.blessingFaceUp) score += 1.8;
       if (card.id === "control_defile" && opponent.blessingZone && opponent.blessingFaceUp) score += 1.6;
+      if (card.id === "control_all_in_focus") score += 1.7;
+      if (card.id === "control_redraw_hand" && player.hand.length >= 3) score += 1.2;
+      if (card.id === "control_topdeck_hand" && player.drawPile.length > 0) score += 0.8;
+      if (card.id === "control_hand_echo" && opponent.hand.length > 0) score += 1.1;
+      if (card.id === "control_opening_read") score += 0.9;
+      if (card.id === "control_opening_expose") score += 0.6;
       return { cardId: card.id, score };
     })
     .sort((left, right) => right.score - left.score);
@@ -497,13 +698,13 @@ function removeCardFromHand(player: BattlePlayerState, cardId: string) {
 
 function applyControlChoice(session: BattleSession, playerId: PlayerId, cardId: string | null) {
   if (!cardId) {
-    pushLog(session, `${playerLabel(playerId)}はcontrolを使わない。`);
+    pushLog(session, playerLabel(playerId) + "はcontrolを使わなかった。");
     return;
   }
   const player = session.players[playerId];
   const card = removeCardFromHand(player, cardId);
   if (!card) {
-    pushLog(session, `${playerLabel(playerId)}はcontrolを使わない。`);
+    pushLog(session, playerLabel(playerId) + "はcontrolを使わなかった。");
     return;
   }
 
@@ -511,17 +712,17 @@ function applyControlChoice(session: BattleSession, playerId: PlayerId, cardId: 
     if (!player.blessingZone) {
       player.blessingZone = card;
       player.blessingFaceUp = true;
-      pushLog(session, `${playerLabel(playerId)}は加護を置いた。`);
+      pushLog(session, playerLabel(playerId) + "は加護を置いた。");
       return;
     }
     player.hand.push(card);
-    pushLog(session, `${playerLabel(playerId)}は加護を追加できなかった。`);
+    pushLog(session, playerLabel(playerId) + "は加護を置けなかった。");
     return;
   }
 
   player.currentControlCard = card;
   player.usedCards.push(card);
-  pushLog(session, `${playerLabel(playerId)}は${card.name || card.id}を使った。`);
+  pushLog(session, playerLabel(playerId) + "は" + (card.name || card.id) + "を使った。");
   for (const effect of card.effects) {
     applyImmediateControlEffectV2(session, playerId, card, effect);
   }
@@ -608,7 +809,7 @@ function applyBattleAction(session: BattleSession, playerId: PlayerId, actionTyp
 
   if (actionType === "pass" || legalSlots <= 0 || playable.length === 0) {
     player.battlePassed = true;
-    pushLog(session, `${playerLabel(playerId)}はパスした。`);
+    pushLog(session, playerLabel(playerId) + "はpassした。");
     return;
   }
 
@@ -622,7 +823,7 @@ function applyBattleAction(session: BattleSession, playerId: PlayerId, actionTyp
   }
   if (chosen.length === 0) {
     player.battlePassed = true;
-    pushLog(session, `${playerLabel(playerId)}はパスした。`);
+    pushLog(session, playerLabel(playerId) + "はpassした。");
     return;
   }
 
@@ -635,11 +836,12 @@ function applyBattleAction(session: BattleSession, playerId: PlayerId, actionTyp
   );
   if (shouldRevealFirstSet) {
     player.revealFirstSetThisTurn = false;
+    pushLog(session, playerLabel(playerId) + "の1枚目のセットは公開された。");
   }
-  pushLog(session, `${playerLabel(playerId)}は${chosen.length}枚伏せた。`);
+  pushLog(session, playerLabel(playerId) + "は" + chosen.length + "枚セットした。");
   if (actionType === "set_pass") {
     player.battlePassed = true;
-    pushLog(session, `${playerLabel(playerId)}は伏せてパスした。`);
+    pushLog(session, playerLabel(playerId) + "はセットしてpassした。");
   }
 }
 
@@ -658,9 +860,10 @@ function applySetTriggeredBlessing(
   }
 
   if (blessing.id === "blessing_insight") {
-    const hiddenChoices = actingPlayer.setCards
-      .map((item, index) => (!item.revealed ? { setIndex: index, label: `Set ${index + 1}` } : null))
-      .filter((value): value is { setIndex: number; label: string } => value !== null);
+    const hiddenChoices = buildSetCardChoices(actingPlayerId, actingPlayer.setCards, {
+      hiddenOnly: true,
+      prefix: "set",
+    });
 
     if (hiddenChoices.length === 0) {
       return false;
@@ -673,15 +876,18 @@ function applySetTriggeredBlessing(
         blessingCardId: blessing.id,
         blessingName: blessing.name || blessing.id,
         promptText: blessing.effect_text || "Reveal one opponent set card.",
-        mode: "choose_set_card",
+        mode: "choose_option",
         choices: hiddenChoices,
       };
-      session.pendingTriggerContinuation = { nextActor };
+      session.pendingTriggerContinuation = { nextActor, resume: "battle" };
       return true;
     }
 
-    const choice = hiddenChoices[0];
-    actingPlayer.setCards[choice.setIndex].revealed = true;
+    const setIndex = hiddenChoices[0]?.payload?.setIndex ?? -1;
+    if (setIndex < 0) {
+      return false;
+    }
+    actingPlayer.setCards[setIndex].revealed = true;
     reactingPlayer.blessingFaceUp = false;
     pushEffectLog(session, reactingPlayerId, blessing, blessing.effect_text || "Reveal one opponent set card.");
     return false;
@@ -689,15 +895,15 @@ function applySetTriggeredBlessing(
 
   if (blessing.id === "blessing_range" && actingPlayer.setCards.length >= 4) {
     if (reactingPlayerId === "p1") {
-      session.phase = "trigger_prompt";
-      session.pendingTriggerChoice = {
+    session.phase = "trigger_prompt";
+    session.pendingTriggerChoice = {
         playerId: reactingPlayerId,
         blessingCardId: blessing.id,
         blessingName: blessing.name || blessing.id,
-        promptText: blessing.effect_text || "Opponent speed -2 this battle.",
-        mode: "confirm_use",
-      };
-      session.pendingTriggerContinuation = { nextActor };
+      promptText: blessing.effect_text || "Opponent speed -2 this battle.",
+      mode: "confirm_use",
+    };
+      session.pendingTriggerContinuation = { nextActor, resume: "battle" };
       return true;
     }
 
@@ -736,6 +942,67 @@ function applyModifierPair(lines: Record<PlayerId, BattleFinalLine>, playerId: P
   lines[opponentId].speed += modifier.opponentSpeed;
 }
 
+function applyRevealedCardEffects(
+  session: BattleSession,
+  ownerId: PlayerId,
+  item: BattleSetCard,
+  lines: Record<PlayerId, BattleFinalLine>,
+) {
+  for (const effect of item.card.effects) {
+    const key = effect.kind || effect.effect_type;
+    if (key === "negate_opponent_first_card") {
+      const opponentFirst = session.players[otherPlayer(ownerId)].setCards[0];
+      if (opponentFirst?.revealed && opponentFirst.card.card_type === "battle") {
+        lines[otherPlayer(ownerId)].attack -= opponentFirst.card.attack;
+        lines[otherPlayer(ownerId)].block -= opponentFirst.card.block;
+        lines[otherPlayer(ownerId)].speed -= opponentFirst.card.speed;
+        pushEffectLog(session, ownerId, item.card, describeEffect(effect));
+      }
+      continue;
+    }
+    if (key === "set_self_block_limit") {
+      lines[ownerId].block = Math.min(lines[ownerId].block, effect.value ?? 0);
+      pushEffectLog(session, ownerId, item.card, describeEffect(effect));
+      continue;
+    }
+    if (effect.effect_type === "modify_card_stat" && effect.target === "opponent_card" && effect.stat === "attack") {
+      lines[otherPlayer(ownerId)].attack += effect.value ?? 0;
+      pushEffectLog(session, ownerId, item.card, describeEffect(effect));
+      continue;
+    }
+    const modifier = makeModifier(item.card.id);
+    applyStatEffect(modifier, effect);
+    applyModifierPair(lines, ownerId, modifier);
+    pushEffectLog(session, ownerId, item.card, describeEffect(effect));
+  }
+}
+
+function maybeApplyRevealTriggeredBlessing(
+  session: BattleSession,
+  reactingPlayerId: PlayerId,
+  revealedPlayerId: PlayerId,
+  revealedItem: BattleSetCard,
+  lines: Record<PlayerId, BattleFinalLine>,
+) {
+  const reactingPlayer = session.players[reactingPlayerId];
+  const blessing = reactingPlayer.blessingZone;
+  if (!blessing || !reactingPlayer.blessingFaceUp || reactingPlayer.blessingLockedThisTurn) {
+    return;
+  }
+  if (blessing.id !== "blessing_suppression") {
+    return;
+  }
+  if (revealedPlayerId === reactingPlayerId) {
+    return;
+  }
+  if (revealedItem.card.attack < 5) {
+    return;
+  }
+  lines[revealedPlayerId].attack -= 3;
+  reactingPlayer.blessingFaceUp = false;
+  pushEffectLog(session, reactingPlayerId, blessing, blessing.effect_text || "相手の攻撃-3");
+}
+
 function resolveOutcome(lines: Record<PlayerId, BattleFinalLine>) {
   const p1 = lines.p1;
   const p2 = lines.p2;
@@ -750,10 +1017,10 @@ function resolveOutcome(lines: Record<PlayerId, BattleFinalLine>) {
   const first: PlayerId = p1.speed > p2.speed ? "p1" : "p2";
   const second: PlayerId = otherPlayer(first);
   if (lines[first].attack > 0 && lines[first].attack > lines[second].block) {
-    return { winner: first, endReason: `${first}_attack_success` };
+    return { winner: first, endReason: first + "_attack_success" };
   }
   if (lines[second].attack > 0 && lines[second].attack > lines[first].block) {
-    return { winner: second, endReason: `${second}_attack_success` };
+    return { winner: second, endReason: second + "_attack_success" };
   }
   return { winner: null, endReason: null };
 }
@@ -785,7 +1052,7 @@ function consumeBlessingIfHelpful(session: BattleSession, playerId: PlayerId, li
       lines.p1 = next.p1;
       lines.p2 = next.p2;
       player.blessingFaceUp = false;
-      pushLog(session, `${playerLabel(playerId)}の加護が発動した。`);
+      pushLog(session, playerLabel(playerId) + "の加護が発動した。");
     }
   };
 
@@ -966,7 +1233,7 @@ function finalizeBattleResolution(session: BattleSession, lines: Record<PlayerId
     session.phase = "result";
     session.winner = outcome.winner;
     session.endReason = outcome.endReason;
-    pushLog(session, `${playerLabel(outcome.winner)} wins`);
+    pushLog(session, playerLabel(outcome.winner) + "の勝ち。");
   } else if (outcome.endReason === "simultaneous_attack") {
     session.phase = "result";
     session.winner = null;
@@ -978,78 +1245,12 @@ function finalizeBattleResolution(session: BattleSession, lines: Record<PlayerId
   }
 }
 
-function resolveBattleV2(session: BattleSession) {
-  const revealSteps: BattleRevealStep[] = [];
-  const order: PlayerId[] = [session.battleStartingPlayer, otherPlayer(session.battleStartingPlayer)];
-  const maxCards = Math.max(session.players.p1.setCards.length, session.players.p2.setCards.length);
-
-  for (let index = 0; index < maxCards; index += 1) {
-    for (const playerId of order) {
-      const item = session.players[playerId].setCards[index];
-      if (!item) continue;
-      item.revealed = true;
-      revealSteps.push({
-        playerId,
-        cardId: item.card.id,
-        cardName: item.card.name || item.card.id,
-        cardType: item.card.card_type,
-        index,
-      });
-    }
+function finishBattleAfterReveal(session: BattleSession) {
+  const lines = session.finalLines;
+  const revealSteps = session.revealSteps;
+  if (!lines) {
+    return;
   }
-
-  const lines: Record<PlayerId, BattleFinalLine> = {
-    p1: sumBattleCards(session.players.p1.setCards),
-    p2: sumBattleCards(session.players.p2.setCards),
-  };
-
-  for (const playerId of ["p1", "p2"] as PlayerId[]) {
-    for (const modifier of session.players[playerId].activeTurnModifiers) {
-      applyModifierPair(lines, playerId, modifier);
-      const sourceCard = session.players[playerId].currentControlCard ?? session.players[playerId].blessingZone;
-      if (sourceCard) {
-        pushEffectLog(session, playerId, sourceCard, "Turn modifier applied");
-      }
-    }
-  }
-
-  for (const step of revealSteps) {
-    const ownerId = step.playerId;
-    const ownerBattleCount = countBattleCards(session.players[ownerId].setCards);
-    if (ownerBattleCount === 0) {
-      continue;
-    }
-    const item = session.players[ownerId].setCards[step.index];
-    if (!item) continue;
-    for (const effect of item.card.effects) {
-      const key = effect.kind || effect.effect_type;
-      if (key === "negate_opponent_first_card") {
-        const opponentFirst = session.players[otherPlayer(ownerId)].setCards[0];
-        if (opponentFirst?.revealed && opponentFirst.card.card_type === "battle") {
-          lines[otherPlayer(ownerId)].attack -= opponentFirst.card.attack;
-          lines[otherPlayer(ownerId)].block -= opponentFirst.card.block;
-          lines[otherPlayer(ownerId)].speed -= opponentFirst.card.speed;
-          pushEffectLog(session, ownerId, item.card, describeEffect(effect));
-        }
-        continue;
-      }
-      if (key === "set_self_block_limit") {
-        lines[ownerId].block = Math.min(lines[ownerId].block, effect.value ?? 0);
-        pushEffectLog(session, ownerId, item.card, describeEffect(effect));
-        continue;
-      }
-      if (effect.effect_type === "modify_card_stat" && effect.target === "opponent_card" && effect.stat === "attack") {
-        lines[otherPlayer(ownerId)].attack -= effect.value ?? 0;
-        pushEffectLog(session, ownerId, item.card, describeEffect(effect));
-        continue;
-      }
-      const modifier = makeModifier(item.card.id);
-      applyStatEffect(modifier, effect);
-      applyModifierPair(lines, ownerId, modifier);
-      pushEffectLog(session, ownerId, item.card, describeEffect(effect));
-    }
-  }
-
   const p1Preview = buildBlessingPreview(
     session,
     "p1",
@@ -1059,8 +1260,6 @@ function resolveBattleV2(session: BattleSession) {
   );
   if (p1Preview) {
     session.phase = "blessing_prompt";
-    session.finalLines = lines;
-    session.revealSteps = revealSteps;
     session.pendingBlessingChoice = {
       playerId: "p1",
       blessingCardId: session.players.p1.blessingZone!.id,
@@ -1080,6 +1279,92 @@ function resolveBattleV2(session: BattleSession) {
   );
 
   finalizeBattleResolution(session, cpuResult.lines, revealSteps);
+}
+
+function advanceRevealStep(session: BattleSession) {
+  const pendingReveal = session.pendingReveal;
+  const lines = session.finalLines;
+  if (session.phase !== "reveal" || !pendingReveal || !lines) {
+    return;
+  }
+  const step = pendingReveal.steps[pendingReveal.nextIndex];
+  if (!step) {
+    session.pendingReveal = null;
+    finishBattleAfterReveal(session);
+    return;
+  }
+
+  const item = session.players[step.playerId].setCards[step.index];
+  if (!item) {
+    pendingReveal.nextIndex += 1;
+    if (pendingReveal.nextIndex >= pendingReveal.steps.length) {
+      session.pendingReveal = null;
+      finishBattleAfterReveal(session);
+    }
+    return;
+  }
+
+  item.revealed = true;
+  session.revealSteps.push(step);
+  if (item.card.card_type === "battle") {
+    lines[step.playerId].attack += item.card.attack;
+    lines[step.playerId].block += item.card.block;
+    lines[step.playerId].speed += item.card.speed;
+  }
+  maybeApplyRevealTriggeredBlessing(session, otherPlayer(step.playerId), step.playerId, item, lines);
+  const ownerBattleCount = countBattleCards(session.players[step.playerId].setCards);
+  if (ownerBattleCount > 0) {
+    applyRevealedCardEffects(session, step.playerId, item, lines);
+  }
+
+  pendingReveal.nextIndex += 1;
+  if (pendingReveal.nextIndex >= pendingReveal.steps.length) {
+    session.pendingReveal = null;
+    finishBattleAfterReveal(session);
+  }
+}
+
+function resolveBattleV2(session: BattleSession) {
+  const order: PlayerId[] = [session.battleStartingPlayer, otherPlayer(session.battleStartingPlayer)];
+  const maxCards = Math.max(session.players.p1.setCards.length, session.players.p2.setCards.length);
+
+  const lines: Record<PlayerId, BattleFinalLine> = {
+    p1: { attack: 0, block: 0, speed: 0 },
+    p2: { attack: 0, block: 0, speed: 0 },
+  };
+
+  for (const playerId of ["p1", "p2"] as PlayerId[]) {
+    for (const modifier of session.players[playerId].activeTurnModifiers) {
+      applyModifierPair(lines, playerId, modifier);
+      const sourceCard = session.players[playerId].currentControlCard ?? session.players[playerId].blessingZone;
+      if (sourceCard) {
+        pushEffectLog(session, playerId, sourceCard, "Turn modifier applied");
+      }
+    }
+  }
+
+  const revealSteps: BattleRevealStep[] = [];
+
+  for (let index = 0; index < maxCards; index += 1) {
+    for (const playerId of order) {
+      const item = session.players[playerId].setCards[index];
+      if (!item) {
+        continue;
+      }
+      revealSteps.push({
+        playerId,
+        cardId: item.card.id,
+        cardName: item.card.name || item.card.id,
+        cardType: item.card.card_type,
+        index,
+      });
+    }
+  }
+  session.finalLines = lines;
+  session.revealSteps = [];
+  session.pendingReveal = { steps: revealSteps, nextIndex: 0 };
+  session.phase = "reveal";
+  pushLog(session, "カード公開を開始する。");
 }
 
 function resolveBattle(session: BattleSession) {
@@ -1150,7 +1435,7 @@ function resolveBattle(session: BattleSession) {
     session.phase = "result";
     session.winner = outcome.winner;
     session.endReason = outcome.endReason;
-    pushLog(session, `${playerLabel(outcome.winner)}の勝ち。`);
+    pushLog(session, playerLabel(outcome.winner) + "の勝ち。");
   } else if (outcome.endReason === "simultaneous_attack") {
     session.phase = "result";
     session.winner = null;
@@ -1166,6 +1451,7 @@ void resolveBattle;
 function endTurnAndAdvance(session: BattleSession) {
   for (const playerId of ["p1", "p2"] as PlayerId[]) {
     const player = session.players[playerId];
+    player.topdeckAsHandCardId = null;
     player.usedCards.push(...player.setCards.map((item) => item.card));
     player.discardPile.push(...player.setCards.map((item) => item.card));
     if (player.currentControlCard) {
@@ -1201,7 +1487,7 @@ function endTurnAndAdvance(session: BattleSession) {
   const p1Drawn = drawAtTurnStart(session.players.p1, session.turn);
   const p2Drawn = drawAtTurnStart(session.players.p2, session.turn);
   pushLog(session, "マリガンフェーズへ。");
-  pushLog(session, `ターン${session.turn}開始。プレイヤーは${p1Drawn.length}枚、CPUは${p2Drawn.length}枚引いた。`);
+  pushLog(session, "ターン" + session.turn + "開始。プレイヤーは" + p1Drawn.length + "枚、CPUは" + p2Drawn.length + "枚引いた。");
 }
 
 function continueIfDrawnBattle(session: BattleSession) {
@@ -1225,6 +1511,7 @@ export function applyDebugBattlePreset(session: BattleSession, preset: DebugBatt
   next.pendingBlessingChoice = null;
   next.pendingTriggerChoice = null;
   next.pendingTriggerContinuation = null;
+  next.pendingReveal = null;
 
   for (const playerId of ["p1", "p2"] as PlayerId[]) {
     const player = next.players[playerId];
@@ -1292,6 +1579,7 @@ export function createBattleSessionFromDraft(session: DraftSession): BattleSessi
   const p1 = buildBattlePlayerState(session.decks.p1, session.seed + 101);
   const p2 = buildBattlePlayerState(session.decks.p2, session.seed + 202);
   return {
+    debugMode: false,
     seed: session.seed,
     turn: 1,
     phase: "mulligan",
@@ -1305,15 +1593,74 @@ export function createBattleSessionFromDraft(session: DraftSession): BattleSessi
     endReason: null,
     logs: [
       { id: "battle-1", text: "対戦準備が完了した。" },
-      { id: "battle-2", text: `先手は${playerLabel(session.firstPlayer)}。` },
-      { id: "battle-3", text: `プレイヤーは初期手札を${p1.hand.length}枚引いた。` },
-      { id: "battle-4", text: `CPUは初期手札を${p2.hand.length}枚引いた。` },
+      { id: "battle-2", text: "先手は" + playerLabel(session.firstPlayer) + "。" },
+      { id: "battle-3", text: "プレイヤーは初期手札を" + p1.hand.length + "枚引いた。" },
+      { id: "battle-4", text: "CPUは初期手札を" + p2.hand.length + "枚引いた。" },
       { id: "battle-5", text: "最初に1回だけマリガンを行う。" },
     ],
     effectLogs: [],
     pendingBlessingChoice: null,
     pendingTriggerChoice: null,
     pendingTriggerContinuation: null,
+    pendingReveal: null,
+  };
+}
+
+export function createDebugBattleSession(seed: number = Date.now()): BattleSession {
+  return {
+    debugMode: true,
+    seed,
+    turn: 1,
+    phase: "control",
+    firstPlayer: "p1",
+    battleStartingPlayer: "p1",
+    actingPlayer: "p1",
+    players: {
+      p1: {
+        drawPile: [],
+        hand: [],
+        topdeckAsHandCardId: null,
+        discardPile: [],
+        usedCards: [],
+        currentControlCard: null,
+        blessingZone: null,
+        blessingFaceUp: true,
+        blessingLockedThisTurn: false,
+        queuedNextTurnDrawDelta: 0,
+        queuedNextTurnStatDelta: { attack: 0, block: 0, speed: 0 },
+        activeTurnModifiers: [],
+        setCards: [],
+        battlePassed: false,
+        revealFirstSetThisTurn: false,
+      },
+      p2: {
+        drawPile: [],
+        hand: [],
+        topdeckAsHandCardId: null,
+        discardPile: [],
+        usedCards: [],
+        currentControlCard: null,
+        blessingZone: null,
+        blessingFaceUp: true,
+        blessingLockedThisTurn: false,
+        queuedNextTurnDrawDelta: 0,
+        queuedNextTurnStatDelta: { attack: 0, block: 0, speed: 0 },
+        activeTurnModifiers: [],
+        setCards: [],
+        battlePassed: false,
+        revealFirstSetThisTurn: false,
+      },
+    },
+    finalLines: null,
+    revealSteps: [],
+    winner: null,
+    endReason: null,
+    logs: [{ id: "battle-1", text: "Debug battle session started." }],
+    effectLogs: [],
+    pendingBlessingChoice: null,
+    pendingTriggerChoice: null,
+    pendingTriggerContinuation: null,
+    pendingReveal: null,
   };
 }
 
@@ -1322,15 +1669,24 @@ export function applyPlayerMulligan(session: BattleSession, handIndexes: number[
   if (next.phase !== "mulligan") {
     return next;
   }
-  const cardIds = [...handIndexes]
+  const selectedCards = [...handIndexes]
     .sort((left, right) => left - right)
-    .map((index) => next.players.p1.hand[index]?.id)
-    .filter((value): value is string => Boolean(value));
-  const playerResult = mulliganCards(next.players.p1, cardIds);
-  pushLog(next, playerResult.discarded.length > 0 ? `プレイヤーは${playerResult.discarded.length}枚をマリガンした。` : "プレイヤーはマリガンしなかった。");
+    .map((index) => next.players.p1.hand[index])
+    .filter((value): value is CardDefinition => Boolean(value));
+  if (
+    next.players.p1.topdeckAsHandCardId &&
+    selectedCards.some((card) => card.id === next.players.p1.topdeckAsHandCardId)
+  ) {
+    next.players.p1.topdeckAsHandCardId = null;
+  }
+  const playerResult = mulliganCards(
+    next.players.p1,
+    selectedCards.map((card) => card.id),
+  );
+  pushLog(next, playerResult.discarded.length > 0 ? ("プレイヤーは" + playerResult.discarded.length + "枚をマリガンした。") : "プレイヤーはマリガンしなかった。");
   const cpuIds = chooseCpuMulliganCardIds(next.players.p2);
   const cpuResult = mulliganCards(next.players.p2, cpuIds);
-  pushLog(next, cpuResult.discarded.length > 0 ? `CPUは${cpuResult.discarded.length}枚をマリガンした。` : "CPUはマリガンしなかった。");
+  pushLog(next, cpuResult.discarded.length > 0 ? ("CPUは" + cpuResult.discarded.length + "枚をマリガンした。") : "CPUはマリガンしなかった。");
   next.phase = "control";
   next.actingPlayer = "p1";
   pushLog(next, "controlフェーズ開始。");
@@ -1343,7 +1699,13 @@ export function applyPlayerControlChoice(session: BattleSession, handIndex: numb
     return next;
   }
   const cardId = handIndex === null ? null : next.players.p1.hand[handIndex]?.id ?? null;
+  if (cardId && next.players.p1.topdeckAsHandCardId === cardId) {
+    next.players.p1.topdeckAsHandCardId = null;
+  }
   applyControlChoice(next, "p1", cardId);
+  if (next.pendingTriggerChoice) {
+    return next;
+  }
   const cpuChoice = chooseCpuControlCard(next, "p2");
   applyControlChoice(next, "p2", cpuChoice);
   next.phase = "battle_select";
@@ -1361,11 +1723,22 @@ export function applyPlayerBattleAction(session: BattleSession, actionType: Batt
   if (next.phase !== "battle_select" || next.actingPlayer !== "p1") {
     return next;
   }
-  const cardIds = [...handIndexes]
+  const selectedCards = [...handIndexes]
     .sort((left, right) => left - right)
-    .map((index) => next.players.p1.hand[index]?.id)
-    .filter((value): value is string => Boolean(value));
-  applyBattleAction(next, "p1", actionType, cardIds);
+    .map((index) => next.players.p1.hand[index])
+    .filter((value): value is CardDefinition => Boolean(value));
+  if (
+    next.players.p1.topdeckAsHandCardId &&
+    selectedCards.some((card) => card.id === next.players.p1.topdeckAsHandCardId)
+  ) {
+    next.players.p1.topdeckAsHandCardId = null;
+  }
+  applyBattleAction(
+    next,
+    "p1",
+    actionType,
+    selectedCards.map((card) => card.id),
+  );
   const nextActor = nextBattleActor(next, "p1");
   if (applySetTriggeredBlessing(next, "p2", "p1", nextActor)) {
     return next;
@@ -1383,7 +1756,7 @@ export function applyPlayerBattleAction(session: BattleSession, actionType: Batt
   return next;
 }
 
-export function applyPlayerTriggerChoice(session: BattleSession, useTrigger: boolean, setIndex: number | null = null) {
+export function applyPlayerTriggerChoice(session: BattleSession, useTrigger: boolean, choiceId: string | null = null) {
   const next = cloneBattleSession(session);
   const pending = next.pendingTriggerChoice;
   if (next.phase !== "trigger_prompt" || !pending || pending.playerId !== "p1") {
@@ -1391,14 +1764,18 @@ export function applyPlayerTriggerChoice(session: BattleSession, useTrigger: boo
   }
 
   const blessing = next.players.p1.blessingZone;
+  const selectedChoice = pending.choices?.find((choice) => choice.id === choiceId);
+  if (pending.mode === "acknowledge") {
+    useTrigger = false;
+  }
   if (useTrigger && blessing) {
-    if (pending.blessingCardId === "blessing_insight" && setIndex !== null) {
-      const target = next.players.p2.setCards[setIndex];
+    if (pending.blessingCardId === "blessing_insight" && selectedChoice?.payload?.kind === "set_card") {
+      const target = next.players[selectedChoice.payload.playerId].setCards[selectedChoice.payload.setIndex ?? -1];
       if (target) {
         target.revealed = true;
+        next.players.p1.blessingFaceUp = false;
+        pushEffectLog(next, "p1", blessing, pending.promptText);
       }
-      next.players.p1.blessingFaceUp = false;
-      pushEffectLog(next, "p1", blessing, pending.promptText);
     } else if (pending.blessingCardId === "blessing_range") {
       next.players.p1.activeTurnModifiers.push({
         sourceId: blessing.id,
@@ -1414,14 +1791,54 @@ export function applyPlayerTriggerChoice(session: BattleSession, useTrigger: boo
     }
   }
 
+  if (useTrigger && pending.blessingCardId === "control_hand_echo" && selectedChoice?.payload?.kind === "discard_card") {
+    const targetPlayer = next.players[selectedChoice.payload.playerId];
+    const discardIndex = selectedChoice.payload.discardIndex ?? -1;
+    const [returned] = discardIndex >= 0 ? targetPlayer.discardPile.splice(discardIndex, 1) : [undefined];
+    if (returned) {
+      targetPlayer.hand.push(returned);
+      const sourceCard = next.players.p1.currentControlCard;
+      if (sourceCard) {
+        pushEffectLog(next, "p1", sourceCard, "相手の捨て札から" + (returned.name || returned.id) + "を手札に戻した。");
+      }
+    }
+  }
+
+  if (useTrigger && pending.blessingCardId === "control_all_in_focus" && selectedChoice?.payload?.kind === "hand_card") {
+    const targetPlayer = next.players[selectedChoice.payload.playerId];
+    const handIndex = selectedChoice.payload.handIndex ?? -1;
+    const targetCard = handIndex >= 0 ? targetPlayer.hand[handIndex] : undefined;
+    const sourceCard = next.players.p1.currentControlCard;
+    if (targetCard && sourceCard) {
+      targetCard.attack += 2;
+      targetPlayer.queuedNextTurnDrawDelta -= 1;
+      pushEffectLog(next, "p1", sourceCard, (targetCard.name || targetCard.id) + "の攻撃を+2し、次のターンのドロー-1。");
+    }
+  }
+
   const continuation = next.pendingTriggerContinuation;
   next.pendingTriggerChoice = null;
   next.pendingTriggerContinuation = null;
   next.phase = "battle_select";
 
+  if (continuation?.resume === "control_after_player") {
+    const cpuChoice = chooseCpuControlCard(next, "p2");
+    applyControlChoice(next, "p2", cpuChoice);
+    if (next.pendingTriggerChoice) {
+      return next;
+    }
+    next.phase = "battle_select";
+    next.actingPlayer = next.battleStartingPlayer;
+    pushLog(next, "battleフェーズ開始。");
+    if (next.actingPlayer === "p2") {
+      advanceCpuBattleLoop(next);
+    }
+    continueIfDrawnBattle(next);
+    return next;
+  }
+
   if (!continuation || continuation.nextActor === null) {
     resolveBattleV2(next);
-    continueIfDrawnBattle(next);
     return next;
   }
 
@@ -1429,6 +1846,13 @@ export function applyPlayerTriggerChoice(session: BattleSession, useTrigger: boo
   if (next.actingPlayer === "p2") {
     advanceCpuBattleLoop(next);
   }
+  continueIfDrawnBattle(next);
+  return next;
+}
+
+export function advanceBattleReveal(session: BattleSession) {
+  const next = cloneBattleSession(session);
+  advanceRevealStep(next);
   continueIfDrawnBattle(next);
   return next;
 }
@@ -1470,6 +1894,183 @@ export function applyDebugAddCardToHand(session: BattleSession, drawPileIndex: n
   }
   next.players[playerId].drawPile.splice(drawPileIndex, 1);
   next.players[playerId].hand.push(card);
-  pushLog(next, `[Debug] ${playerLabel(playerId)} adds ${card.name || card.id} to hand`);
+  pushLog(next, "[Debug] " + playerLabel(playerId) + " adds " + (card.name || card.id) + " to hand");
+  return next;
+}
+
+function resetBattleDebugFlow(session: BattleSession) {
+  session.winner = null;
+  session.endReason = null;
+  session.finalLines = null;
+  session.revealSteps = [];
+  session.pendingBlessingChoice = null;
+  session.pendingTriggerChoice = null;
+  session.pendingTriggerContinuation = null;
+  session.pendingReveal = null;
+  if (session.phase !== "mulligan" && session.phase !== "control" && session.phase !== "battle_select") {
+    session.phase = "battle_select";
+    session.actingPlayer = "p1";
+  }
+}
+
+function clearSetZoneForDebug(player: BattlePlayerState) {
+  player.setCards = [];
+  player.battlePassed = false;
+}
+
+function clearControlZoneForDebug(player: BattlePlayerState) {
+  if (player.currentControlCard) {
+    player.discardPile.push(player.currentControlCard);
+    player.currentControlCard = null;
+  }
+}
+
+function isBattlePlacementPhase(phase: BattleSession["phase"]) {
+  return phase === "battle_select" || phase === "reveal" || phase === "blessing_prompt" || phase === "result";
+}
+
+export function applyDebugPlaceCard(
+  session: BattleSession,
+  playerId: PlayerId,
+  zone: DebugBattleZone,
+  cardId: string,
+) {
+  const next = cloneBattleSession(session);
+  const player = next.players[playerId];
+  const card = getBattleCard(cardId);
+
+  resetBattleDebugFlow(next);
+
+  if (zone === "set") {
+    if (!isBattlePlacementPhase(next.phase)) {
+      pushLog(next, `[Debug] ${playerLabel(playerId)} set zone はこのフェーズでは編集できない`);
+      return next;
+    }
+    player.setCards.push({ card, revealed: false });
+    player.battlePassed = false;
+    pushLog(next, `[Debug] ${playerLabel(playerId)} set zone + ${card.name || card.id}`);
+    return next;
+  }
+
+  if (zone === "hand") {
+    player.hand.push(card);
+    pushLog(next, `[Debug] ${playerLabel(playerId)} hand + ${card.name || card.id}`);
+    return next;
+  }
+
+  if (zone === "draw_pile") {
+    player.drawPile.unshift(card);
+    pushLog(next, `[Debug] ${playerLabel(playerId)} draw pile + ${card.name || card.id}`);
+    return next;
+  }
+
+  if (zone === "discard") {
+    player.discardPile.push(card);
+    pushLog(next, `[Debug] ${playerLabel(playerId)} discard + ${card.name || card.id}`);
+    return next;
+  }
+
+  if (zone === "control") {
+    if (player.currentControlCard) {
+      player.discardPile.push(player.currentControlCard);
+    }
+    player.currentControlCard = card;
+    pushLog(next, `[Debug] ${playerLabel(playerId)} control zone = ${card.name || card.id}`);
+    return next;
+  }
+
+  if (player.blessingZone) {
+    player.discardPile.push(player.blessingZone);
+  }
+  player.blessingZone = card;
+  player.blessingFaceUp = true;
+  player.blessingLockedThisTurn = false;
+  pushLog(next, `[Debug] ${playerLabel(playerId)} blessing zone = ${card.name || card.id}`);
+  return next;
+}
+
+export function applyDebugClearZone(session: BattleSession, playerId: PlayerId, zone: DebugBattleZone) {
+  const next = cloneBattleSession(session);
+  const player = next.players[playerId];
+
+  resetBattleDebugFlow(next);
+
+  if (zone === "set") {
+    if (player.setCards.length > 0) {
+      player.discardPile.push(...player.setCards.map((item) => item.card));
+      player.setCards = [];
+      pushLog(next, `[Debug] ${playerLabel(playerId)} set zone cleared`);
+    }
+    return next;
+  }
+
+  if (zone === "hand") {
+    if (player.hand.length > 0) {
+      player.discardPile.push(...player.hand);
+      player.hand = [];
+      pushLog(next, `[Debug] ${playerLabel(playerId)} hand cleared`);
+    }
+    return next;
+  }
+
+  if (zone === "draw_pile") {
+    if (player.drawPile.length > 0) {
+      player.drawPile = [];
+      pushLog(next, `[Debug] ${playerLabel(playerId)} draw pile cleared`);
+    }
+    return next;
+  }
+
+  if (zone === "discard") {
+    if (player.discardPile.length > 0) {
+      player.discardPile = [];
+      pushLog(next, `[Debug] ${playerLabel(playerId)} discard cleared`);
+    }
+    return next;
+  }
+
+  if (zone === "control") {
+    if (player.currentControlCard) {
+      player.discardPile.push(player.currentControlCard);
+      player.currentControlCard = null;
+      pushLog(next, `[Debug] ${playerLabel(playerId)} control zone cleared`);
+    }
+    return next;
+  }
+
+  if (player.blessingZone) {
+    player.discardPile.push(player.blessingZone);
+    player.blessingZone = null;
+    player.blessingFaceUp = true;
+    pushLog(next, `[Debug] ${playerLabel(playerId)} blessing zone cleared`);
+  }
+  return next;
+}
+
+export function applyDebugSetPhase(session: BattleSession, phase: BattleSession["phase"]) {
+  const next = cloneBattleSession(session);
+  resetBattleDebugFlow(next);
+  if (!isBattlePlacementPhase(phase)) {
+    for (const playerId of ["p1", "p2"] as PlayerId[]) {
+      clearSetZoneForDebug(next.players[playerId]);
+    }
+  }
+  if (phase === "mulligan") {
+    for (const playerId of ["p1", "p2"] as PlayerId[]) {
+      clearControlZoneForDebug(next.players[playerId]);
+    }
+  }
+  next.phase = phase;
+  next.actingPlayer = "p1";
+  pushLog(next, `[Debug] phase -> ${phase}`);
+  return next;
+}
+
+export function applyDebugStartReveal(session: BattleSession) {
+  const next = cloneBattleSession(session);
+  resetBattleDebugFlow(next);
+  next.players.p1.battlePassed = true;
+  next.players.p2.battlePassed = true;
+  resolveBattleV2(next);
   return next;
 }

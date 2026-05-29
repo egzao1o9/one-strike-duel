@@ -625,6 +625,9 @@ export default function App() {
           <button type="button" className="primary-button" onClick={() => dispatch({ type: "start_prototype" })}>
             プロトタイプを開始
           </button>
+          <button type="button" className="secondary-button" onClick={() => dispatch({ type: "start_debug_battle" })}>
+            デバッグ対戦を開始
+          </button>
           <button type="button" className="secondary-button" onClick={() => setSelectedCard(sortedCards[0] ?? null)}>
             カード一覧を見る
           </button>
@@ -664,7 +667,7 @@ export default function App() {
         />
       ) : state.activeSession && state.screen === "deck_review" ? (
         <DeckReviewPanel session={state.activeSession} onSelectCard={setSelectedCard} onStartBattle={() => dispatch({ type: "enter_battle" })} />
-      ) : state.activeSession && state.activeBattle && state.screen === "battle" ? (
+) : state.activeBattle && state.screen === "battle" ? (
         <PlayableBattlePanel
           battleSession={state.activeBattle}
           onSelectCard={setSelectedCard}
@@ -673,9 +676,10 @@ export default function App() {
           onBattleAction={(actionType, handIndexes) =>
             dispatch({ type: "choose_battle_action", actionType, handIndexes })
           }
-          onResolveTriggerChoice={(useTrigger, setIndex) =>
-            dispatch({ type: "resolve_trigger_choice", useTrigger, setIndex })
+          onResolveTriggerChoice={(useTrigger, choiceId) =>
+            dispatch({ type: "resolve_trigger_choice", useTrigger, choiceId })
           }
+          onAdvanceReveal={() => dispatch({ type: "advance_reveal" })}
           onResolveBlessingChoice={(useBlessing) =>
             dispatch({ type: "resolve_blessing_choice", useBlessing })
           }
@@ -683,6 +687,12 @@ export default function App() {
             dispatch({ type: "debug_add_card_to_hand", drawPileIndex })
           }
           onDebugSetup={(preset) => dispatch({ type: "debug_battle_preset", preset })}
+          onDebugPlaceCard={(playerId, zone, cardId) =>
+            dispatch({ type: "debug_place_card", playerId, zone, cardId })
+          }
+          onDebugClearZone={(playerId, zone) => dispatch({ type: "debug_clear_zone", playerId, zone })}
+          onDebugSetPhase={(phase) => dispatch({ type: "debug_set_phase", phase })}
+          onDebugStartReveal={() => dispatch({ type: "debug_start_reveal" })}
         />
       ) : (
         <section className="dashboard-panel">

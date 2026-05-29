@@ -65,9 +65,10 @@ export interface DraftSession {
   pendingCpuTurn: boolean;
 }
 
-export type BattlePhase = "mulligan" | "control" | "battle_select" | "trigger_prompt" | "blessing_prompt" | "result";
+export type BattlePhase = "mulligan" | "control" | "battle_select" | "trigger_prompt" | "reveal" | "blessing_prompt" | "result";
 export type BattleActionType = "set" | "set_pass" | "pass";
 export type DebugBattlePreset = "draw" | "no_damage" | "p1_win" | "p2_win";
+export type DebugBattleZone = "set" | "control" | "blessing" | "hand" | "draw_pile" | "discard";
 
 export interface BattleSetCard {
   card: CardDefinition;
@@ -89,6 +90,7 @@ export interface ActiveTurnModifier {
 export interface BattlePlayerState {
   drawPile: CardDefinition[];
   hand: CardDefinition[];
+  topdeckAsHandCardId: string | null;
   discardPile: CardDefinition[];
   usedCards: CardDefinition[];
   currentControlCard: CardDefinition | null;
@@ -147,14 +149,31 @@ export interface PendingTriggerChoice {
   blessingCardId: string;
   blessingName: string;
   promptText: string;
-  mode: "confirm_use" | "choose_set_card";
+  mode: "confirm_use" | "choose_option" | "acknowledge";
   choices?: Array<{
-    setIndex: number;
+    id: string;
     label: string;
+    card?: CardDefinition;
+    payload?: {
+      kind: "set_card" | "discard_card" | "hand_card" | "draw_pile_card" | "used_card";
+      playerId: PlayerId;
+      setIndex?: number;
+      discardIndex?: number;
+      handIndex?: number;
+      drawPileIndex?: number;
+      usedIndex?: number;
+      cardId?: string;
+    };
   }>;
 }
 
+export interface PendingRevealState {
+  steps: BattleRevealStep[];
+  nextIndex: number;
+}
+
 export interface BattleSession {
+  debugMode: boolean;
   seed: number;
   turn: number;
   phase: BattlePhase;
@@ -172,7 +191,9 @@ export interface BattleSession {
   pendingTriggerChoice: PendingTriggerChoice | null;
   pendingTriggerContinuation: {
     nextActor: PlayerId | null;
+    resume?: "battle" | "control_after_player";
   } | null;
+  pendingReveal: PendingRevealState | null;
 }
 
 export interface PrototypeState {

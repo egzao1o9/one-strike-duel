@@ -1,11 +1,12 @@
 import { advanceDraftAfterAnimation, applyPlayerDraftPick, createInitialDraftSession } from "../lib/draftSession";
-import { applyDebugAddCardToHand, applyDebugBattlePreset, applyPlayerBattleAction, applyPlayerBlessingChoice, applyPlayerControlChoice, applyPlayerMulligan, applyPlayerTriggerChoice, createBattleSessionFromDraft } from "../lib/battleSession";
+import { advanceBattleReveal, applyDebugAddCardToHand, applyDebugBattlePreset, applyDebugClearZone, applyDebugPlaceCard, applyDebugSetPhase, applyDebugStartReveal, applyPlayerBattleAction, applyPlayerBlessingChoice, applyPlayerControlChoice, applyPlayerMulligan, applyPlayerTriggerChoice, createBattleSessionFromDraft, createDebugBattleSession } from "../lib/battleSession";
 import type { CardRarity } from "../types/cards";
-import type { BattleActionType } from "../types/prototype";
-import type { DebugBattlePreset, PrototypeState } from "../types/prototype";
+import type { BattleActionType, BattlePhase } from "../types/prototype";
+import type { DebugBattlePreset, DebugBattleZone, PrototypeState, PlayerId } from "../types/prototype";
 
 export type PrototypeAction =
   | { type: "start_prototype"; seed?: number }
+  | { type: "start_debug_battle"; seed?: number }
   | { type: "return_to_title" }
   | { type: "choose_visible_card"; pickKey: string }
   | { type: "take_topdeck"; rarity: CardRarity }
@@ -14,10 +15,15 @@ export type PrototypeAction =
   | { type: "choose_mulligan"; handIndexes: number[] }
   | { type: "choose_control"; handIndex: number | null }
   | { type: "choose_battle_action"; actionType: BattleActionType; handIndexes: number[] }
-  | { type: "resolve_trigger_choice"; useTrigger: boolean; setIndex?: number | null }
+  | { type: "resolve_trigger_choice"; useTrigger: boolean; choiceId?: string | null }
+  | { type: "advance_reveal" }
   | { type: "resolve_blessing_choice"; useBlessing: boolean }
   | { type: "debug_add_card_to_hand"; drawPileIndex: number }
-  | { type: "debug_battle_preset"; preset: DebugBattlePreset };
+  | { type: "debug_battle_preset"; preset: DebugBattlePreset }
+  | { type: "debug_place_card"; playerId: PlayerId; zone: DebugBattleZone; cardId: string }
+  | { type: "debug_clear_zone"; playerId: PlayerId; zone: DebugBattleZone }
+  | { type: "debug_set_phase"; phase: BattlePhase }
+  | { type: "debug_start_reveal" };
 
 export const initialPrototypeState: PrototypeState = {
   screen: "title",
@@ -35,6 +41,12 @@ export function prototypeReducer(state: PrototypeState, action: PrototypeAction)
       };
     case "return_to_title":
       return initialPrototypeState;
+    case "start_debug_battle":
+      return {
+        screen: "battle",
+        activeSession: null,
+        activeBattle: createDebugBattleSession(action.seed ?? Date.now()),
+      };
     case "choose_visible_card":
       if (!state.activeSession) {
         return state;
@@ -121,7 +133,15 @@ export function prototypeReducer(state: PrototypeState, action: PrototypeAction)
       }
       return {
         ...state,
-        activeBattle: applyPlayerTriggerChoice(state.activeBattle, action.useTrigger, action.setIndex ?? null),
+        activeBattle: applyPlayerTriggerChoice(state.activeBattle, action.useTrigger, action.choiceId ?? null),
+      };
+    case "advance_reveal":
+      if (!state.activeBattle) {
+        return state;
+      }
+      return {
+        ...state,
+        activeBattle: advanceBattleReveal(state.activeBattle),
       };
     case "debug_add_card_to_hand":
       if (!state.activeBattle) {
@@ -138,6 +158,38 @@ export function prototypeReducer(state: PrototypeState, action: PrototypeAction)
       return {
         ...state,
         activeBattle: applyDebugBattlePreset(state.activeBattle, action.preset),
+      };
+    case "debug_place_card":
+      if (!state.activeBattle) {
+        return state;
+      }
+      return {
+        ...state,
+        activeBattle: applyDebugPlaceCard(state.activeBattle, action.playerId, action.zone, action.cardId),
+      };
+    case "debug_clear_zone":
+      if (!state.activeBattle) {
+        return state;
+      }
+      return {
+        ...state,
+        activeBattle: applyDebugClearZone(state.activeBattle, action.playerId, action.zone),
+      };
+    case "debug_set_phase":
+      if (!state.activeBattle) {
+        return state;
+      }
+      return {
+        ...state,
+        activeBattle: applyDebugSetPhase(state.activeBattle, action.phase),
+      };
+    case "debug_start_reveal":
+      if (!state.activeBattle) {
+        return state;
+      }
+      return {
+        ...state,
+        activeBattle: applyDebugStartReveal(state.activeBattle),
       };
     default:
       return state;

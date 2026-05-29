@@ -7,7 +7,7 @@
   "block": 0,
   "speed": 0,
   "tags": ["draw", "trick"],
-  "public_text": "自分の山札のトップを見る。そのカードはこのターン手札扱いとなる。",
+  "public_text": "山札のトップを公開する。そのカードはこのターン手札として使える。",
   "effects": [
     {
       "trigger": "on_play",

@@ -4,6 +4,7 @@ interface CardMiniProps {
   card: CardDefinition;
   onClick?: (card: CardDefinition) => void;
   animationKey?: string;
+  className?: string;
 }
 
 function miniStatClass(stat: "attack" | "block" | "speed") {
@@ -16,9 +17,9 @@ function miniStatClass(stat: "attack" | "block" | "speed") {
   return "mini-stat mini-stat--speed";
 }
 
-export function CardMini({ card, onClick, animationKey }: CardMiniProps) {
+export function CardMini({ card, onClick, animationKey, className = "" }: CardMiniProps) {
   const showBattleStats = card.card_type === "battle";
-  const className = `card-mini rarity-${card.rarity}${onClick ? " card-mini--interactive" : ""}`;
+  const rootClassName = `card-mini rarity-${card.rarity}${onClick ? " card-mini--interactive" : ""}${className ? ` ${className}` : ""}`;
 
   const content = (
     <>
@@ -42,7 +43,7 @@ export function CardMini({ card, onClick, animationKey }: CardMiniProps) {
 
   if (!onClick) {
     return (
-      <div className={className} data-anim-key={animationKey}>
+      <div className={rootClassName} data-anim-key={animationKey}>
         {content}
       </div>
     );
@@ -51,7 +52,7 @@ export function CardMini({ card, onClick, animationKey }: CardMiniProps) {
   return (
     <button
       type="button"
-      className={className}
+      className={rootClassName}
       onClick={() => onClick?.(card)}
       data-anim-key={animationKey}
     >

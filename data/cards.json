@@ -2732,7 +2732,7 @@
       "draw",
       "trick"
     ],
-    "effect_text": "自分の山札のトップを見る。そのカードはこのターン手札扱いとなる。",
+    "effect_text": "山札のトップを公開する。そのカードはこのターン手札として使える。",
     "enabled": true,
     "play_zone": "instant",
     "after_play_zone": "discard",

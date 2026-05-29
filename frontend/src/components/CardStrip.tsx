@@ -3,6 +3,7 @@ import type { CardDefinition } from "../types/cards";
 interface CardStripProps {
   card: CardDefinition;
   onClick?: (card: CardDefinition) => void;
+  onPreview?: (card: CardDefinition) => void;
   compact?: boolean;
   visibilityMarker?: "P" | "S";
   concealed?: boolean;
@@ -13,8 +14,17 @@ function statClass(stat: "attack" | "block" | "speed") {
   return `card-strip__stat card-strip__stat--${stat}`;
 }
 
-export function CardStrip({ card, onClick, compact = false, visibilityMarker, concealed = false, animationKey }: CardStripProps) {
+export function CardStrip({
+  card,
+  onClick,
+  onPreview,
+  compact = false,
+  visibilityMarker,
+  concealed = false,
+  animationKey,
+}: CardStripProps) {
   const showStats = card.card_type === "battle";
+  const canPreview = Boolean(onPreview) && !concealed;
 
   return (
     <div className={`card-strip-row${compact ? " card-strip-row--compact" : ""}`} data-anim-key={animationKey}>
@@ -50,6 +60,16 @@ export function CardStrip({ card, onClick, compact = false, visibilityMarker, co
           </>
         )}
       </button>
+      {canPreview ? (
+        <button
+          type="button"
+          className="card-strip__preview-button"
+          onClick={() => onPreview?.(card)}
+          aria-label={`${card.name || card.id} を拡大表示`}
+        >
+          👁
+        </button>
+      ) : null}
     </div>
   );
 }
