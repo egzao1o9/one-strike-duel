@@ -18,7 +18,7 @@ import type {
 
 const HAND_LIMIT = 6;
 const TURN_DRAW_LIMIT = 4;
-const battleCardLibrary = new Map(getAllCards().map((card) => [card.id, card]));
+const battleCardLibrary = new Map(getAllCards(true).map((card) => [card.id, card]));
 
 function playerLabel(playerId: PlayerId) {
   return playerId === "p1" ? "プレイヤー" : "CPU";
@@ -323,7 +323,23 @@ function buildSetCardChoices(
     }));
 }
 
-function buildHandCardChoices(
+function buildOwnSetCardChoices(
+  playerId: PlayerId,
+  setCards: BattleSetCard[],
+  options?: { revealedOnly?: boolean; hiddenOnly?: boolean; battleOnly?: boolean; prefix?: string },
+) {
+  return buildSetCardChoices(playerId, setCards, options);
+}
+
+function buildRevealedOpponentBattleChoices(playerId: PlayerId, setCards: BattleSetCard[], prefix = "revealed-opponent") {
+  return buildSetCardChoices(playerId, setCards, {
+    revealedOnly: true,
+    battleOnly: true,
+    prefix,
+  });
+}
+
+export function buildHandCardChoices(
   playerId: PlayerId,
   cards: CardDefinition[],
   options?: { battleOnly?: boolean; prefix?: string },
@@ -360,6 +376,29 @@ export function buildDrawPileCardChoices(playerId: PlayerId, cards: CardDefiniti
   }));
 }
 
+export function buildTypedDrawPileChoices(
+  playerId: PlayerId,
+  cards: CardDefinition[],
+  count: number,
+  predicate: (card: CardDefinition) => boolean,
+  prefix = "draw-filtered",
+) {
+  return cards
+    .slice(0, count)
+    .map((card, index) => ({
+      id: `${prefix}:${index}`,
+      label: card.name || card.id,
+      card,
+      disabled: !predicate(card),
+      payload: {
+        kind: "draw_pile_card" as const,
+        playerId,
+        drawPileIndex: index,
+        cardId: card.id,
+      },
+    }));
+}
+
 export function buildUsedCardChoices(playerId: PlayerId, cards: CardDefinition[], prefix = "used") {
   return cards.map((card, index) => ({
     id: `${prefix}:${index}`,
@@ -372,6 +411,52 @@ export function buildUsedCardChoices(playerId: PlayerId, cards: CardDefinition[]
       cardId: card.id,
     },
   }));
+}
+
+export function buildTypedDiscardChoices(
+  playerId: PlayerId,
+  cards: CardDefinition[],
+  predicate: (card: CardDefinition) => boolean,
+  prefix = "discard-filtered",
+) {
+  return cards
+    .map((card, index) => ({ card, index }))
+    .filter(({ card }) => predicate(card))
+    .map(({ card, index }) => ({
+      id: `${prefix}:${index}`,
+      label: card.name || card.id,
+      card,
+      payload: {
+        kind: "discard_card" as const,
+        playerId,
+        discardIndex: index,
+        cardId: card.id,
+      },
+    }));
+}
+
+function startDrawPileReorderPrompt(
+  session: BattleSession,
+  playerId: PlayerId,
+  count: number,
+  promptText: string,
+  continuation: NonNullable<BattleSession["pendingTriggerContinuation"]>,
+) {
+  const choices = buildDrawPileCardChoices(playerId, session.players[playerId].drawPile, count, "reorder");
+  if (choices.length === 0) {
+    return false;
+  }
+  session.phase = "trigger_prompt";
+  session.pendingTriggerChoice = {
+    playerId,
+    blessingCardId: "system_reorder_draw_pile",
+    blessingName: "System",
+    promptText,
+    mode: "reorder_draw_pile",
+    choices,
+  };
+  session.pendingTriggerContinuation = continuation;
+  return true;
 }
 
 function applyImmediateControlEffect(session: BattleSession, playerId: PlayerId, card: CardDefinition, effect: CardEffect) {
@@ -590,7 +675,14 @@ function applyControlCustom(session: BattleSession, playerId: PlayerId, card: Ca
               mode: "choose_option",
               choices,
             };
-            session.pendingTriggerContinuation = { nextActor: null, resume: "control_after_player" };
+            session.pendingTriggerContinuation = {
+              nextActor: null,
+              resume: "control_after_player",
+              effectAction: {
+                kind: "return_discard_to_hand",
+                targetPlayerId: otherPlayer(playerId),
+              },
+            };
             pushEffectLog(session, playerId, card, "相手に1枚捨てさせた。戻すカードを選ぶ。");
           } else {
             pushEffectLog(session, playerId, card, "相手に1枚捨てさせたが、戻すカードがない。");
@@ -607,33 +699,170 @@ function applyControlCustom(session: BattleSession, playerId: PlayerId, card: Ca
     }
     case "control_all_in_focus":
       if (playerId === "p1") {
-        const choices = buildHandCardChoices(playerId, player.hand, { battleOnly: true });
+        const choices = buildOwnSetCardChoices(playerId, player.setCards, {
+          revealedOnly: true,
+          battleOnly: true,
+          prefix: "own-set-boost",
+        });
         if (choices.length > 0) {
           session.phase = "trigger_prompt";
           session.pendingTriggerChoice = {
             playerId,
             blessingCardId: card.id,
             blessingName: card.name || card.id,
-            promptText: "攻撃を上げる自分のバトルカードを1枚選ぶ。",
+            promptText: "攻撃を上げる自分の公開済みバトルカードを1枚選ぶ。",
             mode: "choose_option",
             choices,
           };
-          session.pendingTriggerContinuation = { nextActor: null, resume: "control_after_player" };
-          pushEffectLog(session, playerId, card, "攻撃を上げる自分のカードを選ぶ。");
+          session.pendingTriggerContinuation = {
+            nextActor: null,
+            resume: "control_after_player",
+            effectAction: {
+              kind: "boost_selected_set_card",
+              targetPlayerId: playerId,
+              attackDelta: 2,
+            },
+          };
+          player.queuedNextTurnDrawDelta -= 1;
+          pushEffectLog(session, playerId, card, "攻撃を上げる自分の公開済みカードを選ぶ。次のターンのドロー-1。");
           break;
         }
       } else {
-        const battleCards = player.hand.filter((handCard) => handCard.card_type === "battle");
-        const target = [...battleCards].sort((left, right) => (right.attack + right.speed) - (left.attack + left.speed))[0];
+        const target = [...player.setCards]
+          .filter((setCard) => setCard.revealed && setCard.card.card_type === "battle")
+          .sort((left, right) => (right.card.attack + right.card.speed) - (left.card.attack + left.card.speed))[0];
         if (target) {
-          target.attack += 2;
+          target.card.attack += 2;
           player.queuedNextTurnDrawDelta -= 1;
-          pushEffectLog(session, playerId, card, (target.name || target.id) + "の攻撃を+2し、次のターンのドロー-1。");
+          pushEffectLog(session, playerId, card, (target.card.name || target.card.id) + "の攻撃を+2し、次のターンのドロー-1。");
           break;
         }
       }
-      player.queuedNextTurnDrawDelta -= 1;
-      pushEffectLog(session, playerId, card, "次のターンのドロー-1。");
+      pushEffectLog(session, playerId, card, "対象にできる公開済みバトルカードがない。");
+      break;
+    case "debug_control_own_set_boost":
+      if (playerId === "p1") {
+        const choices = buildOwnSetCardChoices(playerId, player.setCards, {
+          revealedOnly: true,
+          battleOnly: true,
+          prefix: "debug-own-set-boost",
+        });
+        if (choices.length > 0) {
+          session.phase = "trigger_prompt";
+          session.pendingTriggerChoice = {
+            playerId,
+            blessingCardId: card.id,
+            blessingName: card.name || card.id,
+            promptText: "自分の公開しているバトルカードを1枚選ぶ。",
+            mode: "choose_option",
+            choices,
+          };
+          session.pendingTriggerContinuation = {
+            nextActor: null,
+            resume: "control_after_player",
+            effectAction: {
+              kind: "boost_selected_set_card",
+              targetPlayerId: playerId,
+              attackDelta: 2,
+            },
+          };
+          pushEffectLog(session, playerId, card, "自分の公開済みバトルカードを選ぶ。");
+        }
+      }
+      break;
+    case "debug_control_opponent_revealed_weaken":
+      if (playerId === "p1") {
+        const choices = buildRevealedOpponentBattleChoices(otherPlayer(playerId), opponent.setCards, "debug-opp-revealed-weaken");
+        if (choices.length > 0) {
+          session.phase = "trigger_prompt";
+          session.pendingTriggerChoice = {
+            playerId,
+            blessingCardId: card.id,
+            blessingName: card.name || card.id,
+            promptText: "公開済みの相手のバトルカードを1枚選ぶ。",
+            mode: "choose_option",
+            choices,
+          };
+          session.pendingTriggerContinuation = {
+            nextActor: null,
+            resume: "control_after_player",
+            effectAction: {
+              kind: "boost_selected_set_card",
+              targetPlayerId: otherPlayer(playerId),
+              attackDelta: -1,
+            },
+          };
+          pushEffectLog(session, playerId, card, "公開済みの相手カードを選ぶ。");
+        }
+      }
+      break;
+    case "debug_control_reorder_top3":
+      if (
+        playerId === "p1" &&
+        startDrawPileReorderPrompt(session, playerId, 3, "山札上位3枚を好きな順で戻す。", {
+          nextActor: null,
+          resume: "control_after_player",
+          effectAction: {
+            kind: "reorder_draw_pile",
+            targetPlayerId: playerId,
+            count: 3,
+          },
+        })
+      ) {
+        pushEffectLog(session, playerId, card, "山札上位3枚の順番を選ぶ。");
+      }
+      break;
+    case "debug_control_search_top3_battle":
+      if (playerId === "p1") {
+        const choices = buildTypedDrawPileChoices(playerId, player.drawPile, 3, (targetCard) => targetCard.card_type === "battle", "debug-search-top3-battle");
+        if (choices.length > 0 && choices.some((choice) => !choice.disabled)) {
+          session.phase = "trigger_prompt";
+          session.pendingTriggerChoice = {
+            playerId,
+            blessingCardId: card.id,
+            blessingName: card.name || card.id,
+            promptText: "山札上位3枚からbattleカードを1枚選ぶ。",
+            mode: "choose_option",
+            choices,
+          };
+          session.pendingTriggerContinuation = {
+            nextActor: null,
+            resume: "control_after_player",
+            effectAction: {
+              kind: "search_draw_pile_to_hand",
+              targetPlayerId: playerId,
+            },
+          };
+          pushEffectLog(session, playerId, card, "山札上位3枚からbattleカードを探す。");
+        } else if (choices.length > 0) {
+          pushEffectLog(session, playerId, card, "山札上位3枚にbattleカードがない。");
+        }
+      }
+      break;
+    case "debug_control_recover_discard_battle":
+      if (playerId === "p1") {
+        const choices = buildTypedDiscardChoices(playerId, player.discardPile, (targetCard) => targetCard.card_type === "battle", "debug-recover-discard-battle");
+        if (choices.length > 0) {
+          session.phase = "trigger_prompt";
+          session.pendingTriggerChoice = {
+            playerId,
+            blessingCardId: card.id,
+            blessingName: card.name || card.id,
+            promptText: "捨て札からbattleカードを1枚選ぶ。",
+            mode: "choose_option",
+            choices,
+          };
+          session.pendingTriggerContinuation = {
+            nextActor: null,
+            resume: "control_after_player",
+            effectAction: {
+              kind: "recover_discard_to_hand",
+              targetPlayerId: playerId,
+            },
+          };
+          pushEffectLog(session, playerId, card, "捨て札からbattleカードを回収する。");
+        }
+      }
       break;
     case "control_opening_read":
       opponent.revealFirstSetThisTurn = true;
@@ -949,7 +1178,131 @@ function applyRevealedCardEffects(
   lines: Record<PlayerId, BattleFinalLine>,
 ) {
   for (const effect of item.card.effects) {
-    const key = effect.kind || effect.effect_type;
+    const key = effect.keyword || effect.kind || effect.effect_type;
+    if (key === "attack_boost_draw_penalty" || key === "debug_boost_own_revealed_set_attack") {
+      const owner = session.players[ownerId];
+      const choices = buildOwnSetCardChoices(ownerId, owner.setCards, {
+        revealedOnly: true,
+        battleOnly: true,
+        prefix: "reveal-own-set-boost",
+      });
+
+      if (ownerId === "p1") {
+        if (choices.length > 0) {
+          session.phase = "trigger_prompt";
+          session.pendingTriggerChoice = {
+            playerId: ownerId,
+            blessingCardId: item.card.id,
+            blessingName: item.card.name || item.card.id,
+            promptText: key === "attack_boost_draw_penalty" ? "攻撃を上げる自分の公開済みバトルカードを1枚選ぶ。" : "自分の公開しているバトルカードを1枚選ぶ。",
+            mode: "choose_option",
+            choices,
+          };
+          session.pendingTriggerContinuation = {
+            nextActor: null,
+            resume: "reveal",
+            effectAction: {
+              kind: "boost_selected_set_card",
+              targetPlayerId: ownerId,
+              attackDelta: 2,
+            },
+          };
+          if (key === "attack_boost_draw_penalty") {
+            owner.queuedNextTurnDrawDelta -= 1;
+            pushEffectLog(session, ownerId, item.card, "自分の公開済みバトルカードを選ぶ。次のターンのドロー-1。");
+          } else {
+            pushEffectLog(session, ownerId, item.card, "自分の公開済みバトルカードを選ぶ。");
+          }
+        }
+      } else {
+        const target = owner.setCards
+          .map((setCard, index) => ({ setCard, index }))
+          .filter(({ setCard }) => setCard.revealed && setCard.card.card_type === "battle")
+          .sort((left, right) => (right.setCard.card.attack + right.setCard.card.speed) - (left.setCard.card.attack + left.setCard.card.speed))[0];
+        if (target) {
+          target.setCard.card.attack += 2;
+          if (key === "attack_boost_draw_penalty") {
+            owner.queuedNextTurnDrawDelta -= 1;
+          }
+          pushEffectLog(session, ownerId, item.card, (target.setCard.card.name || target.setCard.card.id) + "の攻撃を+2した。");
+        }
+      }
+      continue;
+    }
+    if (key === "debug_weaken_revealed_opponent_attack") {
+      const choices = buildRevealedOpponentBattleChoices(otherPlayer(ownerId), session.players[otherPlayer(ownerId)].setCards, "reveal-opp-battle");
+      if (ownerId === "p1") {
+        if (choices.length > 0) {
+          session.phase = "trigger_prompt";
+          session.pendingTriggerChoice = {
+            playerId: ownerId,
+            blessingCardId: item.card.id,
+            blessingName: item.card.name || item.card.id,
+            promptText: "公開済みの相手のバトルカードを1枚選ぶ。",
+            mode: "choose_option",
+            choices,
+          };
+          session.pendingTriggerContinuation = {
+            nextActor: null,
+            resume: "reveal",
+            effectAction: {
+              kind: "boost_selected_set_card",
+              targetPlayerId: otherPlayer(ownerId),
+              attackDelta: -1,
+            },
+          };
+          pushEffectLog(session, ownerId, item.card, "公開済みの相手カードを選ぶ。");
+        }
+      } else {
+        const target = session.players[otherPlayer(ownerId)].setCards
+          .map((setCard, index) => ({ setCard, index }))
+          .filter(({ setCard }) => setCard.revealed && setCard.card.card_type === "battle")[0];
+        if (target) {
+          target.setCard.card.attack -= 1;
+          pushEffectLog(session, ownerId, item.card, (target.setCard.card.name || target.setCard.card.id) + "の攻撃を-1した。");
+        }
+      }
+      continue;
+    }
+    if (key === "debug_search_top3_battle") {
+      const owner = session.players[ownerId];
+      const choices = buildTypedDrawPileChoices(ownerId, owner.drawPile, 3, (targetCard) => targetCard.card_type === "battle", "reveal-search-top3-battle");
+      if (ownerId === "p1") {
+        if (choices.length > 0 && choices.some((choice) => !choice.disabled)) {
+          session.phase = "trigger_prompt";
+          session.pendingTriggerChoice = {
+            playerId: ownerId,
+            blessingCardId: item.card.id,
+            blessingName: item.card.name || item.card.id,
+            promptText: "山札上位3枚からbattleカードを1枚選ぶ。",
+            mode: "choose_option",
+            choices,
+          };
+          session.pendingTriggerContinuation = {
+            nextActor: null,
+            resume: "reveal",
+            effectAction: {
+              kind: "search_draw_pile_to_hand",
+              targetPlayerId: ownerId,
+            },
+          };
+          pushEffectLog(session, ownerId, item.card, "山札上位3枚からbattleカードを探す。");
+        } else if (choices.length > 0) {
+          pushEffectLog(session, ownerId, item.card, "山札上位3枚にbattleカードがない。");
+        }
+      } else {
+        const topThree = owner.drawPile.slice(0, 3);
+        const battleIndex = topThree.findIndex((card) => card.card_type === "battle");
+        if (battleIndex >= 0) {
+          const [found] = owner.drawPile.splice(battleIndex, 1);
+          if (found) {
+            owner.hand.push(found);
+            pushEffectLog(session, ownerId, item.card, (found.name || found.id) + "を山札から手札に加えた。");
+          }
+        }
+      }
+      continue;
+    }
     if (key === "negate_opponent_first_card") {
       const opponentFirst = session.players[otherPlayer(ownerId)].setCards[0];
       if (opponentFirst?.revealed && opponentFirst.card.card_type === "battle") {
@@ -1318,6 +1671,9 @@ function advanceRevealStep(session: BattleSession) {
   }
 
   pendingReveal.nextIndex += 1;
+  if (session.pendingTriggerChoice) {
+    return;
+  }
   if (pendingReveal.nextIndex >= pendingReveal.steps.length) {
     session.pendingReveal = null;
     finishBattleAfterReveal(session);
@@ -1555,6 +1911,88 @@ export function applyDebugBattlePreset(session: BattleSession, preset: DebugBatt
   return next;
 }
 
+export function applyDebugPromptOwnSetChoice(session: BattleSession) {
+  const next = cloneBattleSession(session);
+  const choices = buildOwnSetCardChoices("p1", next.players.p1.setCards, {
+    battleOnly: true,
+    prefix: "debug-own-set",
+  });
+  if (choices.length === 0) {
+    pushLog(next, "[Debug] 自分のセットカードがない。");
+    return next;
+  }
+  next.phase = "trigger_prompt";
+  next.pendingTriggerChoice = {
+    playerId: "p1",
+    blessingCardId: "debug_choose_own_set",
+    blessingName: "Debug",
+    promptText: "自分のセットカードを1枚選ぶ。(Debug: 選んだカードの攻撃+1)",
+    mode: "choose_option",
+    choices,
+  };
+  next.pendingTriggerContinuation = {
+    nextActor: next.actingPlayer,
+    resume: "battle",
+    effectAction: {
+      kind: "boost_selected_set_card",
+      targetPlayerId: "p1",
+      attackDelta: 1,
+    },
+  };
+  return next;
+}
+
+export function applyDebugPromptRevealedOpponentChoice(session: BattleSession) {
+  const next = cloneBattleSession(session);
+  const choices = buildRevealedOpponentBattleChoices("p2", next.players.p2.setCards, "debug-revealed-opponent");
+  if (choices.length === 0) {
+    pushLog(next, "[Debug] 公開済みの相手バトルカードがない。");
+    return next;
+  }
+  next.phase = "trigger_prompt";
+  next.pendingTriggerChoice = {
+    playerId: "p1",
+    blessingCardId: "debug_choose_revealed_opponent",
+    blessingName: "Debug",
+    promptText: "公開済みの相手カードを1枚選ぶ。(Debug: 選んだカードの攻撃-1)",
+    mode: "choose_option",
+    choices,
+  };
+  next.pendingTriggerContinuation = {
+    nextActor: next.actingPlayer,
+    resume: "battle",
+    effectAction: {
+      kind: "boost_selected_set_card",
+      targetPlayerId: "p2",
+      attackDelta: -1,
+    },
+  };
+  return next;
+}
+
+export function applyDebugPromptReorderTopCards(session: BattleSession, count = 3) {
+  const next = cloneBattleSession(session);
+  const started = startDrawPileReorderPrompt(
+    next,
+    "p1",
+    count,
+    "山札上位の順番を入れ替える。(Debug)",
+    {
+      nextActor: next.actingPlayer,
+      resume: "battle",
+      effectAction: {
+        kind: "reorder_draw_pile",
+        targetPlayerId: "p1",
+        count,
+      },
+    },
+  );
+  if (!started) {
+    pushLog(next, "[Debug] 山札上位に並べ替えるカードがない。");
+  }
+  return next;
+}
+
 function advanceCpuBattleLoop(session: BattleSession) {
   while (session.phase === "battle_select" && session.actingPlayer === "p2") {
     const choice = chooseCpuBattleAction(session, "p2");
@@ -1765,6 +2203,9 @@ export function applyPlayerTriggerChoice(session: BattleSession, useTrigger: boo
 
   const blessing = next.players.p1.blessingZone;
   const selectedChoice = pending.choices?.find((choice) => choice.id === choiceId);
+  if (selectedChoice?.disabled) {
+    return next;
+  }
   if (pending.mode === "acknowledge") {
     useTrigger = false;
   }
@@ -1791,35 +2232,90 @@ export function applyPlayerTriggerChoice(session: BattleSession, useTrigger: boo
     }
   }
 
-  if (useTrigger && pending.blessingCardId === "control_hand_echo" && selectedChoice?.payload?.kind === "discard_card") {
-    const targetPlayer = next.players[selectedChoice.payload.playerId];
-    const discardIndex = selectedChoice.payload.discardIndex ?? -1;
-    const [returned] = discardIndex >= 0 ? targetPlayer.discardPile.splice(discardIndex, 1) : [undefined];
-    if (returned) {
-      targetPlayer.hand.push(returned);
-      const sourceCard = next.players.p1.currentControlCard;
-      if (sourceCard) {
-        pushEffectLog(next, "p1", sourceCard, "相手の捨て札から" + (returned.name || returned.id) + "を手札に戻した。");
-      }
-    }
-  }
-
-  if (useTrigger && pending.blessingCardId === "control_all_in_focus" && selectedChoice?.payload?.kind === "hand_card") {
-    const targetPlayer = next.players[selectedChoice.payload.playerId];
-    const handIndex = selectedChoice.payload.handIndex ?? -1;
-    const targetCard = handIndex >= 0 ? targetPlayer.hand[handIndex] : undefined;
-    const sourceCard = next.players.p1.currentControlCard;
-    if (targetCard && sourceCard) {
-      targetCard.attack += 2;
-      targetPlayer.queuedNextTurnDrawDelta -= 1;
-      pushEffectLog(next, "p1", sourceCard, (targetCard.name || targetCard.id) + "の攻撃を+2し、次のターンのドロー-1。");
-    }
-  }
-
   const continuation = next.pendingTriggerContinuation;
+  if (useTrigger && selectedChoice?.payload && continuation?.effectAction) {
+    const targetPlayer = next.players[continuation.effectAction.targetPlayerId];
+    const sourceCard =
+      next.players.p1.currentControlCard ??
+      next.players.p1.blessingZone ??
+      battleCardLibrary.get(pending.blessingCardId);
+    switch (continuation.effectAction.kind) {
+      case "return_discard_to_hand":
+        if (selectedChoice.payload.kind === "discard_card") {
+          const discardIndex = selectedChoice.payload.discardIndex ?? -1;
+          const [returned] = discardIndex >= 0 ? targetPlayer.discardPile.splice(discardIndex, 1) : [undefined];
+          if (returned) {
+            targetPlayer.hand.push(returned);
+            if (sourceCard) {
+              pushEffectLog(next, "p1", sourceCard, "相手の捨て札から" + (returned.name || returned.id) + "を手札に戻した。");
+            }
+          }
+        }
+        break;
+      case "boost_selected_hand_card":
+        if (selectedChoice.payload.kind === "hand_card") {
+          const handIndex = selectedChoice.payload.handIndex ?? -1;
+          const targetCard = handIndex >= 0 ? targetPlayer.hand[handIndex] : undefined;
+          if (targetCard && sourceCard) {
+            targetCard.attack += continuation.effectAction.attackDelta;
+            targetPlayer.queuedNextTurnDrawDelta += continuation.effectAction.nextTurnDrawDelta;
+            pushEffectLog(
+              next,
+              "p1",
+              sourceCard,
+              (targetCard.name || targetCard.id) +
+                "の攻撃を" +
+                (continuation.effectAction.attackDelta >= 0 ? "+" : "") +
+                continuation.effectAction.attackDelta +
+                "し、次のターンのドロー" +
+                (continuation.effectAction.nextTurnDrawDelta >= 0 ? "+" : "") +
+                continuation.effectAction.nextTurnDrawDelta +
+                "。",
+            );
+          }
+        }
+        break;
+      case "boost_selected_set_card":
+        if (selectedChoice.payload.kind === "set_card") {
+          const setIndex = selectedChoice.payload.setIndex ?? -1;
+          const targetSet = setIndex >= 0 ? targetPlayer.setCards[setIndex] : undefined;
+          if (targetSet?.card && sourceCard) {
+            targetSet.card.attack += continuation.effectAction.attackDelta ?? 0;
+            targetSet.card.block += continuation.effectAction.blockDelta ?? 0;
+            targetSet.card.speed += continuation.effectAction.speedDelta ?? 0;
+            pushEffectLog(next, "p1", sourceCard, (targetSet.card.name || targetSet.card.id) + "を強化した。");
+          }
+        }
+        break;
+      case "search_draw_pile_to_hand":
+        if (selectedChoice.payload.kind === "draw_pile_card") {
+          const drawPileIndex = selectedChoice.payload.drawPileIndex ?? -1;
+          const [found] = drawPileIndex >= 0 ? targetPlayer.drawPile.splice(drawPileIndex, 1) : [undefined];
+          if (found) {
+            targetPlayer.hand.push(found);
+            if (sourceCard) {
+              pushEffectLog(next, "p1", sourceCard, (found.name || found.id) + "を山札から手札に加えた。");
+            }
+          }
+        }
+        break;
+      case "recover_discard_to_hand":
+        if (selectedChoice.payload.kind === "discard_card") {
+          const discardIndex = selectedChoice.payload.discardIndex ?? -1;
+          const [found] = discardIndex >= 0 ? targetPlayer.discardPile.splice(discardIndex, 1) : [undefined];
+          if (found) {
+            targetPlayer.hand.push(found);
+            if (sourceCard) {
+              pushEffectLog(next, "p1", sourceCard, (found.name || found.id) + "を捨て札から手札に加えた。");
+            }
+          }
+        }
+        break;
+    }
+  }
   next.pendingTriggerChoice = null;
   next.pendingTriggerContinuation = null;
-  next.phase = "battle_select";
+  next.phase = continuation?.resume === "reveal" ? "reveal" : "battle_select";
 
   if (continuation?.resume === "control_after_player") {
     const cpuChoice = chooseCpuControlCard(next, "p2");
@@ -1833,6 +2329,11 @@ export function applyPlayerTriggerChoice(session: BattleSession, useTrigger: boo
     if (next.actingPlayer === "p2") {
       advanceCpuBattleLoop(next);
     }
+    continueIfDrawnBattle(next);
+    return next;
+  }
+  if (continuation?.resume === "reveal") {
+    next.phase = "reveal";
     continueIfDrawnBattle(next);
     return next;
   }
@@ -1853,6 +2354,84 @@ export function applyPlayerTriggerChoice(session: BattleSession, useTrigger: boo
 export function advanceBattleReveal(session: BattleSession) {
   const next = cloneBattleSession(session);
   advanceRevealStep(next);
+  continueIfDrawnBattle(next);
+  return next;
+}
+
+export function applyPlayerDrawPileReorder(session: BattleSession, orderedChoiceIds: string[]) {
+  const next = cloneBattleSession(session);
+  const pending = next.pendingTriggerChoice;
+  const continuation = next.pendingTriggerContinuation;
+  if (
+    next.phase !== "trigger_prompt" ||
+    !pending ||
+    pending.playerId !== "p1" ||
+    pending.mode !== "reorder_draw_pile" ||
+    !pending.choices ||
+    !continuation?.effectAction ||
+    continuation.effectAction.kind !== "reorder_draw_pile"
+  ) {
+    return next;
+  }
+
+  const targetPlayer = next.players[continuation.effectAction.targetPlayerId];
+  const orderedChoices = orderedChoiceIds
+    .map((choiceId) => pending.choices?.find((choice) => choice.id === choiceId))
+    .filter((choice): choice is NonNullable<typeof choice> => Boolean(choice));
+
+  if (orderedChoices.length > 0) {
+    const windowSize = continuation.effectAction.count;
+    const originalWindow = targetPlayer.drawPile.slice(0, windowSize);
+    const reordered = orderedChoices
+      .map((choice) => {
+        const index = choice.payload?.drawPileIndex ?? -1;
+        return index >= 0 ? originalWindow[index] : undefined;
+      })
+      .filter((card): card is CardDefinition => Boolean(card));
+    const remaining = originalWindow.filter(
+      (_card, index) => !orderedChoices.some((choice) => (choice.payload?.drawPileIndex ?? -1) === index),
+    );
+    targetPlayer.drawPile.splice(0, windowSize, ...reordered, ...remaining);
+    const sourceCard = next.players.p1.currentControlCard;
+    if (sourceCard) {
+      pushEffectLog(next, "p1", sourceCard, "山札上位" + windowSize + "枚の順番を入れ替えた。");
+    }
+  }
+
+  next.pendingTriggerChoice = null;
+  next.pendingTriggerContinuation = null;
+  next.phase = continuation.resume === "reveal" ? "reveal" : "battle_select";
+
+  if (continuation.resume === "control_after_player") {
+    const cpuChoice = chooseCpuControlCard(next, "p2");
+    applyControlChoice(next, "p2", cpuChoice);
+    if (next.pendingTriggerChoice) {
+      return next;
+    }
+    next.phase = "battle_select";
+    next.actingPlayer = next.battleStartingPlayer;
+    pushLog(next, "battleフェーズ開始。");
+    if (next.actingPlayer === "p2") {
+      advanceCpuBattleLoop(next);
+    }
+    continueIfDrawnBattle(next);
+    return next;
+  }
+  if (continuation.resume === "reveal") {
+    next.phase = "reveal";
+    continueIfDrawnBattle(next);
+    return next;
+  }
+
+  if (!continuation.nextActor) {
+    resolveBattleV2(next);
+    return next;
+  }
+
+  next.actingPlayer = continuation.nextActor;
+  if (next.actingPlayer === "p2") {
+    advanceCpuBattleLoop(next);
+  }
   continueIfDrawnBattle(next);
   return next;
 }

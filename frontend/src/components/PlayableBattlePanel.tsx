@@ -21,6 +21,7 @@ interface PlayableBattlePanelProps {
   onChooseControl: (handIndex: number | null) => void;
   onBattleAction: (actionType: BattleActionType, handIndexes: number[]) => void;
   onResolveTriggerChoice: (useTrigger: boolean, choiceId?: string | null) => void;
+  onResolveDrawPileReorder: (orderedChoiceIds: string[]) => void;
   onAdvanceReveal: () => void;
   onResolveBlessingChoice: (useBlessing: boolean) => void;
   onDebugAddCardToHand: (drawPileIndex: number) => void;
@@ -29,9 +30,12 @@ interface PlayableBattlePanelProps {
   onDebugClearZone: (playerId: PlayerId, zone: DebugBattleZone) => void;
   onDebugSetPhase: (phase: BattlePhase) => void;
   onDebugStartReveal: () => void;
+  onDebugPromptOwnSetChoice: () => void;
+  onDebugPromptRevealedOpponentChoice: () => void;
+  onDebugPromptReorderTopCards: () => void;
 }
 
-const allCards = getAllCards().sort((left, right) => left.name.localeCompare(right.name, "ja"));
+const allCards = getAllCards(true).sort((left, right) => left.name.localeCompare(right.name, "ja"));
 
 function labelForPlayer(playerId: PlayerId) {
   return playerId === "p1" ? "Player" : "CPU";
@@ -148,6 +152,7 @@ export function PlayableBattlePanel({
   onChooseControl,
   onBattleAction,
   onResolveTriggerChoice,
+  onResolveDrawPileReorder,
   onAdvanceReveal,
   onResolveBlessingChoice,
   onDebugAddCardToHand,
@@ -156,6 +161,9 @@ export function PlayableBattlePanel({
   onDebugClearZone,
   onDebugSetPhase,
   onDebugStartReveal,
+  onDebugPromptOwnSetChoice,
+  onDebugPromptRevealedOpponentChoice,
+  onDebugPromptReorderTopCards,
 }: PlayableBattlePanelProps) {
   const [selectedHandIndexes, setSelectedHandIndexes] = useState<number[]>([]);
   const [selectedControlIndex, setSelectedControlIndex] = useState<number | null>(null);
@@ -163,6 +171,7 @@ export function PlayableBattlePanel({
   const [showDiscardFor, setShowDiscardFor] = useState<PlayerId | null>(null);
   const [showDebugDeck, setShowDebugDeck] = useState(false);
   const [showDebugBoard, setShowDebugBoard] = useState(false);
+  const [reorderChoiceIds, setReorderChoiceIds] = useState<string[]>([]);
   const [debugBoardTarget, setDebugBoardTarget] = useState<{ playerId: PlayerId; zone: DebugBattleZone }>({
     playerId: "p1",
     zone: "set",
@@ -193,6 +202,14 @@ export function PlayableBattlePanel({
     setSelectedHandIndexes([]);
     setSelectedControlIndex(null);
   }, [battleSession.phase, battleSession.turn, battleSession.logs.length]);
+
+  useEffect(() => {
+    if (battleSession.pendingTriggerChoice?.mode === "reorder_draw_pile" && battleSession.pendingTriggerChoice.choices) {
+      setReorderChoiceIds(battleSession.pendingTriggerChoice.choices.map((choice) => choice.id));
+    } else {
+      setReorderChoiceIds([]);
+    }
+  }, [battleSession.pendingTriggerChoice]);
 
   const selectedBattleCards = selectedHandIndexes
     .map((index) => p1.hand[index])
@@ -245,6 +262,19 @@ export function PlayableBattlePanel({
         />
       </div>
     );
+  }
+
+  function moveReorderChoice(choiceId: string, direction: -1 | 1) {
+    setReorderChoiceIds((current) => {
+      const index = current.indexOf(choiceId);
+      const nextIndex = index + direction;
+      if (index < 0 || nextIndex < 0 || nextIndex >= current.length) {
+        return current;
+      }
+      const next = [...current];
+      [next[index], next[nextIndex]] = [next[nextIndex], next[index]];
+      return next;
+    });
   }
 
   return (
@@ -399,6 +429,7 @@ export function PlayableBattlePanel({
       {battleSession.phase === "trigger_prompt" &&
       battleSession.pendingTriggerChoice &&
       battleSession.pendingTriggerChoice.mode !== "acknowledge" &&
+      battleSession.pendingTriggerChoice.mode !== "reorder_draw_pile" &&
       !(
         battleSession.pendingTriggerChoice.mode === "choose_option" &&
         battleSession.pendingTriggerChoice.choices?.length &&
@@ -413,11 +444,24 @@ export function PlayableBattlePanel({
             <div className="battle-action-row">
               {battleSession.pendingTriggerChoice.choices.map((choice) =>
                 choice.card ? (
-                  <div key={`trigger-choice-${choice.id}`} className="debug-card-picker-item">
-                    <CardStrip card={choice.card} onClick={() => onResolveTriggerChoice(true, choice.id)} onPreview={onSelectCard} />
+                  <div
+                    key={`trigger-choice-${choice.id}`}
+                    className={`debug-card-picker-item${choice.disabled ? " debug-card-picker-item--disabled" : ""}`}
+                  >
+                    <CardStrip
+                      card={choice.card}
+                      onClick={choice.disabled ? undefined : () => onResolveTriggerChoice(true, choice.id)}
+                      onPreview={onSelectCard}
+                    />
                   </div>
                 ) : (
-                  <button key={`trigger-choice-${choice.id}`} type="button" className="secondary-button" onClick={() => onResolveTriggerChoice(true, choice.id)}>
+                  <button
+                    key={`trigger-choice-${choice.id}`}
+                    type="button"
+                    className="secondary-button"
+                    onClick={() => onResolveTriggerChoice(true, choice.id)}
+                    disabled={choice.disabled}
+                  >
                     {choice.label}
                   </button>
                 ),
@@ -430,6 +474,45 @@ export function PlayableBattlePanel({
               </button>
             </div>
           )}
+        </div>
+      ) : null}
+
+      {battleSession.phase === "trigger_prompt" && battleSession.pendingTriggerChoice?.mode === "reorder_draw_pile" && battleSession.pendingTriggerChoice.choices ? (
+        <div className="card-overlay-backdrop" role="presentation">
+          <aside className="card-overlay battle-log-overlay debug-card-picker-overlay" role="dialog" aria-modal="true" aria-label="Reorder deck cards" onClick={(event) => event.stopPropagation()}>
+            <div className="card-overlay__header">
+              <p className="eyebrow">Reorder</p>
+            </div>
+            <p className="battle-action-caption">{battleSession.pendingTriggerChoice.promptText}</p>
+            <div className="debug-card-picker-list">
+              {reorderChoiceIds
+                .map((choiceId) => battleSession.pendingTriggerChoice?.choices?.find((choice) => choice.id === choiceId))
+                .filter((choice): choice is NonNullable<typeof choice> => Boolean(choice))
+                .map((choice, index, array) => (
+                  <div key={`reorder-${choice.id}`} className="debug-card-picker-item debug-card-picker-item--reorder">
+                    {choice.card ? <CardStrip card={choice.card} onPreview={onSelectCard} /> : null}
+                    <div className="debug-card-reorder-controls">
+                      <button type="button" className="secondary-button" onClick={() => moveReorderChoice(choice.id, -1)} disabled={index === 0}>
+                        ↑
+                      </button>
+                      <button
+                        type="button"
+                        className="secondary-button"
+                        onClick={() => moveReorderChoice(choice.id, 1)}
+                        disabled={index === array.length - 1}
+                      >
+                        ↓
+                      </button>
+                    </div>
+                  </div>
+                ))}
+            </div>
+            <div className="battle-action-row">
+              <button type="button" className="primary-button" onClick={() => onResolveDrawPileReorder(reorderChoiceIds)}>
+                Confirm Order
+              </button>
+            </div>
+          </aside>
         </div>
       ) : null}
 
@@ -503,8 +586,15 @@ export function PlayableBattlePanel({
             <div className="debug-card-picker-list">
               {battleSession.pendingTriggerChoice.choices.map((choice) =>
                 choice.card ? (
-                  <div key={`choose-${choice.id}`} className="debug-card-picker-item">
-                    <CardStrip card={choice.card} onClick={() => onResolveTriggerChoice(true, choice.id)} onPreview={onSelectCard} />
+                  <div
+                    key={`choose-${choice.id}`}
+                    className={`debug-card-picker-item${choice.disabled ? " debug-card-picker-item--disabled" : ""}`}
+                  >
+                    <CardStrip
+                      card={choice.card}
+                      onClick={choice.disabled ? undefined : () => onResolveTriggerChoice(true, choice.id)}
+                      onPreview={onSelectCard}
+                    />
                   </div>
                 ) : null,
               )}
@@ -656,6 +746,15 @@ export function PlayableBattlePanel({
             <div className="battle-action-row battle-action-row--debug">
               <button type="button" className="secondary-button" onClick={() => onDebugStartReveal()}>
                 Start Reveal
+              </button>
+              <button type="button" className="secondary-button" onClick={() => onDebugPromptOwnSetChoice()}>
+                Debug Own Set
+              </button>
+              <button type="button" className="secondary-button" onClick={() => onDebugPromptRevealedOpponentChoice()}>
+                Debug CPU Revealed
+              </button>
+              <button type="button" className="secondary-button" onClick={() => onDebugPromptReorderTopCards()}>
+                Debug Reorder Top 3
               </button>
               <button type="button" className="secondary-button" onClick={() => onDebugSetup("draw")}>
                 Debug Draw

@@ -1,10 +1,16 @@
 import rawCards from "../../../data/cards.json";
 import type { CardDefinition, CardRarity, CardType } from "../types/cards";
+import { debugOnlyCards } from "./debugCards";
 
 const cards = (rawCards as CardDefinition[]).filter((card) => card.enabled);
+const debugCards = debugOnlyCards;
 
-export function getAllCards(): CardDefinition[] {
-  return cards;
+export function getAllCards(includeDebug = false): CardDefinition[] {
+  return includeDebug ? [...cards, ...debugCards] : cards;
+}
+
+export function getDebugOnlyCards(): CardDefinition[] {
+  return debugCards;
 }
 
 export function summarizeByType(input: CardDefinition[]): Record<CardType, number> {

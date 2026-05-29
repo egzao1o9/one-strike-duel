@@ -149,10 +149,11 @@ export interface PendingTriggerChoice {
   blessingCardId: string;
   blessingName: string;
   promptText: string;
-  mode: "confirm_use" | "choose_option" | "acknowledge";
+  mode: "confirm_use" | "choose_option" | "acknowledge" | "reorder_draw_pile";
   choices?: Array<{
     id: string;
     label: string;
+    disabled?: boolean;
     card?: CardDefinition;
     payload?: {
       kind: "set_card" | "discard_card" | "hand_card" | "draw_pile_card" | "used_card";
@@ -191,7 +192,38 @@ export interface BattleSession {
   pendingTriggerChoice: PendingTriggerChoice | null;
   pendingTriggerContinuation: {
     nextActor: PlayerId | null;
-    resume?: "battle" | "control_after_player";
+    resume?: "battle" | "control_after_player" | "reveal";
+    effectAction?:
+      | {
+          kind: "return_discard_to_hand";
+          targetPlayerId: PlayerId;
+        }
+      | {
+          kind: "boost_selected_hand_card";
+          targetPlayerId: PlayerId;
+          attackDelta: number;
+          nextTurnDrawDelta: number;
+        }
+      | {
+          kind: "boost_selected_set_card";
+          targetPlayerId: PlayerId;
+          attackDelta?: number;
+          blockDelta?: number;
+          speedDelta?: number;
+        }
+      | {
+          kind: "search_draw_pile_to_hand";
+          targetPlayerId: PlayerId;
+        }
+      | {
+          kind: "recover_discard_to_hand";
+          targetPlayerId: PlayerId;
+        }
+      | {
+          kind: "reorder_draw_pile";
+          targetPlayerId: PlayerId;
+          count: number;
+        };
   } | null;
   pendingReveal: PendingRevealState | null;
 }

@@ -1,5 +1,5 @@
 import { advanceDraftAfterAnimation, applyPlayerDraftPick, createInitialDraftSession } from "../lib/draftSession";
-import { advanceBattleReveal, applyDebugAddCardToHand, applyDebugBattlePreset, applyDebugClearZone, applyDebugPlaceCard, applyDebugSetPhase, applyDebugStartReveal, applyPlayerBattleAction, applyPlayerBlessingChoice, applyPlayerControlChoice, applyPlayerMulligan, applyPlayerTriggerChoice, createBattleSessionFromDraft, createDebugBattleSession } from "../lib/battleSession";
+import { advanceBattleReveal, applyDebugAddCardToHand, applyDebugBattlePreset, applyDebugClearZone, applyDebugPlaceCard, applyDebugPromptOwnSetChoice, applyDebugPromptReorderTopCards, applyDebugPromptRevealedOpponentChoice, applyDebugSetPhase, applyDebugStartReveal, applyPlayerBattleAction, applyPlayerBlessingChoice, applyPlayerControlChoice, applyPlayerDrawPileReorder, applyPlayerMulligan, applyPlayerTriggerChoice, createBattleSessionFromDraft, createDebugBattleSession } from "../lib/battleSession";
 import type { CardRarity } from "../types/cards";
 import type { BattleActionType, BattlePhase } from "../types/prototype";
 import type { DebugBattlePreset, DebugBattleZone, PrototypeState, PlayerId } from "../types/prototype";
@@ -16,6 +16,7 @@ export type PrototypeAction =
   | { type: "choose_control"; handIndex: number | null }
   | { type: "choose_battle_action"; actionType: BattleActionType; handIndexes: number[] }
   | { type: "resolve_trigger_choice"; useTrigger: boolean; choiceId?: string | null }
+  | { type: "resolve_draw_pile_reorder"; orderedChoiceIds: string[] }
   | { type: "advance_reveal" }
   | { type: "resolve_blessing_choice"; useBlessing: boolean }
   | { type: "debug_add_card_to_hand"; drawPileIndex: number }
@@ -23,7 +24,10 @@ export type PrototypeAction =
   | { type: "debug_place_card"; playerId: PlayerId; zone: DebugBattleZone; cardId: string }
   | { type: "debug_clear_zone"; playerId: PlayerId; zone: DebugBattleZone }
   | { type: "debug_set_phase"; phase: BattlePhase }
-  | { type: "debug_start_reveal" };
+  | { type: "debug_start_reveal" }
+  | { type: "debug_prompt_own_set_choice" }
+  | { type: "debug_prompt_revealed_opponent_choice" }
+  | { type: "debug_prompt_reorder_top_cards"; count?: number };
 
 export const initialPrototypeState: PrototypeState = {
   screen: "title",
@@ -135,6 +139,14 @@ export function prototypeReducer(state: PrototypeState, action: PrototypeAction)
         ...state,
         activeBattle: applyPlayerTriggerChoice(state.activeBattle, action.useTrigger, action.choiceId ?? null),
       };
+    case "resolve_draw_pile_reorder":
+      if (!state.activeBattle) {
+        return state;
+      }
+      return {
+        ...state,
+        activeBattle: applyPlayerDrawPileReorder(state.activeBattle, action.orderedChoiceIds),
+      };
     case "advance_reveal":
       if (!state.activeBattle) {
         return state;
@@ -190,6 +202,30 @@ export function prototypeReducer(state: PrototypeState, action: PrototypeAction)
       return {
         ...state,
         activeBattle: applyDebugStartReveal(state.activeBattle),
+      };
+    case "debug_prompt_own_set_choice":
+      if (!state.activeBattle) {
+        return state;
+      }
+      return {
+        ...state,
+        activeBattle: applyDebugPromptOwnSetChoice(state.activeBattle),
+      };
+    case "debug_prompt_revealed_opponent_choice":
+      if (!state.activeBattle) {
+        return state;
+      }
+      return {
+        ...state,
+        activeBattle: applyDebugPromptRevealedOpponentChoice(state.activeBattle),
+      };
+    case "debug_prompt_reorder_top_cards":
+      if (!state.activeBattle) {
+        return state;
+      }
+      return {
+        ...state,
+        activeBattle: applyDebugPromptReorderTopCards(state.activeBattle, action.count ?? 3),
       };
     default:
       return state;

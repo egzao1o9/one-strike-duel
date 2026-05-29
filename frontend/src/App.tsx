@@ -679,6 +679,9 @@ export default function App() {
           onResolveTriggerChoice={(useTrigger, choiceId) =>
             dispatch({ type: "resolve_trigger_choice", useTrigger, choiceId })
           }
+          onResolveDrawPileReorder={(orderedChoiceIds) =>
+            dispatch({ type: "resolve_draw_pile_reorder", orderedChoiceIds })
+          }
           onAdvanceReveal={() => dispatch({ type: "advance_reveal" })}
           onResolveBlessingChoice={(useBlessing) =>
             dispatch({ type: "resolve_blessing_choice", useBlessing })
@@ -693,6 +696,9 @@ export default function App() {
           onDebugClearZone={(playerId, zone) => dispatch({ type: "debug_clear_zone", playerId, zone })}
           onDebugSetPhase={(phase) => dispatch({ type: "debug_set_phase", phase })}
           onDebugStartReveal={() => dispatch({ type: "debug_start_reveal" })}
+          onDebugPromptOwnSetChoice={() => dispatch({ type: "debug_prompt_own_set_choice" })}
+          onDebugPromptRevealedOpponentChoice={() => dispatch({ type: "debug_prompt_revealed_opponent_choice" })}
+          onDebugPromptReorderTopCards={() => dispatch({ type: "debug_prompt_reorder_top_cards" })}
         />
       ) : (
         <section className="dashboard-panel">

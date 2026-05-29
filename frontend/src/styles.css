@@ -1496,6 +1496,23 @@ h1 {
   display: block;
 }
 
+.debug-card-picker-item--reorder {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.debug-card-picker-item--disabled {
+  opacity: 0.45;
+  filter: saturate(0.6);
+}
+
+.debug-card-reorder-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .acknowledge-overlay {
   width: min(960px, calc(100vw - 28px));
 }

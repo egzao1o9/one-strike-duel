@@ -1613,7 +1613,7 @@
       "attack",
       "tempo"
     ],
-    "effect_text": "自分のカードを1枚選ぶ。そのカードの攻撃値を+2する。次のターンのドロー枚数が1枚減る。",
+    "effect_text": "自分の公開しているバトルカードを1枚選ぶ。そのカードの攻撃値を+2する。次のターンのドロー枚数が1枚減る。",
     "enabled": true,
     "play_zone": "instant",
     "after_play_zone": "discard",
@@ -1633,7 +1633,7 @@
         "count": 0
       }
     ],
-    "notes": "Boost offense now, lose one draw next turn."
+    "notes": "Boost a revealed battle card now, lose one draw next turn."
   },
   {
     "id": "control_anchor",

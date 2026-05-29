@@ -7,7 +7,7 @@
   "block": 0,
   "speed": 0,
   "tags": ["attack", "tempo"],
-  "public_text": "自分のカードを1枚選ぶ。そのカードの攻撃値を+2する。次のターンのドロー枚数が1枚減る。",
+  "public_text": "自分の公開しているバトルカードを1枚選ぶ。そのカードの攻撃値を+2する。次のターンのドロー枚数が1枚減る。",
   "effects": [
     {
       "trigger": "on_play",
@@ -15,5 +15,5 @@
       "keyword": "attack_boost_draw_penalty"
     }
   ],
-  "notes": "Boost offense now, lose one draw next turn."
+  "notes": "Boost a revealed battle card now, lose one draw next turn."
 }

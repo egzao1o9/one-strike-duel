@@ -68,7 +68,7 @@
 | `blessing_suppression` | 抑制の加護 | `blessing` | `rare` | 0 | 0 | 0 | blessing, debuff, control | 相手の攻撃力が5以上のカードを対象に使用できる。そのカードの攻撃-3。使用後、この加護を裏向きにする。 | - |
 | `blessing_tailwind` | 追風の加護 | `blessing` | `uncommon` | 0 | 0 | 0 | blessing, speed | 任意のバトル計算時に使用する。自分の素早さ+1。使用後、この加護を裏向きにする。 | - |
 | `blessing_trap_web` | 罠糸の加護 | `blessing` | `rare` | 0 | 0 | 0 | blessing, debuff, defense | 相手が3枚目以上のバトルカードがある場合にバトル計算時に使用できる。そのバトルで相手の攻撃-3。使用後、この加護を裏向きにする。 | - |
-| `control_all_in_focus` | 前借り | `control` | `uncommon` | 0 | 0 | 0 | attack, tempo | 自分のカードを1枚選ぶ。そのカードの攻撃値を+2する。次のターンのドロー枚数が1枚減る。 | - |
+| `control_all_in_focus` | 前借り | `control` | `uncommon` | 0 | 0 | 0 | attack, tempo | 自分の公開しているバトルカードを1枚選ぶ。そのカードの攻撃値を+2する。次のターンのドロー枚数が1枚減る。 | - |
 | `control_anchor` | 重心落とし | `control` | `uncommon` | 0 | 0 | 0 | debuff | このターン、相手の素早さ-2。 | - |
 | `control_blank_first` | Blank First | `control` | `uncommon` | 0 | 0 | 0 | debuff, trick | このターン、相手の場の1枚目のカードを無効化する。 | - |
 | `control_blessing_break` | 破祈 | `control` | `rare` | 0 | 0 | 0 | blessing, removal | 場の加護カードを捨てる。 | - |
@@ -878,10 +878,10 @@
 - Rarity: `uncommon`
 - Stats: `A=0 / B=0 / S=0`
 - Tags: attack, tempo
-- Effect Text: 自分のカードを1枚選ぶ。そのカードの攻撃値を+2する。次のターンのドロー枚数が1枚減る。
+- Effect Text: 自分の公開しているバトルカードを1枚選ぶ。そのカードの攻撃値を+2する。次のターンのドロー枚数が1枚減る。
 - Flavor Text: -
 - Zones: `play=instant / after=discard / slot=- `
-- Notes: Boost offense now, lose one draw next turn.
+- Notes: Boost a revealed battle card now, lose one draw next turn.
 - Effects:
   - `on_play` / `custom` / target=`` / stat=`` / value=0 / duration=`- ` / active_zone=`- `
 
