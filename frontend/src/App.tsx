@@ -683,9 +683,12 @@ export default function App() {
             dispatch({ type: "resolve_draw_pile_reorder", orderedChoiceIds })
           }
           onAdvanceReveal={() => dispatch({ type: "advance_reveal" })}
+          onAdvanceTurnTransition={() => dispatch({ type: "advance_turn_transition" })}
           onResolveBlessingChoice={(useBlessing) =>
             dispatch({ type: "resolve_blessing_choice", useBlessing })
           }
+          onRestartBattle={() => dispatch({ type: "restart_battle" })}
+          onReturnToTitle={() => dispatch({ type: "return_to_title" })}
           onDebugAddCardToHand={(drawPileIndex) =>
             dispatch({ type: "debug_add_card_to_hand", drawPileIndex })
           }

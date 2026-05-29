@@ -65,7 +65,7 @@ export interface DraftSession {
   pendingCpuTurn: boolean;
 }
 
-export type BattlePhase = "mulligan" | "control" | "battle_select" | "trigger_prompt" | "reveal" | "blessing_prompt" | "result";
+export type BattlePhase = "mulligan" | "control" | "battle_select" | "trigger_prompt" | "reveal" | "blessing_prompt" | "turn_transition" | "result";
 export type BattleActionType = "set" | "set_pass" | "pass";
 export type DebugBattlePreset = "draw" | "no_damage" | "p1_win" | "p2_win";
 export type DebugBattleZone = "set" | "control" | "blessing" | "hand" | "draw_pile" | "discard";
@@ -188,6 +188,7 @@ export interface BattleSession {
   endReason: string | null;
   logs: BattleLogEntry[];
   effectLogs: BattleEffectLogEntry[];
+  transitionMessage: string | null;
   pendingBlessingChoice: PendingBlessingChoice | null;
   pendingTriggerChoice: PendingTriggerChoice | null;
   pendingTriggerContinuation: {

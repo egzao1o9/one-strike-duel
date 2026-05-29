@@ -540,6 +540,20 @@ h1 {
   margin-top: 8px;
 }
 
+.battle-action-panel--modal {
+  width: min(720px, calc(100vw - 48px));
+  margin: 0 auto;
+  padding: 16px 18px;
+  border: 1px solid rgba(99, 115, 129, 0.18);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 18px 44px rgba(14, 24, 36, 0.24);
+}
+
+.battle-action-panel--result {
+  text-align: center;
+}
+
 .battle-action-caption {
   margin: 0;
   font-size: 0.9rem;
@@ -564,11 +578,21 @@ h1 {
   margin-top: 8px;
 }
 
+.battle-result-panel--modal {
+  width: min(720px, calc(100vw - 48px));
+  margin: 0 auto;
+  padding: 18px;
+  border-radius: 18px;
+  background: rgba(255, 252, 247, 0.98);
+  box-shadow: 0 18px 44px rgba(14, 24, 36, 0.24);
+}
+
 .battle-scoreboard {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   justify-content: center;
-  gap: 16px;
+  gap: 8px;
   margin: 10px 0;
   padding: 10px 14px;
   border: 1px solid rgba(99, 115, 129, 0.22);
@@ -576,22 +600,48 @@ h1 {
   background: rgba(250, 247, 240, 0.9);
 }
 
-.battle-scoreboard__side {
+.battle-scoreboard__row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
+  gap: 12px;
   font-size: 0.92rem;
   color: #3e4b5a;
 }
 
-.battle-scoreboard__side strong {
+.battle-scoreboard__label {
+  min-width: 52px;
   color: #1e2732;
 }
 
-.battle-scoreboard__divider {
-  font-size: 0.78rem;
-  letter-spacing: 0.12em;
-  color: #8b95a3;
+.battle-scoreboard__stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.battle-scoreboard__stat {
+  min-width: 52px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.86rem;
+}
+
+.battle-scoreboard__stat--attack {
+  background: rgba(178, 49, 49, 0.12);
+  color: #8f2525;
+}
+
+.battle-scoreboard__stat--block {
+  background: rgba(45, 123, 81, 0.12);
+  color: #226544;
+}
+
+.battle-scoreboard__stat--speed {
+  background: rgba(41, 96, 157, 0.12);
+  color: #1f4f84;
 }
 
 .battle-surface {

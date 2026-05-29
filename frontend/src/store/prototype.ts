@@ -1,5 +1,5 @@
 import { advanceDraftAfterAnimation, applyPlayerDraftPick, createInitialDraftSession } from "../lib/draftSession";
-import { advanceBattleReveal, applyDebugAddCardToHand, applyDebugBattlePreset, applyDebugClearZone, applyDebugPlaceCard, applyDebugPromptOwnSetChoice, applyDebugPromptReorderTopCards, applyDebugPromptRevealedOpponentChoice, applyDebugSetPhase, applyDebugStartReveal, applyPlayerBattleAction, applyPlayerBlessingChoice, applyPlayerControlChoice, applyPlayerDrawPileReorder, applyPlayerMulligan, applyPlayerTriggerChoice, createBattleSessionFromDraft, createDebugBattleSession } from "../lib/battleSession";
+import { advanceBattleReveal, advanceTurnTransition, applyDebugAddCardToHand, applyDebugBattlePreset, applyDebugClearZone, applyDebugPlaceCard, applyDebugPromptOwnSetChoice, applyDebugPromptReorderTopCards, applyDebugPromptRevealedOpponentChoice, applyDebugSetPhase, applyDebugStartReveal, applyPlayerBattleAction, applyPlayerBlessingChoice, applyPlayerControlChoice, applyPlayerDrawPileReorder, applyPlayerMulligan, applyPlayerTriggerChoice, createBattleSessionFromDraft, createDebugBattleSession } from "../lib/battleSession";
 import type { CardRarity } from "../types/cards";
 import type { BattleActionType, BattlePhase } from "../types/prototype";
 import type { DebugBattlePreset, DebugBattleZone, PrototypeState, PlayerId } from "../types/prototype";
@@ -19,6 +19,8 @@ export type PrototypeAction =
   | { type: "resolve_draw_pile_reorder"; orderedChoiceIds: string[] }
   | { type: "advance_reveal" }
   | { type: "resolve_blessing_choice"; useBlessing: boolean }
+  | { type: "advance_turn_transition" }
+  | { type: "restart_battle" }
   | { type: "debug_add_card_to_hand"; drawPileIndex: number }
   | { type: "debug_battle_preset"; preset: DebugBattlePreset }
   | { type: "debug_place_card"; playerId: PlayerId; zone: DebugBattleZone; cardId: string }
@@ -130,6 +132,27 @@ export function prototypeReducer(state: PrototypeState, action: PrototypeAction)
       return {
         ...state,
         activeBattle: applyPlayerBlessingChoice(state.activeBattle, action.useBlessing),
+      };
+    case "advance_turn_transition":
+      if (!state.activeBattle) {
+        return state;
+      }
+      return {
+        ...state,
+        activeBattle: advanceTurnTransition(state.activeBattle),
+      };
+    case "restart_battle":
+      if (!state.activeBattle) {
+        return state;
+      }
+      return {
+        ...state,
+        screen: "battle",
+        activeBattle: state.activeBattle.debugMode
+          ? createDebugBattleSession(state.activeBattle.seed)
+          : state.activeSession
+            ? createBattleSessionFromDraft(state.activeSession)
+            : state.activeBattle,
       };
     case "resolve_trigger_choice":
       if (!state.activeBattle) {

@@ -23,7 +23,10 @@ interface PlayableBattlePanelProps {
   onResolveTriggerChoice: (useTrigger: boolean, choiceId?: string | null) => void;
   onResolveDrawPileReorder: (orderedChoiceIds: string[]) => void;
   onAdvanceReveal: () => void;
+  onAdvanceTurnTransition: () => void;
   onResolveBlessingChoice: (useBlessing: boolean) => void;
+  onRestartBattle: () => void;
+  onReturnToTitle: () => void;
   onDebugAddCardToHand: (drawPileIndex: number) => void;
   onDebugSetup: (preset: DebugBattlePreset) => void;
   onDebugPlaceCard: (playerId: PlayerId, zone: DebugBattleZone, cardId: string) => void;
@@ -154,7 +157,10 @@ export function PlayableBattlePanel({
   onResolveTriggerChoice,
   onResolveDrawPileReorder,
   onAdvanceReveal,
+  onAdvanceTurnTransition,
   onResolveBlessingChoice,
+  onRestartBattle,
+  onReturnToTitle,
   onDebugAddCardToHand,
   onDebugSetup,
   onDebugPlaceCard,
@@ -327,17 +333,21 @@ export function PlayableBattlePanel({
             {(battleSession.phase === "reveal" || battleSession.phase === "blessing_prompt" || battleSession.phase === "result") &&
             battleSession.finalLines ? (
               <div className="battle-scoreboard">
-                <div className="battle-scoreboard__side">
-                  <strong>CPU</strong>
-                  <span>
-                    A {battleSession.finalLines.p2.attack} / B {battleSession.finalLines.p2.block} / S {battleSession.finalLines.p2.speed}
-                  </span>
+                <div className="battle-scoreboard__row battle-scoreboard__row--cpu">
+                  <strong className="battle-scoreboard__label">CPU</strong>
+                  <div className="battle-scoreboard__stats">
+                    <span className="battle-scoreboard__stat battle-scoreboard__stat--attack">A {battleSession.finalLines.p2.attack}</span>
+                    <span className="battle-scoreboard__stat battle-scoreboard__stat--block">B {battleSession.finalLines.p2.block}</span>
+                    <span className="battle-scoreboard__stat battle-scoreboard__stat--speed">S {battleSession.finalLines.p2.speed}</span>
+                  </div>
                 </div>
-                <div className="battle-scoreboard__side">
-                  <strong>Player</strong>
-                  <span>
-                    A {battleSession.finalLines.p1.attack} / B {battleSession.finalLines.p1.block} / S {battleSession.finalLines.p1.speed}
-                  </span>
+                <div className="battle-scoreboard__row battle-scoreboard__row--player">
+                  <strong className="battle-scoreboard__label">Player</strong>
+                  <div className="battle-scoreboard__stats">
+                    <span className="battle-scoreboard__stat battle-scoreboard__stat--attack">A {battleSession.finalLines.p1.attack}</span>
+                    <span className="battle-scoreboard__stat battle-scoreboard__stat--block">B {battleSession.finalLines.p1.block}</span>
+                    <span className="battle-scoreboard__stat battle-scoreboard__stat--speed">S {battleSession.finalLines.p1.speed}</span>
+                  </div>
                 </div>
               </div>
             ) : (
@@ -551,23 +561,59 @@ export function PlayableBattlePanel({
         </div>
       ) : null}
 
-      {battleSession.phase === "result" && battleSession.finalLines ? (
-        <div className="battle-result-panel">
-          <p className="battle-result-headline">{battleSession.winner ? `${labelForPlayer(battleSession.winner)} wins` : "Draw"}</p>
-          <div className="battle-result-grid">
-            <div className="battle-result-card">
-              <strong>Player</strong>
-              <em>{battleSession.winner === "p1" ? "Win" : battleSession.winner === "p2" ? "Lose" : "Draw"}</em>
-              <span>
-                A {battleSession.finalLines.p1.attack} / B {battleSession.finalLines.p1.block} / S {battleSession.finalLines.p1.speed}
-              </span>
+      {battleSession.phase === "turn_transition" ? (
+        <div className="card-overlay-backdrop" role="presentation">
+          <div className="battle-action-panel battle-action-panel--modal battle-action-panel--result">
+            <p className="battle-result-headline">No Decisive Hit</p>
+            <p className="battle-action-caption">{battleSession.transitionMessage ?? "次のターンへ進みます。"}</p>
+            {battleSession.finalLines ? (
+              <div className="battle-result-grid">
+                <div className="battle-result-card">
+                  <strong>Player</strong>
+                  <span>A {battleSession.finalLines.p1.attack} / B {battleSession.finalLines.p1.block} / S {battleSession.finalLines.p1.speed}</span>
+                </div>
+                <div className="battle-result-card">
+                  <strong>CPU</strong>
+                  <span>A {battleSession.finalLines.p2.attack} / B {battleSession.finalLines.p2.block} / S {battleSession.finalLines.p2.speed}</span>
+                </div>
+              </div>
+            ) : null}
+            <div className="battle-action-row">
+              <button type="button" className="primary-button" onClick={onAdvanceTurnTransition}>
+                Next Turn
+              </button>
             </div>
-            <div className="battle-result-card">
-              <strong>CPU</strong>
-              <em>{battleSession.winner === "p2" ? "Win" : battleSession.winner === "p1" ? "Lose" : "Draw"}</em>
-              <span>
-                A {battleSession.finalLines.p2.attack} / B {battleSession.finalLines.p2.block} / S {battleSession.finalLines.p2.speed}
-              </span>
+          </div>
+        </div>
+      ) : null}
+
+      {battleSession.phase === "result" && battleSession.finalLines ? (
+        <div className="card-overlay-backdrop" role="presentation">
+          <div className="battle-result-panel battle-result-panel--modal">
+            <p className="battle-result-headline">{battleSession.winner ? `${labelForPlayer(battleSession.winner)} wins` : "Draw"}</p>
+            <div className="battle-result-grid">
+              <div className="battle-result-card">
+                <strong>Player</strong>
+                <em>{battleSession.winner === "p1" ? "Win" : battleSession.winner === "p2" ? "Lose" : "Draw"}</em>
+                <span>
+                  A {battleSession.finalLines.p1.attack} / B {battleSession.finalLines.p1.block} / S {battleSession.finalLines.p1.speed}
+                </span>
+              </div>
+              <div className="battle-result-card">
+                <strong>CPU</strong>
+                <em>{battleSession.winner === "p2" ? "Win" : battleSession.winner === "p1" ? "Lose" : "Draw"}</em>
+                <span>
+                  A {battleSession.finalLines.p2.attack} / B {battleSession.finalLines.p2.block} / S {battleSession.finalLines.p2.speed}
+                </span>
+              </div>
+            </div>
+            <div className="battle-action-row">
+              <button type="button" className="primary-button" onClick={onRestartBattle}>
+                Rematch
+              </button>
+              <button type="button" className="secondary-button" onClick={onReturnToTitle}>
+                Title
+              </button>
             </div>
           </div>
         </div>

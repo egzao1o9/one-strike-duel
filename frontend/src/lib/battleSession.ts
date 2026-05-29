@@ -185,6 +185,7 @@ function cloneBattleSession(session: BattleSession): BattleSession {
     revealSteps: session.revealSteps.map((step) => ({ ...step })),
     logs: session.logs.map((entry) => ({ ...entry })),
     effectLogs: session.effectLogs.map((entry) => ({ ...entry })),
+    transitionMessage: session.transitionMessage,
     pendingBlessingChoice: session.pendingBlessingChoice
       ? {
           ...session.pendingBlessingChoice,
@@ -1588,13 +1589,15 @@ function finalizeBattleResolution(session: BattleSession, lines: Record<PlayerId
     session.endReason = outcome.endReason;
     pushLog(session, playerLabel(outcome.winner) + "の勝ち。");
   } else if (outcome.endReason === "simultaneous_attack") {
-    session.phase = "result";
+    session.phase = "turn_transition";
     session.winner = null;
     session.endReason = outcome.endReason;
+    session.transitionMessage = "同時攻撃で引き分け。このターンは決着せず、次のターンへ。";
     pushLog(session, "Draw");
   } else {
     pushLog(session, "No decisive hit");
-    endTurnAndAdvance(session);
+    session.phase = "turn_transition";
+    session.transitionMessage = "このターンは決着せず、次のターンへ。";
   }
 }
 
@@ -1824,6 +1827,7 @@ function endTurnAndAdvance(session: BattleSession) {
   session.battleStartingPlayer = otherPlayer(session.battleStartingPlayer);
   session.actingPlayer = "p1";
   session.phase = "mulligan";
+  session.transitionMessage = null;
   for (const playerId of ["p1", "p2"] as PlayerId[]) {
     const player = session.players[playerId];
     const queued = player.queuedNextTurnStatDelta;
@@ -1846,13 +1850,8 @@ function endTurnAndAdvance(session: BattleSession) {
   pushLog(session, "ターン" + session.turn + "開始。プレイヤーは" + p1Drawn.length + "枚、CPUは" + p2Drawn.length + "枚引いた。");
 }
 
-function continueIfDrawnBattle(session: BattleSession) {
-  if (session.phase === "result" && session.winner === null && session.endReason === "simultaneous_attack") {
-    session.winner = null;
-    session.endReason = null;
-    pushLog(session, "同時攻撃で引き分け。次のターンへ。");
-    endTurnAndAdvance(session);
-  }
+function continueIfDrawnBattle(_session: BattleSession) {
+  return;
 }
 
 export function applyDebugBattlePreset(session: BattleSession, preset: DebugBattlePreset) {
@@ -1864,6 +1863,7 @@ export function applyDebugBattlePreset(session: BattleSession, preset: DebugBatt
   next.endReason = null;
   next.finalLines = null;
   next.revealSteps = [];
+  next.transitionMessage = null;
   next.pendingBlessingChoice = null;
   next.pendingTriggerChoice = null;
   next.pendingTriggerContinuation = null;
@@ -2037,6 +2037,7 @@ export function createBattleSessionFromDraft(session: DraftSession): BattleSessi
       { id: "battle-5", text: "最初に1回だけマリガンを行う。" },
     ],
     effectLogs: [],
+    transitionMessage: null,
     pendingBlessingChoice: null,
     pendingTriggerChoice: null,
     pendingTriggerContinuation: null,
@@ -2095,6 +2096,7 @@ export function createDebugBattleSession(seed: number = Date.now()): BattleSessi
     endReason: null,
     logs: [{ id: "battle-1", text: "Debug battle session started." }],
     effectLogs: [],
+    transitionMessage: null,
     pendingBlessingChoice: null,
     pendingTriggerChoice: null,
     pendingTriggerContinuation: null,
@@ -2280,9 +2282,17 @@ export function applyPlayerTriggerChoice(session: BattleSession, useTrigger: boo
           const setIndex = selectedChoice.payload.setIndex ?? -1;
           const targetSet = setIndex >= 0 ? targetPlayer.setCards[setIndex] : undefined;
           if (targetSet?.card && sourceCard) {
-            targetSet.card.attack += continuation.effectAction.attackDelta ?? 0;
-            targetSet.card.block += continuation.effectAction.blockDelta ?? 0;
-            targetSet.card.speed += continuation.effectAction.speedDelta ?? 0;
+            const attackDelta = continuation.effectAction.attackDelta ?? 0;
+            const blockDelta = continuation.effectAction.blockDelta ?? 0;
+            const speedDelta = continuation.effectAction.speedDelta ?? 0;
+            targetSet.card.attack += attackDelta;
+            targetSet.card.block += blockDelta;
+            targetSet.card.speed += speedDelta;
+            if (next.finalLines && targetSet.revealed && targetSet.card.card_type === "battle") {
+              next.finalLines[continuation.effectAction.targetPlayerId].attack += attackDelta;
+              next.finalLines[continuation.effectAction.targetPlayerId].block += blockDelta;
+              next.finalLines[continuation.effectAction.targetPlayerId].speed += speedDelta;
+            }
             pushEffectLog(next, "p1", sourceCard, (targetSet.card.name || targetSet.card.id) + "を強化した。");
           }
         }
@@ -2355,6 +2365,17 @@ export function advanceBattleReveal(session: BattleSession) {
   const next = cloneBattleSession(session);
   advanceRevealStep(next);
   continueIfDrawnBattle(next);
+  return next;
+}
+
+export function advanceTurnTransition(session: BattleSession) {
+  const next = cloneBattleSession(session);
+  if (next.phase !== "turn_transition") {
+    return next;
+  }
+  next.winner = null;
+  next.endReason = null;
+  endTurnAndAdvance(next);
   return next;
 }
 
