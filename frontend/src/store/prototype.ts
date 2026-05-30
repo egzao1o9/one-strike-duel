@@ -1,11 +1,16 @@
 import { advanceDraftAfterAnimation, applyPlayerDraftPick, createInitialDraftSession } from "../lib/draftSession";
-import { advanceBattleReveal, advanceTurnTransition, applyDebugAddCardToHand, applyDebugBattlePreset, applyDebugClearZone, applyDebugPlaceCard, applyDebugPromptOwnSetChoice, applyDebugPromptReorderTopCards, applyDebugPromptRevealedOpponentChoice, applyDebugSetPhase, applyDebugStartReveal, applyPlayerBattleAction, applyPlayerBlessingChoice, applyPlayerControlChoice, applyPlayerDrawPileReorder, applyPlayerMulligan, applyPlayerTriggerChoice, createBattleSessionFromDraft, createDebugBattleSession } from "../lib/battleSession";
+import { advanceBattleReveal, advanceTurnTransition, applyDebugAddCardToHand, applyDebugBattlePreset, applyDebugClearZone, applyDebugPlaceCard, applyDebugPromptOwnSetChoice, applyDebugPromptReorderTopCards, applyDebugPromptRevealedOpponentChoice, applyDebugSetPhase, applyDebugStartReveal, applyPlayerBattleAction, applyPlayerBlessingChoice, applyPlayerControlChoice, applyPlayerDrawPileReorder, applyPlayerMulligan, applyPlayerTriggerChoice, createBattleSessionFromDecks, createBattleSessionFromDraft, createDebugBattleSession } from "../lib/battleSession";
+import { buildPresetDeckState } from "../lib/presetDecks";
 import type { CardRarity } from "../types/cards";
 import type { BattleActionType, BattlePhase } from "../types/prototype";
 import type { DebugBattlePreset, DebugBattleZone, PrototypeState, PlayerId } from "../types/prototype";
 
 export type PrototypeAction =
   | { type: "start_prototype"; seed?: number }
+  | { type: "start_constructed_select" }
+  | { type: "select_constructed_player_deck"; deckId: string }
+  | { type: "select_constructed_cpu_deck"; deckId: string }
+  | { type: "start_constructed_battle"; seed?: number }
   | { type: "start_debug_battle"; seed?: number }
   | { type: "return_to_title" }
   | { type: "choose_visible_card"; pickKey: string }
@@ -35,6 +40,7 @@ export const initialPrototypeState: PrototypeState = {
   screen: "title",
   activeSession: null,
   activeBattle: null,
+  constructedSetup: null,
 };
 
 export function prototypeReducer(state: PrototypeState, action: PrototypeAction): PrototypeState {
@@ -44,6 +50,48 @@ export function prototypeReducer(state: PrototypeState, action: PrototypeAction)
         screen: "draft",
         activeSession: createInitialDraftSession(action.seed ?? Date.now()),
         activeBattle: null,
+        constructedSetup: null,
+      };
+    case "start_constructed_select":
+      return {
+        screen: "constructed_select",
+        activeSession: null,
+        activeBattle: null,
+        constructedSetup: {
+          playerDeckId: state.constructedSetup?.playerDeckId ?? "standard_flow",
+          cpuDeckId: state.constructedSetup?.cpuDeckId ?? "guard_stance",
+        },
+      };
+    case "select_constructed_player_deck":
+      return {
+        ...state,
+        constructedSetup: {
+          playerDeckId: action.deckId,
+          cpuDeckId: state.constructedSetup?.cpuDeckId ?? "guard_stance",
+        },
+      };
+    case "select_constructed_cpu_deck":
+      return {
+        ...state,
+        constructedSetup: {
+          playerDeckId: state.constructedSetup?.playerDeckId ?? "standard_flow",
+          cpuDeckId: action.deckId,
+        },
+      };
+    case "start_constructed_battle":
+      if (!state.constructedSetup?.playerDeckId || !state.constructedSetup?.cpuDeckId) {
+        return state;
+      }
+      return {
+        ...state,
+        screen: "battle",
+        activeSession: null,
+        activeBattle: createBattleSessionFromDecks(
+          buildPresetDeckState(state.constructedSetup.playerDeckId),
+          buildPresetDeckState(state.constructedSetup.cpuDeckId),
+          action.seed ?? Date.now(),
+          "p1",
+        ),
       };
     case "return_to_title":
       return initialPrototypeState;
@@ -52,6 +100,7 @@ export function prototypeReducer(state: PrototypeState, action: PrototypeAction)
         screen: "battle",
         activeSession: null,
         activeBattle: createDebugBattleSession(action.seed ?? Date.now()),
+        constructedSetup: null,
       };
     case "choose_visible_card":
       if (!state.activeSession) {
@@ -152,6 +201,13 @@ export function prototypeReducer(state: PrototypeState, action: PrototypeAction)
           ? createDebugBattleSession(state.activeBattle.seed)
           : state.activeSession
             ? createBattleSessionFromDraft(state.activeSession)
+            : state.constructedSetup?.playerDeckId && state.constructedSetup?.cpuDeckId
+              ? createBattleSessionFromDecks(
+                  buildPresetDeckState(state.constructedSetup.playerDeckId),
+                  buildPresetDeckState(state.constructedSetup.cpuDeckId),
+                  state.activeBattle.seed,
+                  "p1",
+                )
             : state.activeBattle,
       };
     case "resolve_trigger_choice":

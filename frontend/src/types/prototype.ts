@@ -1,7 +1,7 @@
 import type { CardDefinition, CardRarity } from "./cards";
 
 export type PlayerId = "p1" | "p2";
-export type ViewScreen = "title" | "draft" | "deck_review" | "battle" | "result" | "log";
+export type ViewScreen = "title" | "draft" | "deck_review" | "constructed_select" | "battle" | "result" | "log";
 export type DraftPhase = "market" | "complete";
 export type DraftPickMode = "visible" | "topdeck";
 export type DraftSlotGroup = "common" | "uncommon" | "rare";
@@ -66,7 +66,7 @@ export interface DraftSession {
 }
 
 export type BattlePhase = "mulligan" | "control" | "battle_select" | "trigger_prompt" | "reveal" | "blessing_prompt" | "turn_transition" | "result";
-export type BattleActionType = "set" | "set_pass" | "pass";
+export type BattleActionType = "set" | "set_pass" | "pass" | "retreat";
 export type DebugBattlePreset = "draw" | "no_damage" | "p1_win" | "p2_win";
 export type DebugBattleZone = "set" | "control" | "blessing" | "hand" | "draw_pile" | "discard";
 
@@ -107,6 +107,7 @@ export interface BattlePlayerState {
   setCards: BattleSetCard[];
   battlePassed: boolean;
   revealFirstSetThisTurn: boolean;
+  pendingParryLimit: boolean;
 }
 
 export interface BattleLogEntry {
@@ -134,6 +135,25 @@ export interface BattleFinalLine {
   attack: number;
   block: number;
   speed: number;
+}
+
+export interface BattleParryEvent {
+  turn: number;
+  attacker: PlayerId;
+  defender: PlayerId;
+  attackerAttack: number;
+  defenderBlock: number;
+  margin: number;
+  blockDebuffApplied: number;
+  nextBattleLimitApplied: boolean;
+}
+
+export interface BattleRetreatEvent {
+  turn: number;
+  player: PlayerId;
+  retreatPlayerDiscardedIds: string[];
+  opponentReturnedId: string | null;
+  opponentDiscardedIds: string[];
 }
 
 export interface PendingBlessingChoice {
@@ -220,17 +240,31 @@ export interface BattleSession {
           kind: "recover_discard_to_hand";
           targetPlayerId: PlayerId;
         }
-      | {
+        | {
           kind: "reorder_draw_pile";
           targetPlayerId: PlayerId;
           count: number;
+        }
+      | {
+          kind: "retreat_return_set_to_hand";
+          targetPlayerId: PlayerId;
+          retreatingPlayerId: PlayerId;
+          setIndex?: number;
         };
   } | null;
   pendingReveal: PendingRevealState | null;
+  battleParryLimitActive: Record<PlayerId, boolean>;
+  battleParryLimitCancelledForBoth: boolean;
+  parryEvents: BattleParryEvent[];
+  retreatEvent: BattleRetreatEvent | null;
 }
 
 export interface PrototypeState {
   screen: ViewScreen;
   activeSession: DraftSession | null;
   activeBattle: BattleSession | null;
+  constructedSetup: {
+    playerDeckId: string | null;
+    cpuDeckId: string | null;
+  } | null;
 }

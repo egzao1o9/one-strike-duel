@@ -1,9 +1,10 @@
-import { useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState, type CSSProperties, type ReactNode } from "react";
+﻿import { useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { CardMini } from "./components/CardMini";
 import { CardPreviewOverlay } from "./components/CardPreviewOverlay";
 import { CardStrip } from "./components/CardStrip";
 import { PlayableBattlePanel } from "./components/PlayableBattlePanel";
 import { getAllCards, groupCards, summarizeByRarity, summarizeByType } from "./lib/cards";
+import { getPresetDeckById, listPresetDeckCards, presetDecks, summarizePresetDeck } from "./lib/presetDecks";
 import { summarizeDraftDeck } from "./lib/draftSession";
 import { initialPrototypeState, prototypeReducer } from "./store/prototype";
 import type { CardDefinition, CardRarity } from "./types/cards";
@@ -18,8 +19,8 @@ const raritySummary = summarizeByRarity(cards);
 const prototypeMilestones = [
   "12枚デッキの市場ドラフトを遊ぶ",
   "Standard CPU と対戦できる形にする",
-  "アクション単位のログとリプレイに繋げる",
-  "itch.io に載せる検証版へ仕上げる",
+  "アクション単位のログとリプレイに近づける",
+  "itch.io に載せる試作版へ持ち上げる",
 ];
 
 interface SlotDisplayEntry {
@@ -153,7 +154,7 @@ function MarketRowView({
         disabled={!canAct || !row.topDeckAvailable}
         data-anim-key={`topdeck-${row.rarity}`}
       >
-        <span className="market-topdeck__label">{row.rarity === "rare" ? "Rare" : row.rarity === "uncommon" ? "Uncommon" : "Common"}山札</span>
+        <span className="market-topdeck__label">{row.rarity === "rare" ? "Rare" : row.rarity === "uncommon" ? "Uncommon" : "Common"} 山札</span>
         <span className="market-topdeck__sub">{row.topDeckAvailable ? "トップを取る" : "残りなし"}</span>
       </button>
       <div className="market-visible-row">
@@ -213,12 +214,12 @@ function DraftSummaryPanel({
           <p className="eyebrow">Draft Session</p>
           <h2>市場ドラフト</h2>
         </div>
-        <p className="section-note">取得後は同じ位置が一度グレーになり、演出完了後にその場へ補充されます。</p>
+        <p className="section-note">公開市場と各レアリティ山札からカードを取り、12枚のデッキを完成させます。</p>
       </div>
 
       <div className="dashboard-panel dashboard-panel--embedded">
         <div className="summary-card">
-          <h2>現在の手番</h2>
+          <h2>現在の状態</h2>
           <p className="big-number small">{session.currentStep.phase === "complete" ? "完了" : playerLabel(session.currentStep.actingPlayer)}</p>
           <p>先手: {playerLabel(session.firstPlayer)}</p>
           <p>Pick: {session.currentStep.pickNumber}</p>
@@ -335,14 +336,14 @@ function DeckReviewPanel({
           <p className="eyebrow">Deck Review</p>
           <h2>デッキ確認</h2>
         </div>
-        <p className="section-note">公開情報と自分のシークレットを見直してから対戦へ進みます。</p>
+        <p className="section-note">公開情報と自分のシークレットを確認してから対戦へ進みます。</p>
       </div>
 
       <div className="dashboard-panel dashboard-panel--embedded">
         <div className="summary-card">
           <h2>プレイヤー</h2>
           <ul className="compact-list">
-            <li>総枚数: {p1Summary.total}</li>
+            <li>デッキ枚数: {p1Summary.total}</li>
             <li>公開 / 秘密: {p1Summary.publicCount} / {p1Summary.hiddenCount}</li>
             <li>B / C / BL: {p1Types.battle} / {p1Types.control} / {p1Types.blessing}</li>
           </ul>
@@ -350,14 +351,14 @@ function DeckReviewPanel({
         <div className="summary-card">
           <h2>CPU</h2>
           <ul className="compact-list">
-            <li>総枚数: {p2Summary.total}</li>
+            <li>デッキ枚数: {p2Summary.total}</li>
             <li>公開 / 秘密: {p2Summary.publicCount} / {p2Summary.hiddenCount}</li>
             <li>B / C / BL: {p2Types.battle} / {p2Types.control} / {p2Types.blessing}</li>
           </ul>
         </div>
         <div className="summary-card summary-card--actions">
           <h2>次のステップ</h2>
-          <p>StandardBot 戦のバトル画面へ進みます。</p>
+          <p>StandardBot 相当のバトル挙動で、そのまま対戦へ進みます。</p>
           <button type="button" className="primary-button" onClick={onStartBattle}>
             対戦開始
           </button>
@@ -402,6 +403,118 @@ function DeckReviewPanel({
   );
 }
 
+function ConstructedDeckSelectPanel({
+  playerDeckId,
+  cpuDeckId,
+  onSelectPlayerDeck,
+  onSelectCpuDeck,
+  onSelectCard,
+  onStartBattle,
+}: {
+  playerDeckId: string | null;
+  cpuDeckId: string | null;
+  onSelectPlayerDeck: (deckId: string) => void;
+  onSelectCpuDeck: (deckId: string) => void;
+  onSelectCard: (card: CardDefinition) => void;
+  onStartBattle: () => void;
+}) {
+  const playerDeck = playerDeckId ? getPresetDeckById(playerDeckId) : null;
+  const cpuDeck = cpuDeckId ? getPresetDeckById(cpuDeckId) : null;
+
+  return (
+    <section className="preview-panel">
+      <div className="section-heading">
+        <div>
+          <p className="eyebrow">Constructed Battle</p>
+          <h2>構築済みデッキ選択</h2>
+        </div>
+        <p className="section-note">プレイヤーと CPU の構築済みデッキを選んで、そのまま対戦へ進みます。</p>
+      </div>
+
+      <div className="dashboard-panel dashboard-panel--embedded">
+        <div className="summary-card summary-card--actions">
+          <h2>対戦開始</h2>
+          <p>現段階では、構築済みデッキだけを選び Standard 相当の CPU と対戦します。</p>
+          <button type="button" className="primary-button" onClick={onStartBattle} disabled={!playerDeckId || !cpuDeckId}>
+            構築済みバトルを開始
+          </button>
+        </div>
+      </div>
+
+      <div className="draft-workbench">
+        <DraftSidebar title="プレイヤーのデッキ" subtitle={playerDeck?.name ?? "未選択"}>
+          <div className="preset-deck-list">
+            {presetDecks.map((deck) => {
+              const summary = summarizePresetDeck(deck);
+              return (
+                <button
+                  type="button"
+                  key={`player-${deck.id}`}
+                  className={`preset-deck-card${playerDeckId === deck.id ? " preset-deck-card--active" : ""}`}
+                  onClick={() => onSelectPlayerDeck(deck.id)}
+                >
+                  <strong>{deck.name}</strong>
+                  <span>{deck.description}</span>
+                  <small>
+                    12枚 / B{summary.typeCounts.battle} C{summary.typeCounts.control} BL{summary.typeCounts.blessing} / C{summary.rarityCounts.common} U{summary.rarityCounts.uncommon} R{summary.rarityCounts.rare}
+                  </small>
+                </button>
+              );
+            })}
+          </div>
+        </DraftSidebar>
+
+        <section className="draft-center">
+          {playerDeck ? (
+            <div className="summary-card summary-card--showcase">
+              <h2>{playerDeck.name}</h2>
+              <p className="section-note">{playerDeck.description}</p>
+              <div className="mini-card-grid">
+                {listPresetDeckCards(playerDeck).map((card, index) => (
+                  <CardMini key={`constructed-player-${card.id}-${index}`} card={card} onClick={onSelectCard} />
+                ))}
+              </div>
+            </div>
+          ) : null}
+          {cpuDeck ? (
+            <div className="summary-card summary-card--showcase">
+              <h2>CPU: {cpuDeck.name}</h2>
+              <p className="section-note">{cpuDeck.description}</p>
+              <div className="mini-card-grid">
+                {listPresetDeckCards(cpuDeck).map((card, index) => (
+                  <CardMini key={`constructed-cpu-${card.id}-${index}`} card={card} onClick={onSelectCard} />
+                ))}
+              </div>
+            </div>
+          ) : null}
+        </section>
+
+        <DraftSidebar title="CPU のデッキ" subtitle={cpuDeck?.name ?? "未選択"}>
+          <div className="preset-deck-list">
+            {presetDecks.map((deck) => {
+              const summary = summarizePresetDeck(deck);
+              return (
+                <button
+                  type="button"
+                  key={`cpu-${deck.id}`}
+                  className={`preset-deck-card${cpuDeckId === deck.id ? " preset-deck-card--active" : ""}`}
+                  onClick={() => onSelectCpuDeck(deck.id)}
+                >
+                  <strong>{deck.name}</strong>
+                  <span>{deck.description}</span>
+                  <small>
+                    12枚 / B{summary.typeCounts.battle} C{summary.typeCounts.control} BL{summary.typeCounts.blessing} / C{summary.rarityCounts.common} U{summary.rarityCounts.uncommon} R{summary.rarityCounts.rare}
+                  </small>
+                </button>
+              );
+            })}
+          </div>
+        </DraftSidebar>
+      </div>
+    </section>
+  );
+}
+
 function BattlePanel({
   draftSession,
   battleSession,
@@ -425,7 +538,7 @@ function BattlePanel({
           <h2>対戦画面</h2>
         </div>
         <div className="battle-toolbar">
-          <p className="section-note">初期手札4枚、1ターン目ドローなしの開始状態です。次は control / battle の行動処理を入れます。</p>
+          <p className="section-note">初期手札4枚、ターンドロー、マリガン、control / battle の入力を確認しながら遊ぶ試作画面です。</p>
           <button type="button" className="battle-log-button" onClick={() => setShowLog(true)} aria-label="対戦ログを開く">
             Log
           </button>
@@ -438,7 +551,7 @@ function BattlePanel({
           <p className="big-number small">{playerLabel(battleSession.actingPlayer)}</p>
           <p>先手: {playerLabel(battleSession.firstPlayer)}</p>
           <p>ターン: {battleSession.turn}</p>
-          <p>フェイズ: {battleSession.phase}</p>
+          <p>フェーズ: {battleSession.phase}</p>
         </div>
         <div className="summary-card">
           <h2>プレイヤー</h2>
@@ -463,14 +576,14 @@ function BattlePanel({
           <div className="battle-zone-row">
             <div className="battle-zone-card battle-zone-card--hidden">{p2.setCards.length > 0 ? `${p2.setCards.length} set` : "set なし"}</div>
             <div className="battle-zone-card">{p2.currentControlCard ? p2.currentControlCard.name || p2.currentControlCard.id : "control なし"}</div>
-            <div className="battle-zone-card">{p2.blessingZone ? p2.blessingZone.name || p2.blessingZone.id : "加護 なし"}</div>
+            <div className="battle-zone-card">{p2.blessingZone ? p2.blessingZone.name || p2.blessingZone.id : "blessing なし"}</div>
           </div>
         </section>
 
         <section className="summary-card battle-lane battle-lane--center">
           <div className="battle-emblem">{battleSession.turn}</div>
           <p>Turn</p>
-          <p>{playerLabel(battleSession.actingPlayer)} の行動待ち</p>
+          <p>{playerLabel(battleSession.actingPlayer)} の行動中</p>
         </section>
 
         <section className="summary-card battle-lane battle-lane--player">
@@ -486,7 +599,7 @@ function BattlePanel({
           <div className="battle-zone-row">
             <div className="battle-zone-card">{p1.setCards.length > 0 ? `${p1.setCards.length} set` : "set なし"}</div>
             <div className="battle-zone-card">{p1.currentControlCard ? p1.currentControlCard.name || p1.currentControlCard.id : "control なし"}</div>
-            <div className="battle-zone-card">{p1.blessingZone ? p1.blessingZone.name || p1.blessingZone.id : "加護 なし"}</div>
+            <div className="battle-zone-card">{p1.blessingZone ? p1.blessingZone.name || p1.blessingZone.id : "blessing なし"}</div>
           </div>
         </section>
       </div>
@@ -619,23 +732,26 @@ export default function App() {
       <section className="hero-panel">
         <p className="eyebrow">One Strike Duel</p>
         <h1>ブラウザ版プロトタイプ</h1>
-        <p className="lead">人間が遊んで面白いかを検証するための CPU 戦プロトタイプです。まずは 12 枚デッキの市場ドラフトから始めます。</p>
+        <p className="lead">人間が遊んで面白さを検証するための CPU 対戦プロトタイプです。まずは 12 枚デッキの市場ドラフトと構築済みデッキ対戦から始めます。</p>
 
         <div className="hero-actions">
           <button type="button" className="primary-button" onClick={() => dispatch({ type: "start_prototype" })}>
-            プロトタイプを開始
+            ドラフトルールで開始
+          </button>
+          <button type="button" className="primary-button" onClick={() => dispatch({ type: "start_constructed_select" })}>
+            構築済みデッキで開始
           </button>
           <button type="button" className="secondary-button" onClick={() => dispatch({ type: "start_debug_battle" })}>
             デバッグ対戦を開始
           </button>
           <button type="button" className="secondary-button" onClick={() => setSelectedCard(sortedCards[0] ?? null)}>
-            カード一覧を見る
+            カードを確認する
           </button>
         </div>
 
         <div className="hero-grid">
           <article className="summary-card">
-            <h2>この段階で試したいこと</h2>
+            <h2>この試作で試したいこと</h2>
             <ol>
               {prototypeMilestones.map((milestone) => (
                 <li key={milestone}>{milestone}</li>
@@ -646,7 +762,7 @@ export default function App() {
           <article className="summary-card">
             <h2>カードデータ概要</h2>
             <ul className="compact-list">
-              <li>総カード数: {cards.length}</li>
+              <li>カード総数: {cards.length}</li>
               <li>
                 battle / control / blessing: {typeSummary.battle} / {typeSummary.control} / {typeSummary.blessing}
               </li>
@@ -667,7 +783,16 @@ export default function App() {
         />
       ) : state.activeSession && state.screen === "deck_review" ? (
         <DeckReviewPanel session={state.activeSession} onSelectCard={setSelectedCard} onStartBattle={() => dispatch({ type: "enter_battle" })} />
-) : state.activeBattle && state.screen === "battle" ? (
+      ) : state.screen === "constructed_select" ? (
+        <ConstructedDeckSelectPanel
+          playerDeckId={state.constructedSetup?.playerDeckId ?? null}
+          cpuDeckId={state.constructedSetup?.cpuDeckId ?? null}
+          onSelectPlayerDeck={(deckId) => dispatch({ type: "select_constructed_player_deck", deckId })}
+          onSelectCpuDeck={(deckId) => dispatch({ type: "select_constructed_cpu_deck", deckId })}
+          onSelectCard={setSelectedCard}
+          onStartBattle={() => dispatch({ type: "start_constructed_battle" })}
+        />
+      ) : state.activeBattle && state.screen === "battle" ? (
         <PlayableBattlePanel
           battleSession={state.activeBattle}
           onSelectCard={setSelectedCard}

@@ -191,6 +191,8 @@ export function PlayableBattlePanel({
   const p2TopdeckCard = topdeckPreview(battleSession, "p2");
   const p1TopdeckHighlightIndex =
     p1.topdeckAsHandCardId === null ? -1 : p1.hand.map((card) => card.id).lastIndexOf(p1.topdeckAsHandCardId);
+  const playerParryLimitActive = battleSession.battleParryLimitActive.p1 && !battleSession.battleParryLimitCancelledForBoth;
+  const cpuParryLimitActive = battleSession.battleParryLimitActive.p2 && !battleSession.battleParryLimitCancelledForBoth;
 
   const discardViewerPlayer = showDiscardFor ? battleSession.players[showDiscardFor] : null;
   const debugBoardCards = useMemo(() => {
@@ -294,6 +296,14 @@ export function PlayableBattlePanel({
           <p className="section-note">
             Turn {battleSession.turn} / {battleSession.phase} / Acting: {labelForPlayer(battleSession.actingPlayer)}
           </p>
+          {battleSession.phase === "battle_select" ? (
+            <p className="section-note">
+              {playerParryLimitActive ? "Player: parry limit" : null}
+              {playerParryLimitActive && cpuParryLimitActive ? " / " : null}
+              {cpuParryLimitActive ? "CPU: parry limit" : null}
+              {battleSession.battleParryLimitCancelledForBoth ? "Parry limits cancelled" : null}
+            </p>
+          ) : null}
           <button type="button" className="battle-log-button" onClick={() => setShowLog(true)} aria-label="Open battle log">
             Log
           </button>
@@ -415,7 +425,11 @@ export function PlayableBattlePanel({
       {battleSession.phase === "battle_select" && battleSession.actingPlayer === "p1" ? (
         <div className="battle-action-panel">
           <p className="battle-action-caption">
-            {maxSelect === 0 ? "No more cards can be set now. Pass only." : `You may choose up to ${maxSelect} card(s).`}
+            {maxSelect === 0
+              ? p1.setCards.length > 0
+                ? "これ以上伏せられない。pass か retreat を選ぶ。"
+                : "これ以上伏せられない。pass のみ。"
+              : `You may choose up to ${maxSelect} card(s).`}
           </p>
           <div className="battle-action-row">
             <button type="button" className="primary-button" disabled={selectedBattleCards.length === 0 || maxSelect === 0} onClick={() => onBattleAction("set", selectedHandIndexes)}>
@@ -431,6 +445,9 @@ export function PlayableBattlePanel({
             </button>
             <button type="button" className="secondary-button" onClick={() => onBattleAction("pass", [])}>
               pass
+            </button>
+            <button type="button" className="secondary-button" onClick={() => onBattleAction("retreat", [])} disabled={p1.setCards.length === 0}>
+              retreat
             </button>
           </div>
         </div>
@@ -564,7 +581,7 @@ export function PlayableBattlePanel({
       {battleSession.phase === "turn_transition" ? (
         <div className="card-overlay-backdrop" role="presentation">
           <div className="battle-action-panel battle-action-panel--modal battle-action-panel--result">
-            <p className="battle-result-headline">No Decisive Hit</p>
+            <p className="battle-result-headline">{battleSession.endReason === "retreat_no_decision" ? "Retreat" : "No Decisive Hit"}</p>
             <p className="battle-action-caption">{battleSession.transitionMessage ?? "次のターンへ進みます。"}</p>
             {battleSession.finalLines ? (
               <div className="battle-result-grid">
@@ -626,7 +643,9 @@ export function PlayableBattlePanel({
         <div className="card-overlay-backdrop" role="presentation">
           <aside className="card-overlay battle-log-overlay debug-card-picker-overlay" role="dialog" aria-modal="true" aria-label="Choose card" onClick={(event) => event.stopPropagation()}>
             <div className="card-overlay__header">
-              <p className="eyebrow">Choose</p>
+              <p className="eyebrow">
+                {battleSession.pendingTriggerContinuation?.effectAction?.kind === "return_discard_to_hand" ? "Discard" : "Choose"}
+              </p>
             </div>
             <p className="battle-action-caption">{battleSession.pendingTriggerChoice.promptText}</p>
             <div className="debug-card-picker-list">
@@ -824,20 +843,23 @@ export function PlayableBattlePanel({
 
             <div className="debug-card-picker-list">
               <div className="debug-card-picker-item">
-                <button
-                  type="button"
-                  className="debug-random-card"
-                  onClick={() => {
-                    if (debugBoardCards.length === 0) return;
-                    const randomCard = debugBoardCards[Math.floor(Math.random() * debugBoardCards.length)];
-                    if (randomCard) {
-                      onDebugPlaceCard(debugBoardTarget.playerId, debugBoardTarget.zone, randomCard.id);
-                    }
-                  }}
-                >
-                  <span className="debug-random-card__marker" />
-                  <span className="debug-random-card__label">Random</span>
-                </button>
+                <div className="card-strip-row">
+                  <span className="card-strip__marker-spacer" />
+                  <button
+                    type="button"
+                    className="debug-random-card"
+                    onClick={() => {
+                      if (debugBoardCards.length === 0) return;
+                      const randomCard = debugBoardCards[Math.floor(Math.random() * debugBoardCards.length)];
+                      if (randomCard) {
+                        onDebugPlaceCard(debugBoardTarget.playerId, debugBoardTarget.zone, randomCard.id);
+                      }
+                    }}
+                  >
+                    <span className="debug-random-card__label">Random</span>
+                  </button>
+                  <span className="card-strip__preview-button card-strip__preview-button--ghost" aria-hidden="true" />
+                </div>
               </div>
               {debugBoardCards.map((card, index) => (
                 <div key={`debug-board-card-${card.id}-${index}`} className="debug-card-picker-item">

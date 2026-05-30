@@ -5,6 +5,7 @@ import type {
   ActiveTurnModifier,
   BattleActionType,
   BattleFinalLine,
+  BattlePhase,
   BattlePlayerState,
   BattleRevealStep,
   BattleSession,
@@ -18,10 +19,16 @@ import type {
 
 const HAND_LIMIT = 6;
 const TURN_DRAW_LIMIT = 4;
+const PARRY_MARGIN = 2;
+const PARRY_BLOCK_DEBUFF = -2;
 const battleCardLibrary = new Map(getAllCards(true).map((card) => [card.id, card]));
 
 function playerLabel(playerId: PlayerId) {
   return playerId === "p1" ? "プレイヤー" : "CPU";
+}
+
+function isBattleActionInterrupted(phase: BattlePhase) {
+  return phase === "turn_transition" || phase === "trigger_prompt";
 }
 
 function flattenDraftDeck(deck: DraftDeckState) {
@@ -132,6 +139,7 @@ function buildBattlePlayerState(deck: DraftDeckState, seed: number): BattlePlaye
     setCards: [],
     battlePassed: false,
     revealFirstSetThisTurn: false,
+    pendingParryLimit: false,
   };
 }
 
@@ -171,6 +179,7 @@ function clonePlayerState(player: BattlePlayerState): BattlePlayerState {
     setCards: player.setCards.map(cloneSetCard),
     battlePassed: player.battlePassed,
     revealFirstSetThisTurn: player.revealFirstSetThisTurn,
+    pendingParryLimit: player.pendingParryLimit,
   };
 }
 
@@ -210,6 +219,10 @@ function cloneBattleSession(session: BattleSession): BattleSession {
           steps: session.pendingReveal.steps.map((step) => ({ ...step })),
         }
       : null,
+    battleParryLimitActive: { ...session.battleParryLimitActive },
+    battleParryLimitCancelledForBoth: session.battleParryLimitCancelledForBoth,
+    parryEvents: session.parryEvents.map((event) => ({ ...event })),
+    retreatEvent: session.retreatEvent ? { ...session.retreatEvent } : null,
   };
 }
 
@@ -234,6 +247,30 @@ function otherPlayer(playerId: PlayerId): PlayerId {
 
 function countBattleCards(setCards: BattleSetCard[]) {
   return setCards.filter((item) => item.card.card_type === "battle").length;
+}
+
+function startBattlePhase(session: BattleSession) {
+  const pending = {
+    p1: session.players.p1.pendingParryLimit,
+    p2: session.players.p2.pendingParryLimit,
+  };
+  session.players.p1.pendingParryLimit = false;
+  session.players.p2.pendingParryLimit = false;
+  session.battleParryLimitActive = pending;
+  session.battleParryLimitCancelledForBoth = pending.p1 && pending.p2;
+  session.phase = "battle_select";
+  session.actingPlayer = session.battleStartingPlayer;
+
+  if (session.battleParryLimitCancelledForBoth) {
+    pushLog(session, "両者のパリィ制限は相殺された。");
+    return;
+  }
+  if (pending.p1) {
+    pushLog(session, "プレイヤーはこのBattleで相手より多く伏せられない。");
+  }
+  if (pending.p2) {
+    pushLog(session, "CPUはこのBattleで相手より多く伏せられない。");
+  }
 }
 
 function makeModifier(sourceId: string) {
@@ -926,6 +963,14 @@ function removeCardFromHand(player: BattlePlayerState, cardId: string) {
   return player.hand.splice(index, 1)[0] ?? null;
 }
 
+function legalBattleSlots(session: BattleSession, playerId: PlayerId) {
+  const player = session.players[playerId];
+  const opponent = session.players[otherPlayer(playerId)];
+  const limited = session.battleParryLimitActive[playerId] && !session.battleParryLimitCancelledForBoth;
+  const allowance = limited ? opponent.setCards.length - player.setCards.length : opponent.setCards.length + 1 - player.setCards.length;
+  return Math.max(0, allowance);
+}
+
 function applyControlChoice(session: BattleSession, playerId: PlayerId, cardId: string | null) {
   if (!cardId) {
     pushLog(session, playerLabel(playerId) + "はcontrolを使わなかった。");
@@ -961,12 +1006,14 @@ function applyControlChoice(session: BattleSession, playerId: PlayerId, cardId: 
 
 function legalBattleActions(session: BattleSession, playerId: PlayerId) {
   const player = session.players[playerId];
-  const opponent = session.players[otherPlayer(playerId)];
-  const legalSlots = Math.max(0, opponent.setCards.length + 1 - player.setCards.length);
+  const legalSlots = legalBattleSlots(session, playerId);
   const playable = player.hand.filter((card) => card.card_type === "battle" || card.card_type === "control");
   const actions: Array<{ actionType: BattleActionType; cardIds: string[] }> = [];
 
   actions.push({ actionType: "pass", cardIds: [] });
+  if (player.setCards.length > 0) {
+    actions.push({ actionType: "retreat", cardIds: [] });
+  }
   if (legalSlots <= 0 || playable.length === 0) {
     return actions;
   }
@@ -988,6 +1035,18 @@ function legalBattleActions(session: BattleSession, playerId: PlayerId) {
 function estimateActionScore(session: BattleSession, playerId: PlayerId, actionType: BattleActionType, cardIds: string[]) {
   const player = session.players[playerId];
   const opponent = session.players[otherPlayer(playerId)];
+  if (actionType === "retreat") {
+    const own = sumBattleCards(player.setCards);
+    const opp = sumBattleCards(opponent.setCards);
+    let score = -3;
+    if (player.setCards.length > 0) {
+      if (opp.attack > own.block) score += 3.2;
+      if (opp.speed > own.speed) score += 1.1;
+      if (own.attack <= 1) score += 0.2;
+      score -= player.setCards.length * 0.35;
+    }
+    return score;
+  }
   const cards = player.hand.filter((card) => cardIds.includes(card.id));
   const attack = cards.reduce((sum, card) => sum + Math.max(card.attack, 0), 0);
   const block = cards.reduce((sum, card) => sum + Math.max(card.block, 0), 0);
@@ -1031,11 +1090,132 @@ function nextBattleActor(session: BattleSession, currentPlayer: PlayerId) {
   return opponentId;
 }
 
+function moveSetCardsToDiscard(player: BattlePlayerState, cards: BattleSetCard[]) {
+  if (cards.length === 0) {
+    return;
+  }
+  player.usedCards.push(...cards.map((item) => item.card));
+  player.discardPile.push(...cards.map((item) => item.card));
+}
+
+function finishRetreatAfterReturn(
+  session: BattleSession,
+  retreatingPlayerId: PlayerId,
+  opponentReturnedSetIndex: number | null,
+) {
+  const opponentId = otherPlayer(retreatingPlayerId);
+  const opponent = session.players[opponentId];
+  const retreatEvent = session.retreatEvent;
+  let opponentReturnedId: string | null = null;
+
+  if (opponentReturnedSetIndex !== null && opponentReturnedSetIndex >= 0) {
+    const [returned] = opponent.setCards.splice(opponentReturnedSetIndex, 1);
+    if (returned) {
+      opponentReturnedId = returned.card.id;
+      opponent.hand.push(returned.card);
+      pushLog(session, playerLabel(opponentId) + "は" + (returned.card.name || returned.card.id) + "を手札に戻した。");
+    }
+  }
+
+  const remainingOpponentCards = opponent.setCards.splice(0, opponent.setCards.length);
+  moveSetCardsToDiscard(opponent, remainingOpponentCards);
+  if (retreatEvent) {
+    retreatEvent.opponentReturnedId = opponentReturnedId;
+    retreatEvent.opponentDiscardedIds = remainingOpponentCards.map((item) => item.card.id);
+  }
+
+  session.phase = "turn_transition";
+  session.winner = null;
+  session.endReason = "retreat_no_decision";
+  session.transitionMessage = playerLabel(retreatingPlayerId) + "は撤退した。このBattleは決着なし。";
+  session.finalLines = {
+    p1: { attack: 0, block: 0, speed: 0 },
+    p2: { attack: 0, block: 0, speed: 0 },
+  };
+  session.revealSteps = [];
+  session.pendingReveal = null;
+}
+
+function resolveRetreat(session: BattleSession, retreatingPlayerId: PlayerId) {
+  session.parryEvents = [];
+  const retreatingPlayer = session.players[retreatingPlayerId];
+  const opponentId = otherPlayer(retreatingPlayerId);
+  const opponent = session.players[opponentId];
+  const retreatDiscarded = retreatingPlayer.setCards.splice(0, retreatingPlayer.setCards.length);
+  moveSetCardsToDiscard(retreatingPlayer, retreatDiscarded);
+
+  session.retreatEvent = {
+    turn: session.turn,
+    player: retreatingPlayerId,
+    retreatPlayerDiscardedIds: retreatDiscarded.map((item) => item.card.id),
+    opponentReturnedId: null,
+    opponentDiscardedIds: [],
+  };
+
+  pushLog(session, playerLabel(retreatingPlayerId) + "は撤退した。");
+
+  const facedownChoices = buildSetCardChoices(opponentId, opponent.setCards, {
+    hiddenOnly: true,
+    prefix: "retreat-return",
+  });
+
+  if (facedownChoices.length === 0) {
+    finishRetreatAfterReturn(session, retreatingPlayerId, null);
+    return;
+  }
+
+  if (opponentId === "p1") {
+    session.phase = "trigger_prompt";
+    session.pendingTriggerChoice = {
+      playerId: "p1",
+      blessingCardId: "retreat",
+      blessingName: "Retreat",
+      promptText: "自分の伏せカードから1枚を手札に戻す。",
+      mode: "choose_option",
+      choices: facedownChoices,
+    };
+    session.pendingTriggerContinuation = {
+      nextActor: null,
+      resume: "battle",
+      effectAction: {
+        kind: "retreat_return_set_to_hand",
+        targetPlayerId: opponentId,
+        retreatingPlayerId,
+      },
+    };
+    return;
+  }
+
+  const returnChoice = facedownChoices
+    .map((choice) => {
+      const setIndex = choice.payload?.setIndex ?? -1;
+      const setCard = setIndex >= 0 ? opponent.setCards[setIndex] : null;
+      return { choice, setCard };
+    })
+    .filter((entry): entry is { choice: (typeof facedownChoices)[number]; setCard: BattleSetCard } => Boolean(entry.setCard))
+    .sort((left, right) => {
+      const leftScore = left.setCard.card.attack + left.setCard.card.block + left.setCard.card.speed;
+      const rightScore = right.setCard.card.attack + right.setCard.card.block + right.setCard.card.speed;
+      return rightScore - leftScore;
+    })[0];
+
+  finishRetreatAfterReturn(session, retreatingPlayerId, returnChoice?.choice.payload?.setIndex ?? null);
+}
+
 function applyBattleAction(session: BattleSession, playerId: PlayerId, actionType: BattleActionType, requestedIds: string[]) {
   const player = session.players[playerId];
-  const opponent = session.players[otherPlayer(playerId)];
-  const legalSlots = Math.max(0, opponent.setCards.length + 1 - player.setCards.length);
+  const legalSlots = legalBattleSlots(session, playerId);
   const playable = player.hand.filter((card) => card.card_type === "battle" || card.card_type === "control");
+
+  if (actionType === "retreat") {
+    if (player.setCards.length > 0) {
+      resolveRetreat(session, playerId);
+    } else {
+      player.battlePassed = true;
+      pushLog(session, playerLabel(playerId) + "はpassした。");
+    }
+    return;
+  }
 
   if (actionType === "pass" || legalSlots <= 0 || playable.length === 0) {
     player.battlePassed = true;
@@ -1358,25 +1538,57 @@ function maybeApplyRevealTriggeredBlessing(
 }
 
 function resolveOutcome(lines: Record<PlayerId, BattleFinalLine>) {
+  const adjustedLines = copyLines(lines);
+  const parriedPlayers = new Set<PlayerId>();
+  const parryEvents: Array<{
+    attacker: PlayerId;
+    defender: PlayerId;
+    attackerAttack: number;
+    defenderBlock: number;
+  }> = [];
+
+  const registerParry = (attacker: PlayerId, defender: PlayerId, attack: number, defenderBlock: number) => {
+    if (attack <= 0) {
+      return;
+    }
+    if (defenderBlock < attack + PARRY_MARGIN) {
+      return;
+    }
+    parryEvents.push({
+      attacker,
+      defender,
+      attackerAttack: attack,
+      defenderBlock,
+    });
+    if (!parriedPlayers.has(attacker)) {
+      adjustedLines[attacker].block += PARRY_BLOCK_DEBUFF;
+      parriedPlayers.add(attacker);
+    }
+  };
+
   const p1 = lines.p1;
   const p2 = lines.p2;
   if (p1.speed === p2.speed) {
     const p1Success = p1.attack > 0 && p1.attack > p2.block;
     const p2Success = p2.attack > 0 && p2.attack > p1.block;
-    if (p1Success && p2Success) return { winner: null, endReason: "simultaneous_attack" };
-    if (p1Success) return { winner: "p1" as PlayerId, endReason: "p1_attack_success" };
-    if (p2Success) return { winner: "p2" as PlayerId, endReason: "p2_attack_success" };
-    return { winner: null, endReason: null };
+    if (!p1Success) registerParry("p1", "p2", p1.attack, p2.block);
+    if (!p2Success) registerParry("p2", "p1", p2.attack, p1.block);
+    if (p1Success && p2Success) return { winner: null, endReason: "simultaneous_attack", adjustedLines, parryEvents };
+    if (p1Success) return { winner: "p1" as PlayerId, endReason: "p1_attack_success", adjustedLines, parryEvents };
+    if (p2Success) return { winner: "p2" as PlayerId, endReason: "p2_attack_success", adjustedLines, parryEvents };
+    return { winner: null, endReason: null, adjustedLines, parryEvents };
   }
   const first: PlayerId = p1.speed > p2.speed ? "p1" : "p2";
   const second: PlayerId = otherPlayer(first);
-  if (lines[first].attack > 0 && lines[first].attack > lines[second].block) {
-    return { winner: first, endReason: first + "_attack_success" };
+  if (lines[first].attack > 0 && lines[first].attack > adjustedLines[second].block) {
+    return { winner: first, endReason: first + "_attack_success", adjustedLines, parryEvents };
   }
-  if (lines[second].attack > 0 && lines[second].attack > lines[first].block) {
-    return { winner: second, endReason: second + "_attack_success" };
+  registerParry(first, second, lines[first].attack, adjustedLines[second].block);
+  if (lines[second].attack > 0 && lines[second].attack > adjustedLines[first].block) {
+    return { winner: second, endReason: second + "_attack_success", adjustedLines, parryEvents };
   }
-  return { winner: null, endReason: null };
+  registerParry(second, first, lines[second].attack, adjustedLines[first].block);
+  return { winner: null, endReason: null, adjustedLines, parryEvents };
 }
 
 function copyLines(lines: Record<PlayerId, BattleFinalLine>) {
@@ -1580,8 +1792,25 @@ function applyOptionalBlessingChoice(
 
 function finalizeBattleResolution(session: BattleSession, lines: Record<PlayerId, BattleFinalLine>, revealSteps: BattleRevealStep[]) {
   const outcome = resolveOutcome(lines);
-  session.finalLines = lines;
+  session.finalLines = outcome.adjustedLines;
   session.revealSteps = revealSteps;
+  session.parryEvents = outcome.parryEvents.map((event) => ({
+    turn: session.turn,
+    attacker: event.attacker,
+    defender: event.defender,
+    attackerAttack: event.attackerAttack,
+    defenderBlock: event.defenderBlock,
+    margin: PARRY_MARGIN,
+    blockDebuffApplied: PARRY_BLOCK_DEBUFF,
+    nextBattleLimitApplied: true,
+  }));
+  for (const event of session.parryEvents) {
+    session.players[event.attacker].pendingParryLimit = true;
+    pushLog(
+      session,
+      `${playerLabel(event.attacker)}はパリィされた。Block${PARRY_BLOCK_DEBUFF}、次のBattleでは相手より多く伏せられない。`,
+    );
+  }
 
   if (outcome.winner) {
     session.phase = "result";
@@ -1828,6 +2057,10 @@ function endTurnAndAdvance(session: BattleSession) {
   session.actingPlayer = "p1";
   session.phase = "mulligan";
   session.transitionMessage = null;
+  session.battleParryLimitActive = { p1: false, p2: false };
+  session.battleParryLimitCancelledForBoth = false;
+  session.parryEvents = [];
+  session.retreatEvent = null;
   for (const playerId of ["p1", "p2"] as PlayerId[]) {
     const player = session.players[playerId];
     const queued = player.queuedNextTurnStatDelta;
@@ -1868,6 +2101,10 @@ export function applyDebugBattlePreset(session: BattleSession, preset: DebugBatt
   next.pendingTriggerChoice = null;
   next.pendingTriggerContinuation = null;
   next.pendingReveal = null;
+  next.parryEvents = [];
+  next.retreatEvent = null;
+  next.battleParryLimitActive = { p1: false, p2: false };
+  next.battleParryLimitCancelledForBoth = false;
 
   for (const playerId of ["p1", "p2"] as PlayerId[]) {
     const player = next.players[playerId];
@@ -1997,6 +2234,9 @@ function advanceCpuBattleLoop(session: BattleSession) {
   while (session.phase === "battle_select" && session.actingPlayer === "p2") {
     const choice = chooseCpuBattleAction(session, "p2");
     applyBattleAction(session, "p2", choice.actionType, choice.cardIds);
+    if (isBattleActionInterrupted(session.phase as BattlePhase)) {
+      return;
+    }
     const nextActor = nextBattleActor(session, "p2");
     if (applySetTriggeredBlessing(session, "p1", "p2", nextActor)) {
       return;
@@ -2014,15 +2254,24 @@ function advanceCpuBattleLoop(session: BattleSession) {
 }
 
 export function createBattleSessionFromDraft(session: DraftSession): BattleSession {
-  const p1 = buildBattlePlayerState(session.decks.p1, session.seed + 101);
-  const p2 = buildBattlePlayerState(session.decks.p2, session.seed + 202);
+  return createBattleSessionFromDecks(session.decks.p1, session.decks.p2, session.seed, session.firstPlayer);
+}
+
+export function createBattleSessionFromDecks(
+  p1Deck: DraftDeckState,
+  p2Deck: DraftDeckState,
+  seed: number = Date.now(),
+  firstPlayer: PlayerId = "p1",
+): BattleSession {
+  const p1 = buildBattlePlayerState(p1Deck, seed + 101);
+  const p2 = buildBattlePlayerState(p2Deck, seed + 202);
   return {
     debugMode: false,
-    seed: session.seed,
+    seed,
     turn: 1,
     phase: "mulligan",
-    firstPlayer: session.firstPlayer,
-    battleStartingPlayer: session.firstPlayer,
+    firstPlayer,
+    battleStartingPlayer: firstPlayer,
     actingPlayer: "p1",
     players: { p1, p2 },
     finalLines: null,
@@ -2031,7 +2280,7 @@ export function createBattleSessionFromDraft(session: DraftSession): BattleSessi
     endReason: null,
     logs: [
       { id: "battle-1", text: "対戦準備が完了した。" },
-      { id: "battle-2", text: "先手は" + playerLabel(session.firstPlayer) + "。" },
+      { id: "battle-2", text: "先手は" + playerLabel(firstPlayer) + "。" },
       { id: "battle-3", text: "プレイヤーは初期手札を" + p1.hand.length + "枚引いた。" },
       { id: "battle-4", text: "CPUは初期手札を" + p2.hand.length + "枚引いた。" },
       { id: "battle-5", text: "最初に1回だけマリガンを行う。" },
@@ -2042,6 +2291,10 @@ export function createBattleSessionFromDraft(session: DraftSession): BattleSessi
     pendingTriggerChoice: null,
     pendingTriggerContinuation: null,
     pendingReveal: null,
+    battleParryLimitActive: { p1: false, p2: false },
+    battleParryLimitCancelledForBoth: false,
+    parryEvents: [],
+    retreatEvent: null,
   };
 }
 
@@ -2071,6 +2324,7 @@ export function createDebugBattleSession(seed: number = Date.now()): BattleSessi
         setCards: [],
         battlePassed: false,
         revealFirstSetThisTurn: false,
+        pendingParryLimit: false,
       },
       p2: {
         drawPile: [],
@@ -2088,6 +2342,7 @@ export function createDebugBattleSession(seed: number = Date.now()): BattleSessi
         setCards: [],
         battlePassed: false,
         revealFirstSetThisTurn: false,
+        pendingParryLimit: false,
       },
     },
     finalLines: null,
@@ -2101,6 +2356,10 @@ export function createDebugBattleSession(seed: number = Date.now()): BattleSessi
     pendingTriggerChoice: null,
     pendingTriggerContinuation: null,
     pendingReveal: null,
+    battleParryLimitActive: { p1: false, p2: false },
+    battleParryLimitCancelledForBoth: false,
+    parryEvents: [],
+    retreatEvent: null,
   };
 }
 
@@ -2148,8 +2407,7 @@ export function applyPlayerControlChoice(session: BattleSession, handIndex: numb
   }
   const cpuChoice = chooseCpuControlCard(next, "p2");
   applyControlChoice(next, "p2", cpuChoice);
-  next.phase = "battle_select";
-  next.actingPlayer = next.battleStartingPlayer;
+  startBattlePhase(next);
   pushLog(next, "battleフェーズ開始。");
   if (next.actingPlayer === "p2") {
     advanceCpuBattleLoop(next);
@@ -2179,6 +2437,10 @@ export function applyPlayerBattleAction(session: BattleSession, actionType: Batt
     actionType,
     selectedCards.map((card) => card.id),
   );
+  if (isBattleActionInterrupted(next.phase as BattlePhase)) {
+    continueIfDrawnBattle(next);
+    return next;
+  }
   const nextActor = nextBattleActor(next, "p1");
   if (applySetTriggeredBlessing(next, "p2", "p1", nextActor)) {
     return next;
@@ -2321,8 +2583,22 @@ export function applyPlayerTriggerChoice(session: BattleSession, useTrigger: boo
           }
         }
         break;
+      case "retreat_return_set_to_hand":
+        finishRetreatAfterReturn(
+          next,
+          continuation.effectAction.retreatingPlayerId,
+          selectedChoice.payload.kind === "set_card" ? (selectedChoice.payload.setIndex ?? null) : null,
+        );
+        break;
     }
   }
+
+  if (continuation?.effectAction?.kind === "retreat_return_set_to_hand") {
+    next.pendingTriggerChoice = null;
+    next.pendingTriggerContinuation = null;
+    return next;
+  }
+
   next.pendingTriggerChoice = null;
   next.pendingTriggerContinuation = null;
   next.phase = continuation?.resume === "reveal" ? "reveal" : "battle_select";
@@ -2333,8 +2609,7 @@ export function applyPlayerTriggerChoice(session: BattleSession, useTrigger: boo
     if (next.pendingTriggerChoice) {
       return next;
     }
-    next.phase = "battle_select";
-    next.actingPlayer = next.battleStartingPlayer;
+    startBattlePhase(next);
     pushLog(next, "battleフェーズ開始。");
     if (next.actingPlayer === "p2") {
       advanceCpuBattleLoop(next);
@@ -2429,8 +2704,7 @@ export function applyPlayerDrawPileReorder(session: BattleSession, orderedChoice
     if (next.pendingTriggerChoice) {
       return next;
     }
-    next.phase = "battle_select";
-    next.actingPlayer = next.battleStartingPlayer;
+    startBattlePhase(next);
     pushLog(next, "battleフェーズ開始。");
     if (next.actingPlayer === "p2") {
       advanceCpuBattleLoop(next);
@@ -2660,8 +2934,12 @@ export function applyDebugSetPhase(session: BattleSession, phase: BattleSession[
       clearControlZoneForDebug(next.players[playerId]);
     }
   }
-  next.phase = phase;
-  next.actingPlayer = "p1";
+  if (phase === "battle_select") {
+    startBattlePhase(next);
+  } else {
+    next.phase = phase;
+    next.actingPlayer = "p1";
+  }
   pushLog(next, `[Debug] phase -> ${phase}`);
   return next;
 }
